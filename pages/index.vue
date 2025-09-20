@@ -33,6 +33,7 @@ watch(() => locale.value, () => {
   initHomepage()
 }, { immediate: false })
 
+
 const linkAnchor = computed(() => [
   {
     label: t('homepage.linkAnchor.whyChoose'),
@@ -72,10 +73,10 @@ const gallery = [
   },
 ];
 
-const activeIndex = ref(null);
-const toggleCard = (index) => {
-  activeIndex.value = activeIndex.value === index ? null : index;
-};
+const navigateToService = (service) => {
+  // Navigate to service detail page
+  navigateTo(service.url || `/service/${service.id}`)
+}
 
 const scrollToSection = (id) => {
   const el = document.querySelector(id);
@@ -97,8 +98,8 @@ const swiper1 = useSwiper(swiperBasicRef);
     <ErrorAlert 
       v-else-if="error" 
       :error="error"
-      title="Gagal Memuat Data Homepage"
-      message="Terjadi kesalahan saat mengambil data homepage. Silakan coba lagi."
+      :title="t('error.homepageLoadTitle')"
+      :message="t('error.homepageLoadError')"
       @retry="initHomepage"
     />
     
@@ -166,7 +167,7 @@ const swiper1 = useSwiper(swiperBasicRef);
     </div>
     <div class="flex flex-col gap-6 xl:gap-9 py-8 xl:py-12" id="why-choose">
       <h1 class="xl:text-5xl text-2xl text-black-100 font-bold text-center">
-        {{ sixReasonsTitle || "Six Reasons to Choose TEZ" }}
+        {{ sixReasonsTitle || t('homepage.sections.sixReasons') }}
       </h1>
       <!-- Six Reasons from API -->
       <div v-if="sixReasons.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-12 px-3 xl:px-15">
@@ -202,55 +203,38 @@ const swiper1 = useSwiper(swiperBasicRef);
     </div>
     <div class="flex flex-col xl:gap-9 gap-6 py-8 xl:py-12" id="our-services">
       <h1 class="xl:text-5xl text-2xl text-black-100 font-bold text-center">
-        {{ servicesTitle || "Our Services" }}
+        {{ servicesTitle || t('homepage.sections.ourServices') }}
       </h1>
       <!-- Services from API -->
       <div v-if="services.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-12 px-15">
         <div
           v-for="(service, index) in services"
           :key="service.id"
-          class="transition-all duration-700"
-          @click="toggleCard(index)"
+          class="transition-all duration-300"
+          @click="navigateToService(service)"
         >
           <div
-            class="w-full max-w-100 mx-auto rounded-2xl p-3 flex flex-col gap-5 transition-all duration-300 select-none cursor-pointer"
-            :class="
-              activeIndex === index ? 'bg-red-100' : 'bg-white hover:bg-red-50'
-            "
+            class="w-full max-w-100 mx-auto rounded-2xl p-3 flex flex-col gap-5 transition-all duration-300 select-none cursor-pointer bg-white hover:bg-red-50"
           >
             <img
               :src="service.featured_image"
               :alt="service.title"
               class="w-full h-25 xl:h-43 object-contain"
-              :class="activeIndex === index ? 'brightness-[0] invert-[1]' : ''"
             />
             <div
-              class="p-3 rounded-xl flex flex-col gap-2 items-center justify-center h-auto xl:h-35"
-              :class="activeIndex === index ? 'bg-red-75' : 'bg-white/50'"
+              class="p-3 rounded-xl flex flex-col gap-2 items-center justify-center h-auto xl:h-35 bg-white/50"
             >
               <p
                 class="text-red-100 text-center font-bold text-lg xl:text-xl"
-                :class="activeIndex === index ? 'text-white' : 'text-red-100'"
               >
                 {{ service.title }}
               </p>
               <p
-                class="text-center text-sm xl:text-base"
-                :class="activeIndex === index ? 'text-white' : 'text-red-100'"
+                class="text-center text-sm xl:text-base text-red-100"
               >
                 {{ service.excerpt }}
               </p>
             </div>
-          </div>
-          <div
-            class="flex flex-col gap-4 mt-4 overflow-hidden transition-all duration-700"
-            :class="
-              activeIndex === index
-                ? 'max-h-[2000px] mt-4 opacity-100'
-                : 'max-h-0 opacity-0'
-            "
-          >
-            <div class="text-center text-sm xl:text-base" v-html="service.content"></div>
           </div>
         </div>
       </div>
@@ -262,7 +246,7 @@ const swiper1 = useSwiper(swiperBasicRef);
         to="/service"
         class="rounded-full mx-auto w-fit py-3 px-12 bg-red-100 hover:bg-red-50 hover:text-red-100 transition-all duration-300 cursor-pointer font-bold text-white text-xl xl:text-2xl uppercase"
       >
-        {{ $t('homepage.goToService') }}
+        {{ t('homepage.goToService') }}
       </NuxtLink>
     </div>
     <div
@@ -270,7 +254,7 @@ const swiper1 = useSwiper(swiperBasicRef);
       id="application-process"
     >
       <h1 class="xl:text-5xl text-2xl text-black-100 font-bold text-center">
-        {{ applicationProcessTitle || "Application Process" }}
+        {{ applicationProcessTitle || t('homepage.sections.applicationProcess') }}
       </h1>
       <!-- Application Process from API -->
       <div v-if="applicationProcess.length > 0" class="grid grid-cols-1 xl:grid-cols-5 gap-12 px-3 xl:px-15 relative">
@@ -305,12 +289,12 @@ const swiper1 = useSwiper(swiperBasicRef);
         to="#"
         class="rounded-full mx-auto w-fit py-3 px-12 bg-red-100 hover:bg-red-50 hover:text-red-100 transition-all duration-300 cursor-pointer font-bold text-white text-xl xl:text-2xl uppercase"
       >
-        {{ $t('homepage.learnMore') }}
+        {{ t('homepage.learnMore') }}
       </NuxtLink>
     </div>
     <div class="flex flex-col xl:gap-9 gap-6 py-8 xl:py-12">
       <h1 class="xl:text-5xl text-2xl text-black-100 font-bold text-center">
-        {{ partnersTitle || "Our Partners" }}
+        {{ partnersTitle || t('homepage.sections.ourPartners') }}
       </h1>
       <!-- Partners from API -->
       <div v-if="partners.length > 0" class="flex flex-wrap justify-center gap-6 px-3 xl:px-15">
@@ -340,13 +324,13 @@ const swiper1 = useSwiper(swiperBasicRef);
           class="flex justify-between items-end pb-5 mb-6 xl:mb-12 border-b border-b-divider"
         >
           <h1 class="xl:text-5xl text-2xl text-black-100 font-bold text-center">
-            {{ newsTitle || $t('homepage.newsUpdates') }}
+            {{ newsTitle || t('homepage.newsUpdates') }}
           </h1>
           <NuxtLink
             class="text-red-100 flex items-center gap-1 h-fit"
             to="/news"
           >
-            <span class="text text-base xl:text-xl">{{ $t('homepage.seeAllNews') }}</span>
+            <span class="text text-base xl:text-xl">{{ t('homepage.seeAllNews') }}</span>
             <Icon name="mdi:chevron-right" class="text-divider size-5" />
           </NuxtLink>
         </div>
@@ -379,7 +363,7 @@ const swiper1 = useSwiper(swiperBasicRef);
             class="xl:size-50 size-25 object-contain mx-auto"
           />
           <h1 class="xl:text-5xl text-2xl font-bold">
-            {{ faqTitle || $t('homepage.frequentlyAskedQuestions') }}
+            {{ faqTitle || t('homepage.frequentlyAskedQuestions') }}
           </h1>
         </div>
         <div class="flex flex-col gap-6 xl:gap-12 col-span-2">
@@ -404,7 +388,7 @@ const swiper1 = useSwiper(swiperBasicRef);
             to="#"
             class="rounded-full w-fit mx-auto xl:mx-0 py-3 px-12 bg-red-100 hover:bg-red-50 hover:text-red-100 transition-all duration-300 cursor-pointer font-bold text-white text-xl xl:text-2xl uppercase"
           >
-            {{ $t('homepage.learnMore') }}
+            {{ t('homepage.learnMore') }}
           </NuxtLink>
         </div>
       </div>

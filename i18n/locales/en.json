@@ -59,6 +59,12 @@
     "newsUpdates": "News & Updates",
     "seeAllNews": "See All News",
     "frequentlyAskedQuestions": "Frequently Asked Questions",
+    "sections": {
+      "sixReasons": "Six Reasons to Choose TEZ",
+      "ourServices": "Our Services",
+      "applicationProcess": "Application Process",
+      "ourPartners": "Our Partners"
+    },
     "linkAnchor": {
       "whyChoose": "Why choose TEZ?",
       "ourServices": "Our services",
@@ -76,7 +82,9 @@
     "loadDataFailed": "Failed to Load Data",
     "aboutPageLoadError": "An error occurred while fetching about page data. Default data will be displayed.",
     "newsPageLoadError": "An error occurred while fetching news data. Please try again later.",
-    "servicePageLoadError": "An error occurred while fetching services data. Please try again later."
+    "servicePageLoadError": "An error occurred while fetching services data. Please try again later.",
+    "homepageLoadError": "An error occurred while fetching homepage data. Please try again.",
+    "homepageLoadTitle": "Failed to Load Homepage Data"
   },
   "services": {
     "viewDetail": "View Detail",

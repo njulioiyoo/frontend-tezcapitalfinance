@@ -59,6 +59,12 @@
     "newsUpdates": "Berita & Updates",
     "seeAllNews": "Lihat Semua Berita",
     "frequentlyAskedQuestions": "Pertanyaan yang Sering Diajukan",
+    "sections": {
+      "sixReasons": "Enam Alasan Memilih TEZ",
+      "ourServices": "Layanan Kami",
+      "applicationProcess": "Proses Aplikasi",
+      "ourPartners": "Partner Kami"
+    },
     "linkAnchor": {
       "whyChoose": "Mengapa memilih TEZ?",
       "ourServices": "Layanan kami",
@@ -76,7 +82,9 @@
     "loadDataFailed": "Gagal Memuat Data",
     "aboutPageLoadError": "Terjadi kesalahan saat mengambil data halaman tentang kami. Data default akan ditampilkan.",
     "newsPageLoadError": "Terjadi kesalahan saat mengambil data berita. Silakan coba lagi nanti.",
-    "servicePageLoadError": "Terjadi kesalahan saat mengambil data layanan. Silakan coba lagi nanti."
+    "servicePageLoadError": "Terjadi kesalahan saat mengambil data layanan. Silakan coba lagi nanti.",
+    "homepageLoadError": "Terjadi kesalahan saat mengambil data homepage. Silakan coba lagi.",
+    "homepageLoadTitle": "Gagal Memuat Data Homepage"
   },
   "services": {
     "viewDetail": "Lihat Detail",
