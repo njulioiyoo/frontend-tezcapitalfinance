@@ -1,0 +1,79 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+  --swiper-pagination-bullet-inactive-color: #bbb;
+  --swiper-pagination-color: #d9d9d9;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+@theme {
+  --font-sans: "DINPro", ui-sans-serif, system-ui, sans-serif;
+
+  --color-red-50: #ffc8d0;
+  --color-red-75: #d2485c;
+  --color-red-100: #a6192e;
+  --color-black-50: #454545;
+  --color-black-100: #000000;
+  --color-grey: #ededed;
+  --color-divider: #828282;
+  --color-white: #ffffff;
+}
+
+@font-face {
+  font-family: "DINPro";
+  src: url("/fonts/DINPro-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "DINPro";
+  src: url("/fonts/DINPro-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "DINPro";
+  src: url("/fonts/DINPro-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "DINPro";
+  src: url("/fonts/DINPro-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "DINPro";
+  src: url("/fonts/DINPro-Black.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}

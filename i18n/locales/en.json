@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "home": "Home",
+    "aboutUs": "About Us",
+    "services": "Services",
+    "newsEvent": "News & Event",
+    "corporate": "Corporate",
+    "contactUs": "Contact Us",
+    "applyNow": "Apply Now",
+    "joinUs": "Join Us",
+    "about": {
+      "ourStory": "Our Story",
+      "logoPhilosophy": "Logo Philosophy"
+    },
+    "service": {
+      "serviceList": "Service List",
+      "workingCapitalFinancing": "Working Capital Financing",
+      "investmentFinancing": "Investment Financing",
+      "multiPurposeFinancing": "Multi-Purpose Financing",
+      "faq": "FAQ"
+    },
+    "news": {
+      "bisnis": "Business",
+      "companyActivities": "Company Activities",
+      "pressRelease": "Press Release",
+      "highlights": "Highlights",
+      "allNews": "All News",
+      "readArticle": "Read Article",
+      "searchResults": "Search Results",
+      "articlesFound": "articles found",
+      "resultsFoundWith": "results found with keyword",
+      "searchNews": "Search news...",
+      "filter": "Filter",
+      "noNewsFound": "No news found",
+      "tryDifferentKeyword": "Try changing your search keywords.",
+      "noNewsAvailable": "No news available for this category yet.",
+      "clearSearch": "Clear Search",
+      "previous": "Previous",
+      "next": "Next",
+      "jumbotronDesc": "Find the latest news about TEZ Capital here"
+    },
+    "corporateMenu": {
+      "financialReport": "Financial Report",
+      "annualReport": "Annual Report",
+      "complaintReport": "Complaint Report",
+      "announcement": "Announcement"
+    },
+    "homeMenu": {
+      "reasonsToChoose": "Reasons to Choose TEZ",
+      "ourServices": "Our Services",
+      "applicationProcess": "Application Process",
+      "newsUpdates": "News & Updates"
+    },
+    "relatedInformation": "Related Information"
+  },
+  "homepage": {
+    "goToService": "Go to Service",
+    "learnMore": "Learn More",
+    "newsUpdates": "News & Updates",
+    "seeAllNews": "See All News",
+    "frequentlyAskedQuestions": "Frequently Asked Questions",
+    "linkAnchor": {
+      "whyChoose": "Why choose TEZ?",
+      "ourServices": "Our services",
+      "applicationProcess": "Application process",
+      "newsUpdates": "News & Updates",
+      "faq": "Frequent Asked Question"
+    }
+  },
+  "about": {
+    "tentangKami": "About Us",
+    "ourStory": "Our Story",
+    "logoPhilosophy": "Logo Philosophy"
+  },
+  "error": {
+    "loadDataFailed": "Failed to Load Data",
+    "aboutPageLoadError": "An error occurred while fetching about page data. Default data will be displayed.",
+    "newsPageLoadError": "An error occurred while fetching news data. Please try again later.",
+    "servicePageLoadError": "An error occurred while fetching services data. Please try again later."
+  },
+  "services": {
+    "viewDetail": "View Detail",
+    "noServicesFound": "No services found",
+    "noServicesAvailable": "No services are available at the moment."
+  },
+  "maintenance": {
+    "title": "Site Under Maintenance",
+    "message": "We are currently performing scheduled maintenance to improve our services. Please try again later.",
+    "estimatedTime": "Estimated Completion Time",
+    "contactUs": "Contact Us",
+    "refresh": "Refresh Page",
+    "footer": "All rights reserved."
+  },
+  "contact": {
+    "contactUs": "Contact Us",
+    "headOffice": "Head Office",
+    "findInfo": "Find the information you need about TEZ Capital products"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "aboutUs": "Tentang Kami",
+    "services": "Layanan",
+    "newsEvent": "Berita & Event",
+    "corporate": "Korporat",
+    "contactUs": "Hubungi Kami",
+    "applyNow": "Ajukan Sekarang",
+    "joinUs": "Bergabung",
+    "about": {
+      "ourStory": "Kisah Kami",
+      "logoPhilosophy": "Filosofi Logo"
+    },
+    "service": {
+      "serviceList": "Daftar Layanan",
+      "workingCapitalFinancing": "Pembiayaan Modal Kerja",
+      "investmentFinancing": "Pembiayaan Investasi",
+      "multiPurposeFinancing": "Pembiayaan Multi Guna",
+      "faq": "FAQ"
+    },
+    "news": {
+      "bisnis": "Bisnis",
+      "companyActivities": "Kegiatan Perusahaan",
+      "pressRelease": "Siaran Pers",
+      "highlights": "Sorotan",
+      "allNews": "Semua Berita",
+      "readArticle": "Baca Artikel",
+      "searchResults": "Hasil Pencarian",
+      "articlesFound": "artikel ditemukan",
+      "resultsFoundWith": "hasil ditemukan dengan keyword",
+      "searchNews": "Cari berita...",
+      "filter": "Filter",
+      "noNewsFound": "Tidak ada berita ditemukan",
+      "tryDifferentKeyword": "Coba ubah kata kunci pencarian Anda.",
+      "noNewsAvailable": "Belum ada berita tersedia untuk kategori ini.",
+      "clearSearch": "Hapus Pencarian",
+      "previous": "Sebelumnya",
+      "next": "Selanjutnya",
+      "jumbotronDesc": "Temukan berita terbaru mengenai TEZ Capital di sini"
+    },
+    "corporateMenu": {
+      "financialReport": "Laporan Keuangan",
+      "annualReport": "Laporan Tahunan",
+      "complaintReport": "Laporan Pengaduan",
+      "announcement": "Pengumuman"
+    },
+    "homeMenu": {
+      "reasonsToChoose": "Alasan Memilih TEZ",
+      "ourServices": "Layanan Kami",
+      "applicationProcess": "Proses Aplikasi",
+      "newsUpdates": "Berita & Updates"
+    },
+    "relatedInformation": "Informasi Terkait"
+  },
+  "homepage": {
+    "goToService": "Lihat Layanan",
+    "learnMore": "Pelajari Lebih Lanjut",
+    "newsUpdates": "Berita & Updates",
+    "seeAllNews": "Lihat Semua Berita",
+    "frequentlyAskedQuestions": "Pertanyaan yang Sering Diajukan",
+    "linkAnchor": {
+      "whyChoose": "Mengapa memilih TEZ?",
+      "ourServices": "Layanan kami",
+      "applicationProcess": "Proses aplikasi",
+      "newsUpdates": "Berita & Updates",
+      "faq": "Pertanyaan yang Sering Diajukan"
+    }
+  },
+  "about": {
+    "tentangKami": "Tentang Kami",
+    "ourStory": "Kisah Kami",
+    "logoPhilosophy": "Filosofi Logo"
+  },
+  "error": {
+    "loadDataFailed": "Gagal Memuat Data",
+    "aboutPageLoadError": "Terjadi kesalahan saat mengambil data halaman tentang kami. Data default akan ditampilkan.",
+    "newsPageLoadError": "Terjadi kesalahan saat mengambil data berita. Silakan coba lagi nanti.",
+    "servicePageLoadError": "Terjadi kesalahan saat mengambil data layanan. Silakan coba lagi nanti."
+  },
+  "services": {
+    "viewDetail": "Lihat Detail",
+    "noServicesFound": "Tidak ada layanan ditemukan",
+    "noServicesAvailable": "Belum ada layanan tersedia saat ini."
+  },
+  "maintenance": {
+    "title": "Situs Sedang Dalam Pemeliharaan",
+    "message": "Kami sedang melakukan pemeliharaan terjadwal untuk meningkatkan layanan. Mohon coba lagi nanti.",
+    "estimatedTime": "Estimasi Waktu Selesai",
+    "contactUs": "Hubungi Kami",
+    "refresh": "Muat Ulang Halaman",
+    "footer": "Semua hak dilindungi."
+  },
+  "contact": {
+    "contactUs": "Hubungi Kami",
+    "headOffice": "Kantor Pusat",
+    "findInfo": "Temukan info yang kamu butuhkan seputar produk TEZ Capital"
+  }
+}
