@@ -76,21 +76,34 @@ const fetchBannerData = async () => {
   }
 }
 
+// Helper function to extract value from configuration object
+const extractConfigValue = (configObj: any) => {
+  if (!configObj) return ''
+  if (typeof configObj === 'string') return configObj
+  if (configObj.value !== undefined) return configObj.value
+  return ''
+}
+
 // Computed banner properties
 const bannerTitle = computed(() => {
-  return locale.value === 'id' 
-    ? bannerData.value.banner_services_title_id || 'Layanan Kami'
-    : bannerData.value.banner_services_title_en || 'Our Services'
+  const titleField = locale.value === 'id' 
+    ? bannerData.value.banner_services_title_id 
+    : bannerData.value.banner_services_title_en
+  
+  const defaultTitle = locale.value === 'id' ? 'Layanan Kami' : 'Our Services'
+  return extractConfigValue(titleField) || defaultTitle
 })
 
 const bannerDescription = computed(() => {
-  return locale.value === 'id' 
-    ? bannerData.value.banner_services_description_id || ''
-    : bannerData.value.banner_services_description_en || ''
+  const descField = locale.value === 'id' 
+    ? bannerData.value.banner_services_description_id 
+    : bannerData.value.banner_services_description_en
+  
+  return extractConfigValue(descField) || ''
 })
 
 const bannerImage = computed(() => {
-  return bannerData.value.banner_services_image || '/img/dummy1.jpg'
+  return extractConfigValue(bannerData.value.banner_services_image) || '/img/dummy1.jpg'
 })
 
 // Lifecycle

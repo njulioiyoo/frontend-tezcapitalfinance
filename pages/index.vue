@@ -21,6 +21,9 @@ const {
   error
 } = useHomepage()
 
+// Image fallback handler
+const { handleImageError } = useImageFallback()
+
 // Initialize homepage data
 onMounted(async () => {
   // Small delay to ensure skeleton shows
@@ -127,6 +130,7 @@ const swiper1 = useSwiper(swiperBasicRef);
               :src="slide.img"
               :alt="slide.alt"
               class="w-full h-full object-cover"
+              @error="handleImageError($event, 'gallery')"
             />
           </swiper-slide>
         </swiper-container>
@@ -180,6 +184,7 @@ const swiper1 = useSwiper(swiperBasicRef);
             :src="reason.icon"
             :alt="reason.title"
             class="w-full h-25 xl:h-50 object-contain"
+            @error="handleImageError($event, 'reason')"
           />
           <div class="h-14 flex items-center justify-center">
             <p class="text-white text-center font-bold text-lg xl:text-xl">
@@ -220,6 +225,7 @@ const swiper1 = useSwiper(swiperBasicRef);
               :src="service.featured_image"
               :alt="service.title"
               class="w-full h-25 xl:h-43 object-contain"
+              @error="handleImageError($event, 'service')"
             />
             <div
               class="p-3 rounded-xl flex flex-col gap-2 items-center justify-center h-auto xl:h-35 bg-white/50"
@@ -273,6 +279,7 @@ const swiper1 = useSwiper(swiperBasicRef);
               :src="process.icon"
               :alt="process.description"
               class="w-full h-full object-contain"
+              @error="handleImageError($event, 'process')"
             />
           </div>
           <p class="text-center">{{ process.description }}</p>
@@ -307,6 +314,7 @@ const swiper1 = useSwiper(swiperBasicRef);
             :src="partner.logo"
             :alt="partner.name"
             class="object-contain w-37.5 h-37.5 xl:w-55 xl:h-25"
+            @error="handleImageError($event, 'partner')"
           />
         </div>
       </div>
@@ -361,6 +369,7 @@ const swiper1 = useSwiper(swiperBasicRef);
             src="/img/faq.png"
             alt="Frequently Asked Questions"
             class="xl:size-50 size-25 object-contain mx-auto"
+            @error="handleImageError($event, 'faq')"
           />
           <h1 class="xl:text-5xl text-2xl font-bold">
             {{ faqTitle || t('homepage.frequentlyAskedQuestions') }}

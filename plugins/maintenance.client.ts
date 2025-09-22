@@ -101,7 +101,7 @@ export default defineNuxtPlugin(() => {
               </p>
 
               <!-- Estimated Time -->
-              ${config.estimated_time ? `
+              ${false ? `
               <div style="background-color: white; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
                 <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
                   <svg style="width: 1.25rem; height: 1.25rem; color: #2563eb; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
