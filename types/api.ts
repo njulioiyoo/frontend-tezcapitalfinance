@@ -85,6 +85,7 @@ export interface NewsItem {
   id: number
   type: string
   category: string
+  slug: string
   title_id: string
   title_en?: string
   excerpt_id: string
@@ -139,6 +140,7 @@ export interface ServiceItem {
   id: number
   type: string
   category: string
+  slug: string
   title_id: string
   title_en?: string
   excerpt_id: string

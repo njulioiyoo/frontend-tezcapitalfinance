@@ -221,7 +221,7 @@ watch(() => searchQuery.value, (newValue) => {
               :key="`slide-${item.id}`"
               class="swiper-slide pb-12"
             >
-              <NuxtLink :to="`/news/${item.id}`">
+              <NuxtLink :to="`/news/${item.slug}`">
                 <div class="shadow-[0px_4px_19px_0px_rgba(0,0,0,0.1)] rounded-3xl overflow-hidden">
                   <img
                     :src="item.featured_image_url || '/img/dummy1.jpg'"
@@ -344,7 +344,7 @@ watch(() => searchQuery.value, (newValue) => {
             <ul class="flex flex-col" v-if="currentNews.length">
               <li v-for="(item, idx) in currentNews" :key="idx">
                 <NuxtLink
-                  :to="`/news/${item.id}`"
+                  :to="`/news/${item.slug}`"
                   class="flex justify-between items-end gap-6 py-5 border-b border-b-divider"
                 >
                   <div class="flex flex-col gap-1">

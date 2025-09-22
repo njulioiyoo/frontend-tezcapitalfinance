@@ -4,22 +4,59 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 const { t, locale, setLocale } = useI18n();
+const { 
+  languageConfig, 
+  isLoading: configLoading,
+  fetchLanguageConfig, 
+  getInitialLanguage, 
+  canSwitchLanguage, 
+  availableLanguages 
+} = useLanguageConfig();
 
 const isMobileMenuOpen = ref(false);
 const openAccordion = ref(null);
 
-// Initialize language from localStorage
-onMounted(() => {
+// Initialize language from config
+onMounted(async () => {
   if (process.client) {
     // Clean up any old keys
     localStorage.removeItem('i18n_redirected');
     localStorage.removeItem('tez-lang');
     
+    // Wait for language config (plugin should have fetched it already)
+    // If not loaded yet, wait for it
+    let retryCount = 0;
+    while (configLoading.value && retryCount < 50) { // Wait max 5 seconds
+      await new Promise(resolve => setTimeout(resolve, 100));
+      retryCount++;
+    }
+    
+    // If still not loaded, fetch it manually
+    if (!languageConfig.value || (languageConfig.value.bilingual_enabled === undefined)) {
+      await fetchLanguageConfig();
+    }
+    
+    // Get saved language or use initial language based on config
     const savedLang = localStorage.getItem('app_language');
-    if (savedLang && savedLang !== locale.value) {
-      setLocale(savedLang);
-    } else if (!savedLang) {
-      localStorage.setItem('app_language', 'id');
+    let targetLang = savedLang;
+    
+    if (!savedLang) {
+      // Use initial language based on config (includes auto-detect if enabled)
+      targetLang = getInitialLanguage();
+      localStorage.setItem('app_language', targetLang);
+    } else {
+      // Validate saved language against available languages
+      const availableLangs = availableLanguages.value;
+      if (!availableLangs.includes(savedLang)) {
+        // Fallback to default language if saved language is not available
+        targetLang = languageConfig.value.default_language;
+        localStorage.setItem('app_language', targetLang);
+      }
+    }
+    
+    // Set locale if different
+    if (targetLang && targetLang !== locale.value) {
+      setLocale(targetLang);
     }
   }
 });
@@ -118,12 +155,20 @@ const dataHome = computed(() => [
   },
 ]);
 
-const languages = [
-  { code: 'en', name: 'EN' },
-  { code: 'id', name: 'ID' }
-];
+// Dynamic languages based on config
+const languages = computed(() => {
+  return availableLanguages.value.map(lang => ({
+    code: lang,
+    name: lang.toUpperCase()
+  }));
+});
 
 const setLang = async (langCode) => {
+  // Only allow language change if switching is enabled
+  if (!canSwitchLanguage.value) {
+    return;
+  }
+  
   await setLocale(langCode);
   if (process.client) {
     localStorage.setItem('app_language', langCode);
@@ -140,6 +185,7 @@ const setLang = async (langCode) => {
       </NuxtLink>
 
       <div
+        v-if="canSwitchLanguage && languages.length > 1"
         class="h-full font-medium cursor-pointer duration-300 bg-white flex gap-1 items-center"
       >
         <template v-for="(lang, index) in languages" :key="lang.code">
@@ -300,6 +346,7 @@ const setLang = async (langCode) => {
             >
           </li>
           <li
+            v-if="canSwitchLanguage && languages.length > 1"
             class="transition-all h-full font-medium cursor-pointer duration-300 bg-white py-2 px-10 flex gap-2"
           >
             <template v-for="(lang, index) in languages" :key="lang.code">

@@ -37,7 +37,9 @@
       "clearSearch": "Hapus Pencarian",
       "previous": "Sebelumnya",
       "next": "Selanjutnya",
-      "jumbotronDesc": "Temukan berita terbaru mengenai TEZ Capital di sini"
+      "jumbotronDesc": "Temukan berita terbaru mengenai TEZ Capital di sini",
+      "author": "Penulis",
+      "source": "Sumber"
     },
     "corporateMenu": {
       "financialReport": "Laporan Keuangan",

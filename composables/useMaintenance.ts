@@ -41,16 +41,20 @@ export const useMaintenance = () => {
       // Extract maintenance configuration based on actual API structure
       console.log('🔧 Looking for maintenance config in:', data)
       
-      if (data && data.maintenance && data.maintenance.maintenance_mode_enabled) {
+      // Check if maintenance mode is enabled - check both possible fields
+      const isMaintenanceEnabled = (data?.maintenance?.maintenance_mode?.value === true) || 
+                                   (data?.maintenance?.maintenance_mode_enabled?.value === true)
+      
+      if (data && data.maintenance && isMaintenanceEnabled) {
         const maintenanceData = data.maintenance
         console.log('🔧 Found maintenance section:', maintenanceData)
         
         maintenanceConfig.value = {
-          enabled: maintenanceData.maintenance_mode_enabled?.value === true,
-          title: maintenanceData.maintenance_title?.value || maintenanceData.maintenance_title || '',
-          message: maintenanceData.maintenance_message?.value || maintenanceData.maintenance_message || '',
-          estimated_time: maintenanceData.maintenance_estimated_time?.value || maintenanceData.maintenance_estimated_time || '',
-          contact_email: maintenanceData.maintenance_contact_email?.value || maintenanceData.maintenance_contact_email || ''
+          enabled: isMaintenanceEnabled,
+          title: maintenanceData.maintenance_title?.value || '',
+          message: maintenanceData.maintenance_message?.value || '',
+          estimated_time: maintenanceData.maintenance_end_time?.value || maintenanceData.maintenance_estimated_time?.value || '',
+          contact_email: maintenanceData.maintenance_contact_email?.value || ''
         }
         
         console.log('🔧 Final maintenance config:', maintenanceConfig.value)

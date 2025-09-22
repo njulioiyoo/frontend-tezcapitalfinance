@@ -37,7 +37,9 @@
       "clearSearch": "Clear Search",
       "previous": "Previous",
       "next": "Next",
-      "jumbotronDesc": "Find the latest news about TEZ Capital here"
+      "jumbotronDesc": "Find the latest news about TEZ Capital here",
+      "author": "Author",
+      "source": "Source"
     },
     "corporateMenu": {
       "financialReport": "Financial Report",

@@ -66,11 +66,11 @@ const handlePageChange = (page: number) => {
   fetchServices()
 }
 
-// Fetch banner data
+// Fetch banner data using cache
 const fetchBannerData = async () => {
   try {
-    const bannerResponse = await $fetch('/api/v1/configurations/banners')
-    bannerData.value = bannerResponse.data || {}
+    const { getBannerConfig } = useConfigurationCache()
+    bannerData.value = await getBannerConfig()
   } catch (err) {
     console.error('Failed to fetch banner data:', err)
   }
@@ -128,7 +128,7 @@ watch(() => locale.value, () => {
         <NuxtLink
           v-for="service in services"
           :key="service.id"
-          :to="`/service/${service.id}`"
+          :to="`/service/${service.slug}`"
           class="flex flex-col xl:flex-row gap-6 items-center xl:items-start py-6 xl:py-9 min-h-32 xl:min-h-40"
         >
           <img

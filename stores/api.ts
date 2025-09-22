@@ -24,16 +24,21 @@ export const useApiStore = defineStore('api', () => {
   }
   
   // Base API call function
-  const apiCall = async <T>(endpoint: string, options: any = {}): Promise<T> => {
+  const apiCall = async <T>(endpoint: string, options: any = {}, includeLang: boolean = false): Promise<T> => {
     const url = `${baseURL}/${endpoint.replace(/^\//, '')}`
     
-    // Add language parameter and cache busting to all requests
+    // Add cache busting to all requests
     const separator = url.includes('?') ? '&' : '?'
     const timestamp = Date.now()
-    const urlWithLangAndCache = `${url}${separator}lang=${locale.value}&_t=${timestamp}`
+    let finalUrl = `${url}${separator}_t=${timestamp}`
+    
+    // Add language parameter only when specifically requested
+    if (includeLang) {
+      finalUrl += `&lang=${locale.value}`
+    }
     
     try {
-      const data = await $fetch<T>(urlWithLangAndCache, {
+      const data = await $fetch<T>(finalUrl, {
         ...options,
         headers: {
           'Accept': 'application/json',
@@ -57,7 +62,7 @@ export const useApiStore = defineStore('api', () => {
 
   // About API
   const fetchAbout = async (): Promise<AboutData> => {
-    const response = await apiCall<any>('api/v1/about')
+    const response = await apiCall<any>('api/v1/about', {}, true)
     
     let data = response
     // Handle different response structures
@@ -149,7 +154,7 @@ export const useApiStore = defineStore('api', () => {
 
   // Homepage API
   const fetchHomepage = async (): Promise<HomepageData> => {
-    return await apiCall<HomepageData>('api/v1/homepage')
+    return await apiCall<HomepageData>('api/v1/homepage', {}, true)
   }
 
   // News API (supports filtering)
@@ -184,9 +189,9 @@ export const useApiStore = defineStore('api', () => {
     return await apiCall<NewsResponse>(endpoint)
   }
 
-  // News Detail API
-  const fetchNewsDetail = async (id: string | number): Promise<NewsItem> => {
-    return await apiCall<NewsItem>(`api/v1/news/${id}`)
+  // News Detail API (by slug)
+  const fetchNewsDetail = async (slug: string): Promise<NewsItem> => {
+    return await apiCall<NewsItem>(`api/v1/news/${slug}`, {}, true)
   }
 
   // Services API
@@ -211,9 +216,9 @@ export const useApiStore = defineStore('api', () => {
     return await apiCall<ServicesResponse>(endpoint)
   }
 
-  // Service Detail API
-  const fetchServiceDetail = async (id: string | number): Promise<ServiceDetailResponse> => {
-    return await apiCall<ServiceDetailResponse>(`api/v1/services/${id}`)
+  // Service Detail API (by slug)
+  const fetchServiceDetail = async (slug: string): Promise<ServiceDetailResponse> => {
+    return await apiCall<ServiceDetailResponse>(`api/v1/services/slug/${slug}`, {}, true)
   }
 
   // Contact API

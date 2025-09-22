@@ -57,24 +57,15 @@ export const useConfiguration = () => {
     return configData.value?.contact?.contact_whatsapp || ''
   })
 
-  // Fetch configuration data
+  // Fetch configuration data using cache
   const fetchConfiguration = async () => {
     try {
       isLoading.value = true
       error.value = null
       
-      const response = await apiStore.fetchMaintenanceConfig() // Reuse existing API call
-      console.log('🔧 Configuration raw response:', response)
-      
-      // Handle different response structures
-      let data = response
-      if (response && typeof response === 'object') {
-        if (response.data) {
-          data = response.data
-        } else if (response.success && response.data) {
-          data = response.data
-        }
-      }
+      const { fetchConfigurations } = useConfigurationCache()
+      const data = await fetchConfigurations()
+      console.log('🔧 Configuration cached data:', data)
 
       console.log('🔧 Configuration processed data:', data)
 

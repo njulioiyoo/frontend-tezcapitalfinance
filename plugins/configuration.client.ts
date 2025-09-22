@@ -26,7 +26,7 @@ export default defineNuxtPlugin(() => {
       }
       
       // Direct fetch to avoid store/composable issues in plugin
-      const url = `${baseURL}/api/v1/configurations?lang=id&_t=${Date.now()}`
+      const url = `${baseURL}/api/v1/configurations?_t=${Date.now()}`
       console.log('🔧 Fetching configuration:', url)
       
       const response = await $fetch(url, {

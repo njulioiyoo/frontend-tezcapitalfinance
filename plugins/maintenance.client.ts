@@ -14,49 +14,25 @@ export default defineNuxtPlugin(() => {
     try {
       console.log('🔧 Starting async maintenance check...')
       
-      // Get config directly without using stores/composables
-      const config = useRuntimeConfig()
-      const baseURL = config.public.apiBaseUrl
+      // Use cached configuration to avoid duplicate API calls
+      const { getMaintenanceConfig } = useConfigurationCache()
+      const data = await getMaintenanceConfig()
       
-      console.log('🔧 API Base URL:', baseURL)
+      console.log('🔧 Raw API response:', data)
+      console.log('🔧 Maintenance section:', data?.maintenance)
+      console.log('🔧 Maintenance mode value:', data?.maintenance?.maintenance_mode?.value)
+      console.log('🔧 Maintenance mode enabled value:', data?.maintenance?.maintenance_mode_enabled?.value)
+      console.log('🔧 Maintenance message value:', data?.maintenance?.maintenance_message?.value)
       
-      if (!baseURL) {
-        console.warn('⚠️ No API base URL configured')
-        return
-      }
+      // Check if maintenance mode is enabled - check both possible fields
+      const isMaintenanceEnabled = (data?.maintenance?.maintenance_mode?.value === true) || 
+                                   (data?.maintenance?.maintenance_mode_enabled?.value === true)
       
-      // Direct fetch to avoid store/composable issues in plugin
-      const url = `${baseURL}/api/v1/configurations?lang=id&_t=${Date.now()}`
-      console.log('🔧 Fetching:', url)
+      console.log('🔧 Is maintenance enabled?', isMaintenanceEnabled)
+      console.log('🔧 maintenance_mode check:', data?.maintenance?.maintenance_mode?.value === true)
+      console.log('🔧 maintenance_mode_enabled check:', data?.maintenance?.maintenance_mode_enabled?.value === true)
       
-      const response = await $fetch(url, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        },
-        server: false,
-        default: () => null
-      })
-      
-      console.log('🔧 Maintenance API response type:', typeof response)
-      console.log('🔧 Maintenance API response:', response)
-      
-      // Handle response structure
-      let data = response
-      if (response && typeof response === 'object') {
-        if (response.data) {
-          data = response.data
-        } else if (response.success && response.data) {
-          data = response.data
-        }
-      }
-      
-      console.log('🔧 Processed maintenance data:', data)
-      
-      // Check if maintenance mode is enabled
-      if (data && data.maintenance && data.maintenance.maintenance_mode_enabled && data.maintenance.maintenance_mode_enabled.value === true) {
+      if (data && data.maintenance && isMaintenanceEnabled) {
         console.log('🚫 MAINTENANCE MODE DETECTED - redirecting')
         
         // Format estimated time if it's a datetime
@@ -78,10 +54,10 @@ export default defineNuxtPlugin(() => {
         
         const config = {
           enabled: true,
-          title: data.maintenance.maintenance_title?.value || data.maintenance.maintenance_title || '',
-          message: data.maintenance.maintenance_message?.value || data.maintenance.maintenance_message || '',
+          title: data.maintenance.maintenance_title?.value || 'Situs Sedang Dalam Pemeliharaan',
+          message: data.maintenance.maintenance_message?.value || '',
           estimated_time: estimatedTime,
-          contact_email: data.maintenance.maintenance_contact_email?.value || data.maintenance.maintenance_contact_email || ''
+          contact_email: data.maintenance.maintenance_contact_email?.value || ''
         }
         
         console.log('🔧 Maintenance config:', config)
