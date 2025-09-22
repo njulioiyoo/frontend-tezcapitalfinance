@@ -371,12 +371,12 @@ watch(() => searchQuery.value, (newValue) => {
             
             <!-- Empty State -->
             <div v-else class="text-center py-16">
-              <div class="text-gray-400 text-6xl mb-6">📰</div>
-              <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ t('nav.news.noNewsFound') }}</h3>
-              <p class="text-gray-500 mb-8 text-base">
+              <img src="/img/no-result.png" :alt="t('nav.news.noNewsFound')" class="size-20 mx-auto mb-6">
+              <h3 class="text-xl lg:text-4xl text-black-100 mb-3">{{ t('nav.news.noNewsFound') }}</h3>
+              <p class="text-gray-500 mb-8 lg:mb-6 text-base lg:text-2xl">
                 {{ searchQuery ? t('nav.news.tryDifferentKeyword') : t('nav.news.noNewsAvailable') }}
               </p>
-              <Button v-if="searchQuery" @click="searchQuery = ''; handleSearch()" variant="outline">
+              <Button v-if="searchQuery" @click="searchQuery = ''; handleSearch()" variant="outline" class="text-sm lg:text-lg">
                 {{ t('nav.news.clearSearch') }}
               </Button>
             </div>
