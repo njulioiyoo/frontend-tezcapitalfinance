@@ -1,7 +1,142 @@
 <script setup>
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { ref } from "vue";
+
 const value = ref(today(getLocalTimeZone()));
+
+// Complaint form state
+const complaintForm = ref({
+  name: '',
+  email: '',
+  phone: '',
+  subject: '',
+  message: ''
+});
+
+const isSubmitting = ref(false);
+const submitMessage = ref('');
+const submitType = ref(''); // 'success' or 'error'
+const formErrors = ref({});
+const referenceNumber = ref('');
+
+// Form validation
+const validateForm = () => {
+  const errors = {};
+  
+  if (!complaintForm.value.name.trim()) {
+    errors.name = 'Nama wajib diisi';
+  } else if (complaintForm.value.name.length < 2) {
+    errors.name = 'Nama minimal 2 karakter';
+  } else if (!/^[a-zA-Z\s\-\.]+$/.test(complaintForm.value.name)) {
+    errors.name = 'Nama hanya boleh berisi huruf, spasi, tanda hubung, dan titik';
+  }
+  
+  if (!complaintForm.value.email.trim()) {
+    errors.email = 'Email wajib diisi';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(complaintForm.value.email)) {
+    errors.email = 'Format email tidak valid';
+  }
+  
+  if (complaintForm.value.phone && !/^[\+]?[0-9\-\(\)\s]+$/.test(complaintForm.value.phone)) {
+    errors.phone = 'Format nomor telepon tidak valid';
+  }
+  
+  if (!complaintForm.value.subject.trim()) {
+    errors.subject = 'Subjek wajib diisi';
+  } else if (complaintForm.value.subject.length < 5) {
+    errors.subject = 'Subjek minimal 5 karakter';
+  }
+  
+  if (!complaintForm.value.message.trim()) {
+    errors.message = 'Pesan wajib diisi';
+  } else if (complaintForm.value.message.length < 10) {
+    errors.message = 'Pesan minimal 10 karakter';
+  }
+  
+  formErrors.value = errors;
+  return Object.keys(errors).length === 0;
+};
+
+// Submit complaint
+const submitComplaint = async () => {
+  if (!validateForm()) {
+    return;
+  }
+  
+  isSubmitting.value = true;
+  submitMessage.value = '';
+  submitType.value = '';
+  
+  try {
+    const config = useRuntimeConfig();
+    const apiBaseUrl = config.public.apiBaseUrl || 'http://localhost:8000';
+    
+    // Debug: Test API connectivity first
+    try {
+      const testResponse = await $fetch(`${apiBaseUrl}/api/v1/complaints/test`);
+      console.log('API Test:', testResponse);
+    } catch (testError) {
+      console.error('API Test Failed:', testError);
+    }
+    
+    const response = await $fetch(`${apiBaseUrl}/api/v1/complaints`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: {
+        name: complaintForm.value.name.trim(),
+        email: complaintForm.value.email.trim(),
+        phone: complaintForm.value.phone.trim() || null,
+        subject: complaintForm.value.subject.trim(),
+        message: complaintForm.value.message.trim()
+      }
+    });
+    
+    // Success
+    submitType.value = 'success';
+    submitMessage.value = response.message;
+    referenceNumber.value = response.data.reference_number;
+    
+    // Reset form
+    complaintForm.value = {
+      name: '',
+      email: '',
+      phone: '',
+      subject: '',
+      message: ''
+    };
+    formErrors.value = {};
+    
+  } catch (error) {
+    submitType.value = 'error';
+    
+    if (error.status === 422) {
+      // Validation errors
+      if (error.data.errors) {
+        formErrors.value = error.data.errors;
+        submitMessage.value = error.data.message || 'Data yang dikirim tidak valid';
+      }
+    } else if (error.status === 429) {
+      // Rate limit
+      submitMessage.value = error.data.message || 'Terlalu banyak percobaan. Silakan tunggu beberapa menit.';
+    } else {
+      // Other errors
+      submitMessage.value = error.data?.message || 'Terjadi kesalahan sistem. Silakan coba lagi nanti.';
+    }
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+// Clear form messages
+const clearMessages = () => {
+  submitMessage.value = '';
+  submitType.value = '';
+  referenceNumber.value = '';
+};
 const gallery = [
   {
     id: "detail-news-1",
@@ -412,33 +547,141 @@ const tabKeuangan = [
         >
           Laporan Pengaduan
         </h1>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="flex flex-col gap-2">
-            <label for="name">Nama</label>
-            <Input id="name" type="text" placeholder="Nama" />
-          </div>
-          <div class="flex flex-col gap-2">
-            <label for="judul">Judul</label>
-            <Input id="judul" type="text" placeholder="Judul" />
-          </div>
-          <div class="flex flex-col gap-2">
-            <label for="email">Email</label>
-            <Input id="email" type="email" placeholder="Email" />
-          </div>
-          <div class="flex flex-col gap-2">
-            <label for="telephone">Nomor Telepon</label>
-            <Input id="telephone" type="number" placeholder="Nomor Telepon" />
-          </div>
-          <div class="flex flex-col gap-2 col-span-1 lg:col-span-2">
-            <label for="commentar">Komentar</label>
-            <Textarea id="commentar" placeholder="Komentar" />
-          </div>
-          <button
-            class="py-3 px-12 bg-red-100 font-bold text-xl xl:text-2xl text-white rounded-full cursor-pointer lg:col-span-2 col-span-1 uppercase w-fit mx-auto"
-            type="submit"
+        
+        <!-- Success/Error Messages -->
+        <div v-if="submitMessage" class="mb-6">
+          <div 
+            v-if="submitType === 'success'" 
+            class="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg"
           >
-            Kirim
+            <div class="flex items-center gap-2">
+              <Icon name="mdi:check-circle" class="size-5 text-green-600" />
+              <span class="font-medium">Berhasil!</span>
+            </div>
+            <p class="mt-2">{{ submitMessage }}</p>
+            <p v-if="referenceNumber" class="mt-2 font-medium">
+              Nomor Referensi: <span class="font-bold">{{ referenceNumber }}</span>
+            </p>
+            <button 
+              @click="clearMessages"
+              class="mt-3 text-sm text-green-600 hover:text-green-800 underline"
+            >
+              Tutup Pesan
+            </button>
+          </div>
+          
+          <div 
+            v-if="submitType === 'error'" 
+            class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg"
+          >
+            <div class="flex items-center gap-2">
+              <Icon name="mdi:alert-circle" class="size-5 text-red-600" />
+              <span class="font-medium">Terjadi Kesalahan!</span>
+            </div>
+            <p class="mt-2">{{ submitMessage }}</p>
+            <button 
+              @click="clearMessages"
+              class="mt-3 text-sm text-red-600 hover:text-red-800 underline"
+            >
+              Tutup Pesan
+            </button>
+          </div>
+        </div>
+
+        <form @submit.prevent="submitComplaint" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="flex flex-col gap-2">
+            <label for="name" class="font-medium">Nama Lengkap <span class="text-red-500">*</span></label>
+            <Input 
+              id="name" 
+              v-model="complaintForm.name"
+              type="text" 
+              placeholder="Masukkan nama lengkap Anda"
+              :class="{ 'border-red-500': formErrors.name }"
+              @input="formErrors.name = ''"
+            />
+            <span v-if="formErrors.name" class="text-red-500 text-sm">{{ Array.isArray(formErrors.name) ? formErrors.name[0] : formErrors.name }}</span>
+          </div>
+          
+          <div class="flex flex-col gap-2">
+            <label for="subject" class="font-medium">Subjek Pengaduan <span class="text-red-500">*</span></label>
+            <Input 
+              id="subject" 
+              v-model="complaintForm.subject"
+              type="text" 
+              placeholder="Subjek atau judul pengaduan"
+              :class="{ 'border-red-500': formErrors.subject }"
+              @input="formErrors.subject = ''"
+            />
+            <span v-if="formErrors.subject" class="text-red-500 text-sm">{{ Array.isArray(formErrors.subject) ? formErrors.subject[0] : formErrors.subject }}</span>
+          </div>
+          
+          <div class="flex flex-col gap-2">
+            <label for="email" class="font-medium">Email <span class="text-red-500">*</span></label>
+            <Input 
+              id="email" 
+              v-model="complaintForm.email"
+              type="email" 
+              placeholder="nama@email.com"
+              :class="{ 'border-red-500': formErrors.email }"
+              @input="formErrors.email = ''"
+            />
+            <span v-if="formErrors.email" class="text-red-500 text-sm">{{ Array.isArray(formErrors.email) ? formErrors.email[0] : formErrors.email }}</span>
+          </div>
+          
+          <div class="flex flex-col gap-2">
+            <label for="phone" class="font-medium">Nomor Telepon (Opsional)</label>
+            <Input 
+              id="phone" 
+              v-model="complaintForm.phone"
+              type="tel" 
+              placeholder="+62812345678"
+              :class="{ 'border-red-500': formErrors.phone }"
+              @input="formErrors.phone = ''"
+            />
+            <span v-if="formErrors.phone" class="text-red-500 text-sm">{{ Array.isArray(formErrors.phone) ? formErrors.phone[0] : formErrors.phone }}</span>
+          </div>
+          
+          <div class="flex flex-col gap-2 col-span-1 lg:col-span-2">
+            <label for="message" class="font-medium">Pesan Pengaduan <span class="text-red-500">*</span></label>
+            <Textarea 
+              id="message" 
+              v-model="complaintForm.message"
+              placeholder="Jelaskan detail pengaduan Anda dengan jelas..."
+              rows="5"
+              :class="{ 'border-red-500': formErrors.message }"
+              @input="formErrors.message = ''"
+            />
+            <span v-if="formErrors.message" class="text-red-500 text-sm">{{ Array.isArray(formErrors.message) ? formErrors.message[0] : formErrors.message }}</span>
+            <small class="text-gray-500">Minimal 10 karakter</small>
+          </div>
+          
+          <button
+            type="submit"
+            :disabled="isSubmitting"
+            class="py-3 px-12 bg-red-100 font-bold text-xl xl:text-2xl text-white rounded-full cursor-pointer lg:col-span-2 col-span-1 uppercase w-fit mx-auto disabled:opacity-50 disabled:cursor-not-allowed hover:bg-red-200 transition-colors"
+          >
+            <span v-if="isSubmitting" class="flex items-center gap-2">
+              <Icon name="mdi:loading" class="size-5 animate-spin" />
+              Mengirim...
+            </span>
+            <span v-else>Kirim Pengaduan</span>
           </button>
+        </form>
+        
+        <!-- Info Section -->
+        <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div class="flex items-start gap-3">
+            <Icon name="mdi:information" class="size-5 text-blue-600 mt-0.5" />
+            <div>
+              <h3 class="font-medium text-blue-800 mb-2">Informasi Pengaduan</h3>
+              <ul class="text-sm text-blue-700 space-y-1">
+                <li>• Pengaduan akan ditinjau dalam 1-3 hari kerja</li>
+                <li>• Anda akan menerima nomor referensi untuk tracking</li>
+                <li>• Respons akan dikirim ke alamat email yang didaftarkan</li>
+                <li>• Pastikan data yang diisi sudah benar dan lengkap</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </TabsContent>
       <TabsContent value="announcement" class="xl:py-12 xl:px-15 py-8 px-3">

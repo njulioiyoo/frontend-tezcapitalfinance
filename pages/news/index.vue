@@ -108,6 +108,12 @@ const fetchNews = async () => {
     const response = await apiStore.fetchNews(params)
     newsResponse.value = response
     
+    // Debug: Log first news item to check slug
+    if (response.data?.data?.length > 0) {
+      console.log('First news item:', response.data.data[0])
+      console.log('Slug available:', !!response.data.data[0].slug)
+    }
+    
     // Get featured news for highlights if we're on the first page and no filters
     if (currentPage.value === 1 && !searchQuery.value) {
       const featuredResponse = await apiStore.fetchNews({ featured: true, limit: 5 })
