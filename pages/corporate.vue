@@ -45,62 +45,6 @@ const financialCurrentPage = ref(1)
 const annualCurrentPage = ref(1)
 const reportsPerPage = ref(10)
 
-
-const gallery = [
-  {
-    id: "detail-news-1",
-    img: "/img/dummy1.jpg",
-    alt: "Gallery 1",
-    date: "11 Januari 2024",
-    category: "Kegiatan Perusahaan",
-    title: "Lorem Ipsum Dolor Sit Amet",
-  },
-  {
-    id: "detail-news-2",
-    img: "/img/dummy2.jpg",
-    alt: "Gallery 2",
-    date: "12 Februari 2024",
-    category: "Siaran Pers",
-    title: "Lorem Ipsum Dolor Sit Amet",
-  },
-  {
-    id: "detail-news-3",
-    img: "/img/dummy3.jpg",
-    alt: "Gallery 3",
-    date: "13 Maret 2024",
-    category: "Bisnis",
-    title: "Lorem Ipsum Dolor Sit Amet",
-  },
-];
-
-const article = [
-  {
-    date: "11 Januari 2024",
-    category: "Kegiatan Perusahaan",
-    title: "Lorem Ipsum Dolor Sit Amet",
-    id: "detail-news-1",
-  },
-  {
-    date: "12 Februari 2025",
-    category: "Bisnis",
-    title: "Lorem Ipsum Dolor Sit Amet, Consetetur Adipiscing Elit.",
-    id: "detail-news-2",
-  },
-  {
-    date: "13 Maret 2025",
-    category: "Kegiatan Perusahaan",
-    title:
-      "Lorem Ipsum Dolor Sit Amet, Consetetur Adipiscing Elit. Lorem Ipsum Dolor Sit Amet, Consetetur Adipiscing Elit.",
-    id: "detail-news-3",
-  },
-  {
-    date: "11 Januari 2025",
-    category: "Kegiatan Perusahaan",
-    title: "Lorem Ipsum Dolor Sit Amet",
-    id: "detail-news-1",
-  },
-];
-
 // Fetch reports data
 const loadFinancialReports = async (resetPage = false) => {
   try {
@@ -234,7 +178,10 @@ onMounted(async () => {
     // Load reports sequentially to avoid overwhelming the server
     await loadFinancialReports()
     await loadAnnualReports()
+    
+    console.log('🎯 Fetching announcements on mount...')
     await fetchAnnouncements()
+    console.log('📢 Announcements after fetch:', announcements.value)
     
     console.log('Reports loaded successfully')
   } catch (error) {
@@ -260,10 +207,20 @@ const fetchAnnouncements = async () => {
     }
     
     const response = await apiStore.fetchNews(params)
-    console.log('Fetched announcements:', response.data.data)
-    console.log('Announcements data types:', response.data.data.map(item => ({id: item.id, type: item.type, title: item.title_id})))
-    announcements.value = response.data.data
-    announcementsPagination.value = response.data
+    console.log('🎯 API call params:', params)
+    console.log('✅ Fetched announcements:', response.data.data)
+    console.log('📊 Data types:', response.data.data.map(item => ({id: item.id, type: item.type, title: item.title_id})))
+    
+    // Filter hanya yang type announcement (double check)
+    const filteredAnnouncements = response.data.data.filter(item => item.type === 'announcement')
+    console.log('🔥 Filtered announcements only:', filteredAnnouncements)
+    
+    announcements.value = filteredAnnouncements
+    announcementsPagination.value = {
+      ...response.data,
+      data: filteredAnnouncements,
+      total: filteredAnnouncements.length
+    }
     
     // Get featured announcement for the top section
     if (announcementsCurrentPage.value === 1 && !announcementsSearchQuery.value) {
@@ -695,7 +652,7 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
                     year: 'numeric', 
                     month: 'long', 
                     day: 'numeric' 
-                  }) }} | {{ announcement.category || announcement.type || 'Announcement' }}
+                  }) }}
                 </p>
                 <h4 class="xl:text-4xl text-xl line-clamp-1">
                   {{ locale === 'en' && announcement.title_en ? announcement.title_en : announcement.title_id }}

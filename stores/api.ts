@@ -38,6 +38,7 @@ export const useApiStore = defineStore('api', () => {
     }
     
     try {
+      console.log('🔥 API Call URL:', finalUrl)
       const data = await $fetch<T>(finalUrl, {
         ...options,
         headers: {
