@@ -118,8 +118,6 @@ export const testScenarios: TestScenario[] = [
 ]
 
 export const runLanguageConfigTests = () => {
-  console.log('🧪 Language Configuration Test Scenarios:')
-  console.table(testScenarios.map(scenario => ({
     Scenario: scenario.name,
     'Can Switch': scenario.expected.canSwitchLanguage,
     'Available Languages': scenario.expected.availableLanguages.join(', '),

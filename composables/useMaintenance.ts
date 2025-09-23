@@ -24,7 +24,6 @@ export const useMaintenance = () => {
       error.value = null
       
       const response = await apiStore.fetchMaintenanceConfig()
-      console.log('🔧 Raw API response:', response)
       
       // Handle different response structures
       let data = response
@@ -36,10 +35,8 @@ export const useMaintenance = () => {
         }
       }
       
-      console.log('🔧 Processed data:', data)
 
       // Extract maintenance configuration based on actual API structure
-      console.log('🔧 Looking for maintenance config in:', data)
       
       // Check if maintenance mode is enabled - check both possible fields
       const isMaintenanceEnabled = (data?.maintenance?.maintenance_mode?.value === true) || 
@@ -47,7 +44,6 @@ export const useMaintenance = () => {
       
       if (data && data.maintenance && isMaintenanceEnabled) {
         const maintenanceData = data.maintenance
-        console.log('🔧 Found maintenance section:', maintenanceData)
         
         maintenanceConfig.value = {
           enabled: isMaintenanceEnabled,
@@ -57,9 +53,7 @@ export const useMaintenance = () => {
           contact_email: maintenanceData.maintenance_contact_email?.value || ''
         }
         
-        console.log('🔧 Final maintenance config:', maintenanceConfig.value)
       } else {
-        console.log('🔧 No maintenance config found, setting to disabled')
         // Default to maintenance disabled if no config found
         maintenanceConfig.value = {
           enabled: false,
@@ -71,7 +65,6 @@ export const useMaintenance = () => {
       }
     } catch (err) {
       error.value = err
-      console.error('Failed to fetch maintenance config:', err)
       
       // Default to maintenance disabled on error - no fallback values
       maintenanceConfig.value = {

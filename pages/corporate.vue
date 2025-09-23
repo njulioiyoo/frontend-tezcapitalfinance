@@ -71,14 +71,6 @@ const submitComplaint = async () => {
     const config = useRuntimeConfig();
     const apiBaseUrl = config.public.apiBaseUrl || 'http://localhost:8000';
     
-    // Debug: Test API connectivity first
-    try {
-      const testResponse = await $fetch(`${apiBaseUrl}/api/v1/complaints/test`);
-      console.log('API Test:', testResponse);
-    } catch (testError) {
-      console.error('API Test Failed:', testError);
-    }
-    
     const response = await $fetch(`${apiBaseUrl}/api/v1/complaints`, {
       method: 'POST',
       headers: {

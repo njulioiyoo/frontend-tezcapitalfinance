@@ -112,7 +112,6 @@ export const useApiStore = defineStore('api', () => {
             }
           }
         } catch (regexError) {
-          console.error('Failed to parse mission data via regex:', regexError)
         }
       }
     }
@@ -144,7 +143,6 @@ export const useApiStore = defineStore('api', () => {
             data.logo_philosophy.points = pointsItems
           }
         } catch (regexError) {
-          console.error('Failed to parse logo philosophy points via regex:', regexError)
         }
       }
     }

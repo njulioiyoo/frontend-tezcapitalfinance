@@ -18,22 +18,13 @@ export default defineNuxtPlugin(() => {
       const { getMaintenanceConfig } = useConfigurationCache()
       const data = await getMaintenanceConfig()
       
-      console.log('🔧 Raw API response:', data)
-      console.log('🔧 Maintenance section:', data?.maintenance)
-      console.log('🔧 Maintenance mode value:', data?.maintenance?.maintenance_mode?.value)
-      console.log('🔧 Maintenance mode enabled value:', data?.maintenance?.maintenance_mode_enabled?.value)
-      console.log('🔧 Maintenance message value:', data?.maintenance?.maintenance_message?.value)
       
       // Check if maintenance mode is enabled - check both possible fields
       const isMaintenanceEnabled = (data?.maintenance?.maintenance_mode?.value === true) || 
                                    (data?.maintenance?.maintenance_mode_enabled?.value === true)
       
-      console.log('🔧 Is maintenance enabled?', isMaintenanceEnabled)
-      console.log('🔧 maintenance_mode check:', data?.maintenance?.maintenance_mode?.value === true)
-      console.log('🔧 maintenance_mode_enabled check:', data?.maintenance?.maintenance_mode_enabled?.value === true)
       
       if (data && data.maintenance && isMaintenanceEnabled) {
-        console.log('🚫 MAINTENANCE MODE DETECTED - redirecting')
         
         // Format estimated time if it's a datetime
         let estimatedTime = data.maintenance.maintenance_end_time?.value || data.maintenance.maintenance_end_time || ''
@@ -48,7 +39,6 @@ export default defineNuxtPlugin(() => {
               minute: '2-digit'
             })
           } catch (e) {
-            console.warn('Failed to parse datetime:', estimatedTime)
           }
         }
         
@@ -60,7 +50,6 @@ export default defineNuxtPlugin(() => {
           contact_email: data.maintenance.maintenance_contact_email?.value || ''
         }
         
-        console.log('🔧 Maintenance config:', config)
         
         // Store maintenance status globally
         const maintenanceStatus = useState('maintenance-status', () => ({
@@ -70,7 +59,6 @@ export default defineNuxtPlugin(() => {
         }))
         
         // Replace entire page with maintenance HTML
-        console.log('🚫 Replacing page with maintenance mode')
         
         document.body.innerHTML = `
           <div style="min-height: 100vh; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; padding: 1rem; font-family: system-ui, -apple-system, sans-serif;">
@@ -149,7 +137,6 @@ export default defineNuxtPlugin(() => {
           </div>
         `
       } else {
-        console.log('✅ Maintenance mode is disabled')
         
         // Store maintenance status as disabled
         const maintenanceStatus = useState('maintenance-status', () => ({
@@ -159,7 +146,6 @@ export default defineNuxtPlugin(() => {
         }))
       }
     } catch (error: any) {
-      console.error('🔧 Maintenance check error:', error)
       
       // Re-throw maintenance errors
       if (error.statusCode === 503 && error.data?.maintenance) {
@@ -168,14 +154,10 @@ export default defineNuxtPlugin(() => {
       
       // Handle specific API errors
       if (error.message && error.message.includes('Unexpected token')) {
-        console.warn('⚠️ API returned HTML instead of JSON - probably 404 or server error')
-        console.warn('⚠️ Check if API endpoint /api/v1/configurations exists and returns JSON')
       } else if (error.message && error.message.includes('fetch')) {
-        console.warn('⚠️ Network error accessing API')
       }
       
       // Log other errors but don't block
-      console.warn('⚠️ Non-fatal maintenance check error, continuing normally')
     }
   })
 })

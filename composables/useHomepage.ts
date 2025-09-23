@@ -170,7 +170,6 @@ export const useHomepage = () => {
         apiStore.fetchHomepage(),
         new Promise(resolve => setTimeout(resolve, 500))
       ])
-      console.log('🔧 Homepage raw response:', response)
       
       // Handle different response structures
       let data = response
@@ -182,7 +181,6 @@ export const useHomepage = () => {
         }
       }
 
-      console.log('🔧 Homepage processed data:', data)
 
       // Extract homepage data
       if (data) {
@@ -233,7 +231,6 @@ export const useHomepage = () => {
           faq: faqData
         }
 
-        console.log('🔧 Final homepage data:', homepageData.value)
       } else {
         // No homepage data found
         homepageData.value = {
@@ -272,7 +269,6 @@ export const useHomepage = () => {
       }
     } catch (err) {
       error.value = err
-      console.error('Failed to fetch homepage data:', err)
       
       // No fallback on error
       homepageData.value = {

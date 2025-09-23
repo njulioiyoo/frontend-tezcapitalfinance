@@ -54,7 +54,6 @@ export const useLanguageConfig = () => {
         auto_detect_language: langConfig.auto_detect_language?.value ?? false
       }
     } catch (err) {
-      console.error('Failed to fetch language config:', err)
       error.value = err
       
       // Use fallback values on error

@@ -2,7 +2,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   // Only run on client-side
   if (process.server) return
 
-  console.log('🔧 Middleware: Checking route:', to.path)
 
   // Check global maintenance status
   const maintenanceStatus = useState('maintenance-status', () => ({
@@ -11,11 +10,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     config: null
   }))
 
-  console.log('🔧 Middleware: Current maintenance status:', maintenanceStatus.value)
 
   // If maintenance mode is enabled, block access
   if (maintenanceStatus.value.enabled && maintenanceStatus.value.config) {
-    console.log('🚫 Middleware: Maintenance mode is active, blocking access to:', to.path)
     
     // Show maintenance page immediately
     throw createError({
@@ -29,5 +26,4 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     })
   }
 
-  console.log('✅ Middleware: Normal access allowed for:', to.path)
 })

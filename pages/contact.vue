@@ -21,7 +21,6 @@ const fetchData = async () => {
     ])
   } catch (err) {
     error.value = err
-    console.error('Failed to fetch contact data:', err)
   } finally {
     isLoading.value = false
   }

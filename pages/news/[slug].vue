@@ -64,7 +64,6 @@ const fetchNewsDetail = async () => {
     });
     
   } catch (err: any) {
-    console.error('Failed to fetch news detail:', err);
     error.value = err;
     
     // If 404, throw a Nuxt error
@@ -103,7 +102,6 @@ const copyLink = async () => {
     // You can add a toast notification here
     alert('Link copied to clipboard!');
   } catch (err) {
-    console.error('Failed to copy link:', err);
   }
 };
 

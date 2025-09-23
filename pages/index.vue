@@ -279,7 +279,6 @@ const swiper1 = useSwiper(swiperBasicRef);
               :src="process.icon"
               :alt="process.description"
               class="w-full h-full object-contain"
-              @error="handleImageError($event, 'process')"
             />
           </div>
           <p class="text-center">{{ process.description }}</p>

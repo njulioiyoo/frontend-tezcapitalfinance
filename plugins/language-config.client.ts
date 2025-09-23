@@ -5,6 +5,5 @@ export default defineNuxtPlugin(async () => {
   try {
     await fetchLanguageConfig()
   } catch (error) {
-    console.warn('Failed to load language configuration, using defaults:', error)
   }
 })

@@ -5,8 +5,6 @@ const { initConfiguration, socialMedia: configSocialMedia } = useConfiguration()
 // Initialize configuration on component mount
 onMounted(async () => {
   await initConfiguration()
-  console.log('🔧 Footer: Configuration loaded')
-  console.log('🔧 Footer: Social media from config:', configSocialMedia.value)
 })
 
 const linkMenu = [
@@ -116,8 +114,6 @@ const platformIcons = {
 
 // Computed social media data - only from API, no fallbacks
 const socialMedia = computed(() => {
-  console.log('🔧 Footer: Computing social media data')
-  console.log('🔧 Footer: configSocialMedia.value:', configSocialMedia.value)
   
   if (configSocialMedia.value && configSocialMedia.value.length > 0) {
     const mapped = configSocialMedia.value.map(item => ({
@@ -125,10 +121,8 @@ const socialMedia = computed(() => {
       url: item.url,
       icon: item.icon || platformIcons[item.platform.toLowerCase()] || "uil:link"
     }))
-    console.log('🔧 Footer: Mapped social media:', mapped)
     return mapped
   }
-  console.log('🔧 Footer: No social media data, returning empty array')
   return []
 })
 </script>

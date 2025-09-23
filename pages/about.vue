@@ -23,12 +23,10 @@ const anchor = computed(() => [
 // Data from API only
 const dataFast = computed(() => {
   const items = aboutData.value.fast_values?.items || []
-  console.log('F.A.S.T items:', items)
   return items
 })
 const dataIdc = computed(() => {
   const items = aboutData.value.idc_values?.items || []
-  console.log('I.D.C items:', items)
   return items
 })
 
@@ -49,7 +47,6 @@ const fetchData = async () => {
     aboutData.value = aboutResponse
   } catch (err) {
     error.value = err
-    console.error('Failed to fetch about data:', err)
   } finally {
     isLoading.value = false
   }

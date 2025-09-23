@@ -58,7 +58,6 @@ const fetchServiceDetail = async () => {
     });
     
   } catch (err: any) {
-    console.error('Failed to fetch service detail:', err);
     error.value = err;
     
     // If 404, throw a Nuxt error

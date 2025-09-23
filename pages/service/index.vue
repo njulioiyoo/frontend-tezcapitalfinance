@@ -51,7 +51,6 @@ const fetchServices = async () => {
     
   } catch (err) {
     error.value = err
-    console.error('Failed to fetch services:', err)
   } finally {
     isLoading.value = false
   }
@@ -72,7 +71,7 @@ const fetchBannerData = async () => {
     const { getBannerConfig } = useConfigurationCache()
     bannerData.value = await getBannerConfig()
   } catch (err) {
-    console.error('Failed to fetch banner data:', err)
+    // Silent error handling for banner data
   }
 }
 
