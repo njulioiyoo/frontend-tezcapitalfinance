@@ -86,7 +86,9 @@
     "newsPageLoadError": "Terjadi kesalahan saat mengambil data berita. Silakan coba lagi nanti.",
     "servicePageLoadError": "Terjadi kesalahan saat mengambil data layanan. Silakan coba lagi nanti.",
     "homepageLoadError": "Terjadi kesalahan saat mengambil data homepage. Silakan coba lagi.",
-    "homepageLoadTitle": "Gagal Memuat Data Homepage"
+    "homepageLoadTitle": "Gagal Memuat Data Homepage",
+    "serverError": "Terjadi kesalahan pada server.",
+    "backToHome": "Kembali ke Beranda"
   },
   "services": {
     "viewDetail": "Lihat Detail",
@@ -105,5 +107,10 @@
     "contactUs": "Hubungi Kami",
     "headOffice": "Kantor Pusat",
     "findInfo": "Temukan info yang kamu butuhkan seputar produk TEZ Capital"
+  },
+  "notFound": {
+    "title": "404",
+    "subtitle": "HALAMAN TIDAK DITEMUKAN",
+    "backToHome": "Kembali ke Halaman Utama"
   }
 }

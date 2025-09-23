@@ -68,7 +68,7 @@ const handleErrorRedirect = () => {
           </h1>
 
           <p class="text-lg xl:text-xl text-black-100 mb-8 leading-relaxed">
-            Terjadi kesalahan pada server.
+            {{ $t('error.serverError') }}
           </p>
 
           <!-- Back to Home Button -->
@@ -76,7 +76,7 @@ const handleErrorRedirect = () => {
             @click="handleErrorRedirect"
             class="bg-red-100 hover:bg-red-200 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200"
           >
-            Kembali ke Beranda
+            {{ $t('error.backToHome') }}
           </button>
 
           <!-- Footer -->
