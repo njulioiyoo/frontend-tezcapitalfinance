@@ -464,6 +464,13 @@ onMounted(async () => {
         </Pagination>
       </TabsContent>
       <TabsContent value="announcement" class="xl:py-12 xl:px-15 py-8 px-3">
+        <div class="py-12 text-center text-gray-500">
+          <Icon name="mdi:folder-outline" class="size-16 mx-auto mb-4 text-gray-300" />
+          <p class="text-lg">Belum ada pengumuman saat ini</p>
+        </div>
+      </TabsContent>
+
+      <!-- <TabsContent value="announcement" class="xl:py-12 xl:px-15 py-8 px-3">
         <ClientOnly>
           <swiper-container
             :loop="true"
@@ -597,7 +604,7 @@ onMounted(async () => {
             <PaginationNext />
           </PaginationContent>
         </Pagination>
-      </TabsContent>
+      </TabsContent> -->
     </Tabs>
   </div>
 </template>
