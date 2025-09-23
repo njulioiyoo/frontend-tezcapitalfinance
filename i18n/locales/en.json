@@ -112,5 +112,23 @@
     "title": "404",
     "subtitle": "NOT FOUND",
     "backToHome": "Back to Home"
+  },
+  "corporate": {
+    "viewReport": "View Report",
+    "searchFinancialReports": "Search financial reports...",
+    "searchAnnualReports": "Search annual reports...",
+    "filter": "Filter",
+    "noReportsAvailableCategory": "No reports available for this category",
+    "noFinancialReportsAvailable": "No financial reports available",
+    "noAnnualReportsAvailable": "No annual reports available",
+    "failedToLoadFinancialReports": "Failed to Load Financial Reports",
+    "failedToLoadAnnualReports": "Failed to Load Annual Reports",
+    "financialReportsLoadError": "An error occurred while fetching financial reports data. Please try again later.",
+    "annualReportsLoadError": "An error occurred while fetching annual reports data. Please try again later.",
+    "noAnnouncementsAvailable": "No announcements available at this time",
+    "filterByDate": "Filter by date",
+    "singleDate": "Single Date",
+    "dateRange": "Date Range",
+    "clearFilter": "Clear Filter"
   }
 }

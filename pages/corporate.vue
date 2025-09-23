@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const apiStore = useApiStore();
 
 const value = ref(today(getLocalTimeZone()));
+
+// Announcements state
+const announcements = ref([])
+const announcementsLoading = ref(false)
+const announcementsError = ref(null)
+const announcementsSearchQuery = ref('')
+const announcementsCurrentPage = ref(1)
+const announcementsPagination = ref(null)
+const featuredAnnouncement = ref(null)
+
 
 // Reports API integration
 const { 
@@ -104,7 +115,8 @@ const loadFinancialReports = async (resetPage = false) => {
       limit: reportsPerPage.value,
       page: financialCurrentPage.value,
       search: financialSearchQuery.value || undefined,
-      year: financialFilterYear.value || undefined
+      year: financialFilterYear.value || undefined,
+      lang: locale.value
     }
     
     await fetchFinancialReports(params)
@@ -129,7 +141,8 @@ const loadAnnualReports = async (resetPage = false) => {
       limit: reportsPerPage.value,
       page: annualCurrentPage.value,
       search: annualSearchQuery.value || undefined,
-      year: annualFilterYear.value || undefined
+      year: annualFilterYear.value || undefined,
+      lang: locale.value
     }
     
     await fetchAnnualReports(params)
@@ -189,6 +202,29 @@ const handleAnnualPageChange = async (page: number) => {
   await loadAnnualReports()
 }
 
+// Helper functions for localized content
+const getLocalizedTitle = (item: any) => {
+  if (!item) return ''
+  if (locale.value === 'en' && item.title_en) {
+    return item.title_en
+  }
+  if (item.title_id) {
+    return item.title_id
+  }
+  return item.title || ''
+}
+
+const getLocalizedReportDesc = (report: any) => {
+  if (!report) return ''
+  if (locale.value === 'en' && report.desc_en) {
+    return report.desc_en
+  }
+  if (report.desc_id) {
+    return report.desc_id
+  }
+  return report.desc || ''
+}
+
 // Lifecycle
 onMounted(async () => {
   try {
@@ -198,12 +234,88 @@ onMounted(async () => {
     // Load reports sequentially to avoid overwhelming the server
     await loadFinancialReports()
     await loadAnnualReports()
+    await fetchAnnouncements()
     
     console.log('Reports loaded successfully')
   } catch (error) {
     console.error('Failed to load reports data:', error)
     // Don't rethrow to prevent page crash
   }
+})
+
+// Fetch announcements function
+const fetchAnnouncements = async () => {
+  try {
+    announcementsLoading.value = true
+    announcementsError.value = null
+    
+    const params: any = {
+      type: 'announcement',
+      page: announcementsCurrentPage.value,
+      limit: 5
+    }
+    
+    if (announcementsSearchQuery.value) {
+      params.search = announcementsSearchQuery.value
+    }
+    
+    const response = await apiStore.fetchNews(params)
+    console.log('Fetched announcements:', response.data.data)
+    console.log('Announcements data types:', response.data.data.map(item => ({id: item.id, type: item.type, title: item.title_id})))
+    announcements.value = response.data.data
+    announcementsPagination.value = response.data
+    
+    // Get featured announcement for the top section
+    if (announcementsCurrentPage.value === 1 && !announcementsSearchQuery.value) {
+      const featuredResponse = await apiStore.fetchNews({ 
+        type: 'announcement', 
+        featured: true, 
+        limit: 1 
+      })
+      if (featuredResponse.data.data.length > 0) {
+        featuredAnnouncement.value = featuredResponse.data.data[0]
+      }
+    }
+    
+  } catch (err) {
+    announcementsError.value = err
+    console.error('Failed to fetch announcements:', err)
+  } finally {
+    announcementsLoading.value = false
+  }
+}
+
+// Announcement handlers
+const handleAnnouncementSearch = () => {
+  announcementsCurrentPage.value = 1
+  fetchAnnouncements()
+}
+
+const handleAnnouncementPageChange = (page: number) => {
+  announcementsCurrentPage.value = page
+  fetchAnnouncements()
+}
+
+// Watch for language changes
+watch(() => locale.value, async () => {
+  try {
+    // Reload reports when language changes
+    await loadFinancialReports()
+    await loadAnnualReports()
+    await fetchAnnouncements()
+  } catch (error) {
+    console.error('Failed to reload reports after language change:', error)
+  }
+}, { immediate: false })
+
+
+// Watch search query with debounce for announcements
+const debouncedAnnouncementSearch = ref('')
+watch(() => announcementsSearchQuery.value, (newValue) => {
+  clearTimeout(debouncedAnnouncementSearch.value)
+  debouncedAnnouncementSearch.value = setTimeout(() => {
+    handleAnnouncementSearch()
+  }, 500)
 })
 </script>
 
@@ -227,7 +339,7 @@ onMounted(async () => {
                 id="financial-search"
                 v-model="financialSearchQuery"
                 type="text"
-                placeholder="Search financial reports..."
+                :placeholder="t('corporate.searchFinancialReports')"
                 class="pl-8"
                 @keyup.enter="handleFinancialSearch"
               />
@@ -239,7 +351,7 @@ onMounted(async () => {
               <PopoverTrigger>
                 <div class="flex items-center gap-2 h-fit cursor-pointer">
                   <Icon name="mdi:filter-variant" class="size-5 text-red-100" />
-                  <p class="text-red-100 font-medium">Filter</p>
+                  <p class="text-red-100 font-medium">{{ t('corporate.filter') }}</p>
                 </div>
               </PopoverTrigger>
               <PopoverContent class="p-0 border-0">
@@ -259,8 +371,8 @@ onMounted(async () => {
         <ErrorAlert 
           v-else-if="errorFinancial" 
           :error="errorFinancial"
-          title="Failed to Load Financial Reports"
-          message="An error occurred while fetching financial reports data. Please try again later."
+          :title="t('corporate.failedToLoadFinancialReports')"
+          :message="t('corporate.financialReportsLoadError')"
           @retry="loadFinancialReports"
         />
 
@@ -278,7 +390,7 @@ onMounted(async () => {
               :value="key"
               class="w-full justify-between px-0"
             >
-              {{ tab.title }}
+              {{ getLocalizedTitle(tab) }}
               <Icon name="mdi:chevron-right" class="size-6 text-red-100" />
             </TabsTrigger>
           </TabsList>
@@ -306,14 +418,14 @@ onMounted(async () => {
                   <p class="text-base xl:text-xl text-divider">
                     {{ report.year }}{{ report.month ? ` | ${report.month}` : '' }}
                   </p>
-                  <p class="text-xl xl:text-3xl">{{ report.desc }}</p>
+                  <p class="text-xl xl:text-3xl">{{ getLocalizedReportDesc(report) }}</p>
                   <p v-if="report.file_size" class="text-sm text-gray-500">{{ report.file_size }}</p>
                 </div>
               </button>
             </div>
             <div v-else class="py-12 text-center text-gray-500">
               <Icon name="mdi:folder-outline" class="size-16 mx-auto mb-4 text-gray-300" />
-              <p class="text-lg">No reports available for this category</p>
+              <p class="text-lg">{{ t('corporate.noReportsAvailableCategory') }}</p>
             </div>
           </TabsContent>
         </Tabs>
@@ -321,7 +433,7 @@ onMounted(async () => {
         <!-- Empty State -->
         <div v-else class="py-12 text-center text-gray-500">
           <Icon name="mdi:folder-outline" class="size-16 mx-auto mb-4 text-gray-300" />
-          <p class="text-lg">No financial reports available</p>
+          <p class="text-lg">{{ t('corporate.noFinancialReportsAvailable') }}</p>
         </div>
         <Pagination
           v-if="financialReports && Object.keys(financialReports).length > 0 && financialPagination"
@@ -362,7 +474,7 @@ onMounted(async () => {
                 id="annual-search"
                 v-model="annualSearchQuery"
                 type="text"
-                placeholder="Search annual reports..."
+                :placeholder="t('corporate.searchAnnualReports')"
                 class="pl-8"
                 @keyup.enter="handleAnnualSearch"
               />
@@ -374,7 +486,7 @@ onMounted(async () => {
               <PopoverTrigger>
                 <div class="flex items-center gap-2 h-fit cursor-pointer">
                   <Icon name="mdi:filter-variant" class="size-5 text-red-100" />
-                  <p class="text-red-100 font-medium">Filter</p>
+                  <p class="text-red-100 font-medium">{{ t('corporate.filter') }}</p>
                 </div>
               </PopoverTrigger>
               <PopoverContent class="p-0 border-0">
@@ -394,8 +506,8 @@ onMounted(async () => {
         <ErrorAlert 
           v-else-if="errorAnnual" 
           :error="errorAnnual"
-          title="Failed to Load Annual Reports"
-          message="An error occurred while fetching annual reports data. Please try again later."
+          :title="t('corporate.failedToLoadAnnualReports')"
+          :message="t('corporate.annualReportsLoadError')"
           @retry="loadAnnualReports"
         />
 
@@ -421,11 +533,11 @@ onMounted(async () => {
                 <p
                   class="text-divider text-base xl:text-xl line-clamp-1 xl:line-clamp-2"
                 >
-                  {{ report.desc }}
+                  {{ getLocalizedReportDesc(report) }}
                 </p>
                 <p v-if="report.file_size" class="text-sm text-gray-500">{{ report.file_size }}</p>
               </div>
-              <p class="text-red-100 text-base">Lihat Laporan</p>
+              <p class="text-red-100 text-base">{{ t('corporate.viewReport') }}</p>
             </div>
           </button>
         </div>
@@ -433,7 +545,7 @@ onMounted(async () => {
         <!-- Empty State -->
         <div v-else class="py-12 text-center text-gray-500">
           <Icon name="mdi:folder-outline" class="size-16 mx-auto mb-4 text-gray-300" />
-          <p class="text-lg">No annual reports available</p>
+          <p class="text-lg">{{ t('corporate.noAnnualReportsAvailable') }}</p>
         </div>
         <Pagination
           v-if="Array.isArray(annualReports) && annualReports.length > 0 && annualPagination"
@@ -464,80 +576,66 @@ onMounted(async () => {
         </Pagination>
       </TabsContent>
       <TabsContent value="announcement" class="xl:py-12 xl:px-15 py-8 px-3">
-        <div class="py-12 text-center text-gray-500">
-          <Icon name="mdi:folder-outline" class="size-16 mx-auto mb-4 text-gray-300" />
-          <p class="text-lg">Belum ada pengumuman saat ini</p>
-        </div>
-      </TabsContent>
-
-      <!-- <TabsContent value="announcement" class="xl:py-12 xl:px-15 py-8 px-3">
-        <ClientOnly>
-          <swiper-container
-            :loop="true"
-            :space-between="48"
-            :pagination="{
-              clickable: true,
-            }"
-            :autoplay="{
-              delay: 5000,
-              disableOnInteraction: false,
-            }"
-            class="overflow-visible"
-          >
-            <swiper-slide
-              v-for="i in gallery"
-              :key="`slide-basic-${i.id}`"
-              class="swiper-slide pb-12"
-            >
-              <NuxtLink :to="`/news/${i.id}`">
-                <div
-                  class="shadow-[0px_4px_19px_0px_rgba(0,0,0,0.1)] rounded-3xl overflow-hidden"
-                >
-                  <img
-                    :src="i.img"
-                    :alt="i.alt"
-                    class="w-full h-75 object-cover"
-                  />
-                  <div class="gap-6 p-4 xl:p-6">
-                    <p class="text-sm xl:text-xl text-divider mb-1 xl:mb-3">
-                      {{ i.date }} | {{ i.category }}
+        <!-- Featured Announcement Slider -->
+        <div v-if="featuredAnnouncement && !announcementsSearchQuery" class="mb-12">
+          <h1 class="text-black-100 font-bold xl:text-5xl text-2xl mb-6 xl:mb-9">
+            {{ t('nav.corporateMenu.announcement') }}
+          </h1>
+          <ClientOnly>
+            <div class="shadow-[0px_4px_19px_0px_rgba(0,0,0,0.1)] rounded-3xl overflow-hidden">
+              <NuxtLink :to="`/news/${featuredAnnouncement.slug}`">
+                <img 
+                  v-if="featuredAnnouncement.featured_image"
+                  :src="featuredAnnouncement.featured_image.startsWith('http') ? featuredAnnouncement.featured_image : `/storage/${featuredAnnouncement.featured_image}`"
+                  :alt="featuredAnnouncement.title_id"
+                  class="w-full h-75 object-cover"
+                />
+                <div class="gap-6 p-4 xl:p-6">
+                  <p class="text-sm xl:text-xl text-divider mb-1 xl:mb-3">
+                    {{ new Date(featuredAnnouncement.published_at).toLocaleDateString('id-ID', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    }) }} | {{ featuredAnnouncement.category || 'Announcement' }}
+                  </p>
+                  <div class="flex justify-between items-center gap-3">
+                    <p class="xl:text-5xl text-xl text-black-100 line-clamp-1">
+                      {{ locale === 'en' && featuredAnnouncement.title_en ? featuredAnnouncement.title_en : featuredAnnouncement.title_id }}
                     </p>
-                    <div class="flex justify-between items-center gap-3">
-                      <p
-                        class="xl:text-5xl text-xl text-black-100 line-clamp-1"
-                      >
-                        {{ i.title }}
+                    <div class="flex items-center gap-2">
+                      <p class="text-red-100 text-sm xl:text-xl">
+                        {{ t('nav.news.readArticle') }}
                       </p>
-                      <div class="flex items-center gap-2">
-                        <p class="text-red-100 text-sm xl:text-xl">
-                          Baca Artikel
-                        </p>
-                        <Icon
-                          name="mdi:chevron-right"
-                          class="xl:size-5 size-4 text-red-100"
-                        />
-                      </div>
+                      <Icon name="mdi:arrow-right" class="text-red-100 size-6" />
                     </div>
                   </div>
                 </div>
               </NuxtLink>
-            </swiper-slide>
-          </swiper-container>
-        </ClientOnly>
-        <div class="flex justify-between flex-col lg:flex-row my-5 gap-6">
-          <div class="flex flex-col gap-2 order-2 lg:order-1">
-            <h1 class="font-bold text-xl lg:text-5xl">Hasil Pencarian</h1>
-            <p class="text-base lg:text-2xl">
-              5 hasil ditemukan dengan keyword <b>lorem</b>
+            </div>
+          </ClientOnly>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center pb-6 mb-6 border-b border-b-divider">
+          <div>
+            <h2 class="text-2xl font-semibold mb-2">
+              {{ announcementsSearchQuery ? 'Hasil Pencarian' : t('nav.corporateMenu.announcement') }}
+            </h2>
+            <p class="text-gray-600" v-if="announcementsPagination && announcementsSearchQuery">
+              {{ announcementsPagination.total }} hasil ditemukan dengan keyword "{{ announcementsSearchQuery }}"
+            </p>
+            <p class="text-gray-600" v-else-if="announcementsPagination">
+              {{ announcementsPagination.total }} {{ announcementsPagination.total === 1 ? 'announcement' : 'announcements' }} tersedia
             </p>
           </div>
-          <div class="flex gap-4 h-fit items-center order-1 lg:order-2">
+          <div class="flex gap-3">
             <div class="relative h-fit w-full items-center">
               <Input
-                id="search"
+                id="announcement-search"
+                v-model="announcementsSearchQuery"
                 type="text"
-                placeholder="Search..."
+                :placeholder="t('nav.news.searchNews')"
                 class="pl-8"
+                @keyup.enter="handleAnnouncementSearch"
               />
               <span class="absolute top-1/2 -translate-y-1/2 px-2">
                 <Icon name="mdi:search" class="size-5" />
@@ -547,7 +645,7 @@ onMounted(async () => {
               <PopoverTrigger>
                 <div class="flex items-center gap-2 h-fit cursor-pointer">
                   <Icon name="mdi:filter-variant" class="size-5 text-red-100" />
-                  <p class="text-red-100 font-medium">Filter</p>
+                  <p class="text-red-100 font-medium">{{ t('corporate.filter') }}</p>
                 </div>
               </PopoverTrigger>
               <PopoverContent class="p-0 border-0">
@@ -560,26 +658,61 @@ onMounted(async () => {
             </Popover>
           </div>
         </div>
-        <ul class="flex flex-col">
-          <li v-for="(i, index) in article" :key="index">
+
+        <!-- Loading State -->
+        <div v-if="announcementsLoading" class="space-y-4">
+          <div v-for="i in 5" :key="i" class="animate-pulse">
+            <div class="h-20 bg-gray-200 rounded-lg"></div>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <ErrorAlert 
+          v-else-if="announcementsError" 
+          :error="announcementsError"
+          :title="t('error.loadDataFailed')"
+          :message="t('error.newsPageLoadError')"
+          @retry="fetchAnnouncements"
+        />
+
+        <!-- Empty State -->
+        <div v-else-if="!announcements.length" class="py-12 text-center text-gray-500">
+          <Icon name="mdi:folder-outline" class="size-16 mx-auto mb-4 text-gray-300" />
+          <p class="text-lg">{{ t('corporate.noAnnouncementsAvailable') }}</p>
+        </div>
+
+        <!-- Announcements List -->
+        <div v-else>
+          <ul class="flex flex-col">
+            <li v-for="announcement in announcements" :key="announcement.id">
             <NuxtLink
-              :to="`/news/${i.id}`"
+              :to="`/news/${announcement.slug}`"
               class="flex justify-between items-end gap-6 py-5 border-b border-b-divider"
             >
               <div class="flex flex-col gap-1">
                 <p class="text-divider text-sm xl:text-base">
-                  {{ i.date }} | {{ i.category }}
+                  {{ new Date(announcement.published_at).toLocaleDateString('id-ID', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  }) }} | {{ announcement.category || announcement.type || 'Announcement' }}
                 </p>
-                <h4 class="xl:text-4xl text-xl line-clamp-1">{{ i.title }}</h4>
+                <h4 class="xl:text-4xl text-xl line-clamp-1">
+                  {{ locale === 'en' && announcement.title_en ? announcement.title_en : announcement.title_id }}
+                </h4>
               </div>
               <div class="flex items-center gap-2 !min-w-fit">
-                <p class="text-red-100 text-sm xl:text-xl">Baca Artikel</p>
+                <p class="text-red-100 text-sm xl:text-xl">{{ t('nav.news.readArticle') }}</p>
                 <Icon name="mdi:chevron-right" class="size-5 text-red-100" />
               </div>
             </NuxtLink>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Pagination -->
         <Pagination
+          v-if="announcementsPagination && announcementsPagination.last_page > 1"
           v-slot="{ page }"
           :items-per-page="10"
           :total="30"
@@ -604,7 +737,8 @@ onMounted(async () => {
             <PaginationNext />
           </PaginationContent>
         </Pagination>
-      </TabsContent> -->
+      </TabsContent>
+
     </Tabs>
   </div>
 </template>

@@ -34,10 +34,10 @@ const updateCategories = () => {
   // Test with hardcoded categories to verify i18n works
   const testCategories = {
     'all': t('nav.news.allNews'),
-    'bisnis': t('nav.news.bisnis'),
-    'kegiatan-perusahaan': t('nav.news.companyActivities'),
-    'siaran-pers': t('nav.news.pressRelease'),
-    'sorotan': t('nav.news.highlights')
+    'business': t('nav.news.bisnis'),
+    'company-activities': t('nav.news.companyActivities'),
+    'press-release': t('nav.news.pressRelease'),
+    'highlights': t('nav.news.highlights')
   }
   
   console.log('🧪 Test categories with i18n:', testCategories)
@@ -52,21 +52,21 @@ const updateCategories = () => {
     Object.keys(newsResponse.value.categories).forEach(key => {
       console.log(`🗂️ Processing category: ${key}`)
       switch(key) {
-        case 'bisnis':
+        case 'business':
           mappedCategories[key] = t('nav.news.bisnis')
-          console.log(`  ✅ bisnis -> ${mappedCategories[key]}`)
+          console.log(`  ✅ business -> ${mappedCategories[key]}`)
           break
-        case 'kegiatan-perusahaan':
+        case 'company-activities':
           mappedCategories[key] = t('nav.news.companyActivities')
-          console.log(`  ✅ kegiatan-perusahaan -> ${mappedCategories[key]}`)
+          console.log(`  ✅ company-activities -> ${mappedCategories[key]}`)
           break
-        case 'siaran-pers':
+        case 'press-release':
           mappedCategories[key] = t('nav.news.pressRelease')
-          console.log(`  ✅ siaran-pers -> ${mappedCategories[key]}`)
+          console.log(`  ✅ press-release -> ${mappedCategories[key]}`)
           break
-        case 'sorotan':
+        case 'highlights':
           mappedCategories[key] = t('nav.news.highlights')
-          console.log(`  ✅ sorotan -> ${mappedCategories[key]}`)
+          console.log(`  ✅ highlights -> ${mappedCategories[key]}`)
           break
         default:
           mappedCategories[key] = newsResponse.value.categories[key]

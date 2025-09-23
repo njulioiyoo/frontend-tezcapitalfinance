@@ -112,5 +112,23 @@
     "title": "404",
     "subtitle": "HALAMAN TIDAK DITEMUKAN",
     "backToHome": "Kembali ke Halaman Utama"
+  },
+  "corporate": {
+    "viewReport": "Lihat Laporan",
+    "searchFinancialReports": "Cari laporan keuangan...",
+    "searchAnnualReports": "Cari laporan tahunan...",
+    "filter": "Filter",
+    "noReportsAvailableCategory": "Tidak ada laporan tersedia untuk kategori ini",
+    "noFinancialReportsAvailable": "Tidak ada laporan keuangan tersedia",
+    "noAnnualReportsAvailable": "Tidak ada laporan tahunan tersedia",
+    "failedToLoadFinancialReports": "Gagal Memuat Laporan Keuangan",
+    "failedToLoadAnnualReports": "Gagal Memuat Laporan Tahunan",
+    "financialReportsLoadError": "Terjadi kesalahan saat mengambil data laporan keuangan. Silakan coba lagi nanti.",
+    "annualReportsLoadError": "Terjadi kesalahan saat mengambil data laporan tahunan. Silakan coba lagi nanti.",
+    "noAnnouncementsAvailable": "Belum ada pengumuman saat ini",
+    "filterByDate": "Filter berdasarkan tanggal",
+    "singleDate": "Tanggal Tunggal",
+    "dateRange": "Rentang Tanggal",
+    "clearFilter": "Hapus Filter"
   }
 }

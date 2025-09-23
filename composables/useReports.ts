@@ -3,6 +3,8 @@ export interface ReportItem {
   year: string
   month?: string
   desc: string
+  desc_id?: string
+  desc_en?: string
   file_url?: string
   link?: string
   file_size?: string
@@ -11,6 +13,8 @@ export interface ReportItem {
 
 export interface FinancialReportTab {
   title: string
+  title_id?: string
+  title_en?: string
   value: string
   subKeuangan: ReportItem[]
 }
@@ -54,6 +58,7 @@ export const useReports = () => {
     search?: string
     page?: number
     limit?: number
+    lang?: string
   } = {}) => {
     try {
       isLoading.value = true
@@ -81,6 +86,11 @@ export const useReports = () => {
       }
       if (params.limit) {
         queryParams.append('limit', params.limit.toString())
+      }
+      
+      // Add language parameter
+      if (params.lang) {
+        queryParams.append('lang', params.lang)
       }
 
       const url = `${baseURL}/api/v1/reports/financial${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
@@ -115,6 +125,7 @@ export const useReports = () => {
     search?: string
     page?: number
     limit?: number
+    lang?: string
   } = {}) => {
     try {
       isLoading.value = true
@@ -133,6 +144,11 @@ export const useReports = () => {
       }
       if (params.limit) {
         queryParams.append('limit', params.limit.toString())
+      }
+      
+      // Add language parameter
+      if (params.lang) {
+        queryParams.append('lang', params.lang)
       }
 
       const url = `${baseURL}/api/v1/reports/annual${queryParams.toString() ? `?${queryParams.toString()}` : ''}`

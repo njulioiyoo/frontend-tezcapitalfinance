@@ -159,7 +159,7 @@ export const useApiStore = defineStore('api', () => {
   const fetchNews = async (params: {
     page?: number
     limit?: number
-    type?: 'news' | 'event' | 'all'
+    type?: 'news' | 'event' | 'announcement' | 'all'
     category?: string
     search?: string
     featured?: boolean
