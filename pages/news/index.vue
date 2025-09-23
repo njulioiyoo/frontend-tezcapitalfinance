@@ -24,14 +24,67 @@ const currentCategory = ref('all')
 const searchQuery = ref('')
 const currentPage = ref(1)
 
-// Reactive data
-const categories = computed(() => {
-  if (!newsResponse.value) return {}
-  return { 
+// Reactive data - test with hardcoded categories first
+const categories = ref({})
+
+// Function to update categories with i18n
+const updateCategories = () => {
+  console.log('🔄 updateCategories called, locale:', locale.value)
+  
+  // Test with hardcoded categories to verify i18n works
+  const testCategories = {
     'all': t('nav.news.allNews'),
-    ...newsResponse.value.categories 
+    'bisnis': t('nav.news.bisnis'),
+    'kegiatan-perusahaan': t('nav.news.companyActivities'),
+    'siaran-pers': t('nav.news.pressRelease'),
+    'sorotan': t('nav.news.highlights')
   }
-})
+  
+  console.log('🧪 Test categories with i18n:', testCategories)
+  categories.value = testCategories
+  
+  // Keep the original API-based logic for debugging
+  if (newsResponse.value && newsResponse.value.categories) {
+    console.log('📊 newsResponse.categories:', newsResponse.value.categories)
+    
+    // Map API categories to i18n keys
+    const mappedCategories = {}
+    Object.keys(newsResponse.value.categories).forEach(key => {
+      console.log(`🗂️ Processing category: ${key}`)
+      switch(key) {
+        case 'bisnis':
+          mappedCategories[key] = t('nav.news.bisnis')
+          console.log(`  ✅ bisnis -> ${mappedCategories[key]}`)
+          break
+        case 'kegiatan-perusahaan':
+          mappedCategories[key] = t('nav.news.companyActivities')
+          console.log(`  ✅ kegiatan-perusahaan -> ${mappedCategories[key]}`)
+          break
+        case 'siaran-pers':
+          mappedCategories[key] = t('nav.news.pressRelease')
+          console.log(`  ✅ siaran-pers -> ${mappedCategories[key]}`)
+          break
+        case 'sorotan':
+          mappedCategories[key] = t('nav.news.highlights')
+          console.log(`  ✅ sorotan -> ${mappedCategories[key]}`)
+          break
+        default:
+          mappedCategories[key] = newsResponse.value.categories[key]
+          console.log(`  ⚠️ default case: ${key} -> ${mappedCategories[key]}`)
+      }
+    })
+    
+    const apiBasedCategories = { 
+      'all': t('nav.news.allNews'),
+      ...mappedCategories
+    }
+    
+    console.log('🔄 API-based categories:', apiBasedCategories)
+    // Comment out to use hardcoded for now: categories.value = apiBasedCategories
+  }
+  
+  console.log('✅ Final categories (hardcoded test):', categories.value)
+}
 
 const featuredNews = computed(() => {
   return newsResponse.value?.data?.data?.filter(item => item.is_featured) || []
@@ -108,6 +161,9 @@ const fetchNews = async () => {
     const response = await apiStore.fetchNews(params)
     newsResponse.value = response
     
+    // Update categories with i18n
+    updateCategories()
+    
     // Get featured news for highlights if we're on the first page and no filters
     if (currentPage.value === 1 && !searchQuery.value) {
       const featuredResponse = await apiStore.fetchNews({ featured: true, limit: 5 })
@@ -162,6 +218,7 @@ onMounted(() => {
 
 // Watch for language changes
 watch(() => locale.value, () => {
+  updateCategories()
   fetchNews()
 }, { immediate: false })
 

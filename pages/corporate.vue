@@ -1,8 +1,36 @@
-<script setup>
+<script setup lang="ts">
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 const value = ref(today(getLocalTimeZone()));
+
+// Reports API integration
+const { 
+  financialReports, 
+  annualReports, 
+  isLoading: reportsLoading, 
+  error: reportsError,
+  financialPagination,
+  annualPagination,
+  fetchFinancialReports, 
+  fetchAnnualReports,
+  downloadReport 
+} = useReports()
+
+// Loading and error states
+const isLoadingFinancial = ref(false)
+const isLoadingAnnual = ref(false)
+const errorFinancial = ref<any>(null)
+const errorAnnual = ref<any>(null)
+
+// Search and filter states
+const financialSearchQuery = ref('')
+const annualSearchQuery = ref('')
+const financialFilterYear = ref<number | null>(null)
+const annualFilterYear = ref<number | null>(null)
+const financialCurrentPage = ref(1)
+const annualCurrentPage = ref(1)
+const reportsPerPage = ref(10)
 
 // Complaint form state
 const complaintForm = ref({
@@ -184,149 +212,121 @@ const article = [
   },
 ];
 
-const lapTahunan = [
-  {
-    year: "2024",
-    desc: "Lorem Ipsum Dolor Sit",
-    link: "#",
-  },
-  {
-    year: "2023",
-    desc: "Lorem Ipsum Dolor Sit Amet: Consectetur Adispicing Elit.",
-    link: "#",
-  },
-  {
-    year: "2022",
-    desc: "Lorem Ipsum Dolor Sit",
-    link: "#",
-  },
-  {
-    year: "2021",
-    desc: "Lorem Ipsum Dolor Sit",
-    link: "#",
-  },
-  {
-    year: "2020",
-    desc: "Lorem Ipsum Dolor Sit",
-    link: "#",
-  },
-  {
-    year: "2019",
-    desc: "Lorem Ipsum Dolor Sit",
-    link: "#",
-  },
-];
+// Fetch reports data
+const loadFinancialReports = async (resetPage = false) => {
+  try {
+    isLoadingFinancial.value = true
+    errorFinancial.value = null
+    
+    if (resetPage) {
+      financialCurrentPage.value = 1
+    }
+    
+    const params = {
+      limit: reportsPerPage.value,
+      page: financialCurrentPage.value,
+      search: financialSearchQuery.value || undefined,
+      year: financialFilterYear.value || undefined
+    }
+    
+    await fetchFinancialReports(params)
+  } catch (err) {
+    errorFinancial.value = err
+    console.error('Failed to load financial reports:', err)
+  } finally {
+    isLoadingFinancial.value = false
+  }
+}
 
-const tabKeuangan = [
-  {
-    title: "Semua Kategori",
-    value: "all-category",
-    subKeuangan: [
-      {
-        year: "2025",
-        month: "Agustus",
-        desc: "Laporan Keuangan Bulanan",
-      },
-      {
-        year: "2025",
-        month: "Juli",
-        desc: "Laporan Keuangan Bulanan",
-      },
-      {
-        year: "2025",
-        month: "Juni",
-        desc: "Laporan Keuangan Bulanan",
-      },
-      {
-        year: "2025",
-        month: "Mei",
-        desc: "Laporan Keuangan Triwulan",
-      },
-      {
-        year: "2025",
-        month: "April",
-        desc: "Laporan Keuangan Triwulan",
-      },
-      {
-        year: "2025",
-        month: "Maret",
-        desc: "Laporan Keuangan Triwulan",
-      },
-    ],
-  },
-  {
-    title: "Laporan Keuangan Bulanan",
-    value: "bulanan",
-    subKeuangan: [
-      {
-        year: "2025",
-        month: "Agustus",
-        desc: "Laporan Keuangan Bulanan",
-      },
-      {
-        year: "2025",
-        month: "Juli",
-        desc: "Laporan Keuangan Bulanan",
-      },
-      {
-        year: "2025",
-        month: "Juni",
-        desc: "Laporan Keuangan Bulanan",
-      },
-      {
-        year: "2025",
-        month: "Mei",
-        desc: "Laporan Keuangan Bulanan",
-      },
-      {
-        year: "2025",
-        month: "April",
-        desc: "Laporan Keuangan Bulanan",
-      },
-      {
-        year: "2025",
-        month: "Maret",
-        desc: "Laporan Keuangan Bulanan",
-      },
-    ],
-  },
-  {
-    title: "Laporan Keuangan Triwulan",
-    value: "triwulan",
-    subKeuangan: [
-      {
-        year: "2025",
-        month: "Agustus",
-        desc: "Laporan Keuangan Triwulan",
-      },
-      {
-        year: "2025",
-        month: "Juli",
-        desc: "Laporan Keuangan Triwulan",
-      },
-      {
-        year: "2025",
-        month: "Juni",
-        desc: "Laporan Keuangan Triwulan",
-      },
-      {
-        year: "2025",
-        month: "Mei",
-        desc: "Laporan Keuangan Triwulan",
-      },
-      {
-        year: "2025",
-        month: "April",
-        desc: "Laporan Keuangan Triwulan",
-      },
-      {
-        year: "2025",
-        month: "Maret",
-        desc: "Laporan Keuangan Triwulan",
-      },
-    ],
-  },
-];
+const loadAnnualReports = async (resetPage = false) => {
+  try {
+    isLoadingAnnual.value = true
+    errorAnnual.value = null
+    
+    if (resetPage) {
+      annualCurrentPage.value = 1
+    }
+    
+    const params = {
+      limit: reportsPerPage.value,
+      page: annualCurrentPage.value,
+      search: annualSearchQuery.value || undefined,
+      year: annualFilterYear.value || undefined
+    }
+    
+    await fetchAnnualReports(params)
+  } catch (err) {
+    errorAnnual.value = err
+    console.error('Failed to load annual reports:', err)
+  } finally {
+    isLoadingAnnual.value = false
+  }
+}
+
+// Handle report download
+const handleReportDownload = async (reportId) => {
+  try {
+    await downloadReport(reportId)
+  } catch (err) {
+    console.error('Failed to download report:', err)
+    // You could show a toast notification here
+  }
+}
+
+// Search and filter handlers
+const handleFinancialSearch = async () => {
+  await loadFinancialReports(true) // Reset to page 1
+}
+
+const handleAnnualSearch = async () => {
+  await loadAnnualReports(true) // Reset to page 1
+}
+
+const handleFinancialFilterChange = async (selectedDate: any) => {
+  if (selectedDate) {
+    financialFilterYear.value = selectedDate.year
+  } else {
+    financialFilterYear.value = null
+  }
+  await loadFinancialReports(true)
+}
+
+const handleAnnualFilterChange = async (selectedDate: any) => {
+  if (selectedDate) {
+    annualFilterYear.value = selectedDate.year
+  } else {
+    annualFilterYear.value = null
+  }
+  await loadAnnualReports(true)
+}
+
+// Pagination handlers
+const handleFinancialPageChange = async (page: number) => {
+  financialCurrentPage.value = page
+  await loadFinancialReports()
+}
+
+const handleAnnualPageChange = async (page: number) => {
+  annualCurrentPage.value = page
+  await loadAnnualReports()
+}
+
+// Lifecycle
+onMounted(async () => {
+  try {
+    console.log('Corporate page mounted, loading reports...')
+    console.log('API Base URL:', useRuntimeConfig().public.apiBaseUrl)
+    
+    // Load reports sequentially to avoid overwhelming the server
+    await loadFinancialReports()
+    await loadAnnualReports()
+    
+    console.log('Reports loaded successfully')
+  } catch (error) {
+    console.error('Failed to load reports data:', error)
+    // Don't rethrow to prevent page crash
+  }
+})
 </script>
 
 <template>
@@ -347,10 +347,12 @@ const tabKeuangan = [
           <div class="flex gap-4 h-fit items-center w-full md:w-1/2 lg:w-1/4">
             <div class="relative h-fit w-full items-center">
               <Input
-                id="search"
+                id="financial-search"
+                v-model="financialSearchQuery"
                 type="text"
-                placeholder="Search..."
+                placeholder="Search financial reports..."
                 class="pl-8"
+                @keyup.enter="handleFinancialSearch"
               />
               <span class="absolute top-1/2 -translate-y-1/2 px-2">
                 <Icon name="mdi:search" class="size-5" />
@@ -365,24 +367,38 @@ const tabKeuangan = [
               </PopoverTrigger>
               <PopoverContent class="p-0 border-0">
                 <Calendar
-                  v-model="value"
                   :weekday-format="'short'"
                   class="rounded-md border border-grey"
+                  @update:model-value="handleFinancialFilterChange"
                 />
               </PopoverContent>
             </Popover>
           </div>
         </div>
+        <!-- Loading State -->
+        <ReportsSkeleton v-if="isLoadingFinancial" type="financial" :count="6" />
+
+        <!-- Error State -->
+        <ErrorAlert 
+          v-else-if="errorFinancial" 
+          :error="errorFinancial"
+          title="Failed to Load Financial Reports"
+          message="An error occurred while fetching financial reports data. Please try again later."
+          @retry="loadFinancialReports"
+        />
+
+        <!-- Financial Reports Content -->
         <Tabs
+          v-else-if="financialReports && Object.keys(financialReports).length > 0"
           default-value="all-category"
           class="w-full"
           orientation="vertical"
         >
           <TabsList class="flex flex-col max-w-full xl:max-w-75 border-0 h-fit">
             <TabsTrigger
-              v-for="tab in tabKeuangan"
-              :key="tab.value"
-              :value="tab.value"
+              v-for="(tab, key) in financialReports"
+              :key="key"
+              :value="key"
               class="w-full justify-between px-0"
             >
               {{ tab.title }}
@@ -390,16 +406,16 @@ const tabKeuangan = [
             </TabsTrigger>
           </TabsList>
           <TabsContent
-            v-for="tab in tabKeuangan"
-            :key="tab.value"
-            :value="tab.value"
+            v-for="(tab, key) in financialReports"
+            :key="key"
+            :value="key"
           >
-            <div class="flex flex-col gap-6">
-              <NuxtLink
-                v-for="(i, index) in tab.subKeuangan"
+            <div v-if="tab.subKeuangan && tab.subKeuangan.length > 0" class="flex flex-col gap-6">
+              <button
+                v-for="(report, index) in tab.subKeuangan"
                 :key="index"
-                to="#"
-                class="flex rounded-xl xl:rounded-3xl overflow-hidden shadow-[0px_4px_19px_0px_rgba(0,0,0,0.1)]"
+                @click="handleReportDownload(report.id)"
+                class="flex rounded-xl xl:rounded-3xl overflow-hidden shadow-[0px_4px_19px_0px_rgba(0,0,0,0.1)] hover:shadow-lg transition-shadow cursor-pointer"
               >
                 <div
                   class="bg-red-100 px-6 xl:px-12 flex items-center justify-center"
@@ -409,22 +425,35 @@ const tabKeuangan = [
                     class="size-10 xl:size-12 text-white"
                   />
                 </div>
-                <div class="flex flex-col p-4 xl:p-6 gap-2 w-full">
+                <div class="flex flex-col p-4 xl:p-6 gap-2 w-full text-left">
                   <p class="text-base xl:text-xl text-divider">
-                    {{ i.year }} | {{ i.month }}
+                    {{ report.year }}{{ report.month ? ` | ${report.month}` : '' }}
                   </p>
-                  <p class="text-xl xl:text-3xl">{{ i.desc }}</p>
+                  <p class="text-xl xl:text-3xl">{{ report.desc }}</p>
+                  <p v-if="report.file_size" class="text-sm text-gray-500">{{ report.file_size }}</p>
                 </div>
-              </NuxtLink>
+              </button>
+            </div>
+            <div v-else class="py-12 text-center text-gray-500">
+              <Icon name="mdi:folder-outline" class="size-16 mx-auto mb-4 text-gray-300" />
+              <p class="text-lg">No reports available for this category</p>
             </div>
           </TabsContent>
         </Tabs>
+
+        <!-- Empty State -->
+        <div v-else class="py-12 text-center text-gray-500">
+          <Icon name="mdi:folder-outline" class="size-16 mx-auto mb-4 text-gray-300" />
+          <p class="text-lg">No financial reports available</p>
+        </div>
         <Pagination
+          v-if="financialReports && Object.keys(financialReports).length > 0 && financialPagination"
           v-slot="{ page }"
-          :items-per-page="10"
-          :total="30"
-          :default-page="1"
+          :items-per-page="financialPagination.per_page || reportsPerPage"
+          :total="financialPagination.total || 0"
+          :default-page="financialCurrentPage"
           class="mt-6"
+          @update:page="handleFinancialPageChange"
         >
           <PaginationContent v-slot="{ items }">
             <PaginationPrevious />
@@ -453,10 +482,12 @@ const tabKeuangan = [
           <div class="flex gap-4 h-fit items-center w-full md:w-1/2 lg:w-1/4">
             <div class="relative h-fit w-full items-center">
               <Input
-                id="search"
+                id="annual-search"
+                v-model="annualSearchQuery"
                 type="text"
-                placeholder="Search..."
+                placeholder="Search annual reports..."
                 class="pl-8"
+                @keyup.enter="handleAnnualSearch"
               />
               <span class="absolute top-1/2 -translate-y-1/2 px-2">
                 <Icon name="mdi:search" class="size-5" />
@@ -471,20 +502,33 @@ const tabKeuangan = [
               </PopoverTrigger>
               <PopoverContent class="p-0 border-0">
                 <Calendar
-                  v-model="value"
                   :weekday-format="'short'"
                   class="rounded-md border border-grey"
+                  @update:model-value="handleAnnualFilterChange"
                 />
               </PopoverContent>
             </Popover>
           </div>
         </div>
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <NuxtLink
-            v-for="(i, index) in lapTahunan"
+        <!-- Loading State -->
+        <ReportsSkeleton v-if="isLoadingAnnual" type="annual" :count="4" />
+
+        <!-- Error State -->
+        <ErrorAlert 
+          v-else-if="errorAnnual" 
+          :error="errorAnnual"
+          title="Failed to Load Annual Reports"
+          message="An error occurred while fetching annual reports data. Please try again later."
+          @retry="loadAnnualReports"
+        />
+
+        <!-- Annual Reports Content -->
+        <div v-else-if="Array.isArray(annualReports) && annualReports.length > 0" class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <button
+            v-for="(report, index) in annualReports"
             :key="index"
-            :to="i.link"
-            class="flex h-auto xl:h-50 rounded-xl xl:rounded-3xl overflow-hidden shadow-[0px_4px_19px_0px_rgba(0,0,0,0.1)]"
+            @click="handleReportDownload(report.id)"
+            class="flex h-auto xl:h-50 rounded-xl xl:rounded-3xl overflow-hidden shadow-[0px_4px_19px_0px_rgba(0,0,0,0.1)] hover:shadow-lg transition-shadow cursor-pointer"
           >
             <div
               class="bg-red-100 px-6 xl:px-12 flex items-center justify-center"
@@ -494,25 +538,34 @@ const tabKeuangan = [
                 class="size-10 xl:size-15 text-white"
               />
             </div>
-            <div class="flex flex-col p-4 xl:p-6 gap-6 justify-between w-full">
+            <div class="flex flex-col p-4 xl:p-6 gap-6 justify-between w-full text-left">
               <div class="flex flex-col gap-3">
-                <p class="xl:text-3xl text-xl">{{ i.year }}</p>
+                <p class="xl:text-3xl text-xl">{{ report.year }}</p>
                 <p
                   class="text-divider text-base xl:text-xl line-clamp-1 xl:line-clamp-2"
                 >
-                  {{ i.desc }}
+                  {{ report.desc }}
                 </p>
+                <p v-if="report.file_size" class="text-sm text-gray-500">{{ report.file_size }}</p>
               </div>
               <p class="text-red-100 text-base">Lihat Laporan</p>
             </div>
-          </NuxtLink>
+          </button>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else class="py-12 text-center text-gray-500">
+          <Icon name="mdi:folder-outline" class="size-16 mx-auto mb-4 text-gray-300" />
+          <p class="text-lg">No annual reports available</p>
         </div>
         <Pagination
+          v-if="Array.isArray(annualReports) && annualReports.length > 0 && annualPagination"
           v-slot="{ page }"
-          :items-per-page="10"
-          :total="30"
-          :default-page="1"
+          :items-per-page="annualPagination.per_page || reportsPerPage"
+          :total="annualPagination.total || 0"
+          :default-page="annualCurrentPage"
           class="mt-6"
+          @update:page="handleAnnualPageChange"
         >
           <PaginationContent v-slot="{ items }">
             <PaginationPrevious />
@@ -668,8 +721,6 @@ const tabKeuangan = [
               <h3 class="font-medium text-blue-800 mb-2">Informasi Pengaduan</h3>
               <ul class="text-sm text-blue-700 space-y-1">
                 <li>• Pengaduan akan ditinjau dalam 1-3 hari kerja</li>
-                <li>• Anda akan menerima nomor referensi untuk tracking</li>
-                <li>• Respons akan dikirim ke alamat email yang didaftarkan</li>
                 <li>• Pastikan data yang diisi sudah benar dan lengkap</li>
               </ul>
             </div>

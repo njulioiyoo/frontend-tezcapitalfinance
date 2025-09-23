@@ -3,6 +3,7 @@ import { ref, onMounted, onUnmounted } from "vue";
 import Footer from "../components/Footer.vue";
 import Header from "../components/Header.vue";
 
+const { applyNowLink, contactPhone, initConfiguration } = useConfiguration();
 const showBackToTop = ref(false);
 
 const scrollToTop = () => {
@@ -16,7 +17,10 @@ const handleScroll = () => {
   showBackToTop.value = window.scrollY > 800;
 };
 
-onMounted(() => {
+onMounted(async () => {
+  // Initialize configuration
+  await initConfiguration();
+  
   window.addEventListener("scroll", handleScroll);
 });
 
@@ -35,27 +39,29 @@ onUnmounted(() => {
     <div
       class="flex items-center justify-between gap-3 py-3 px-3 sm:px-4 md:px-6 bg-white fixed bottom-0 w-full z-10 xl:hidden border-t border-t-grey"
     >
-      <a class="flex items-center gap-2" href="tel:+2150666206">
+      <a class="flex items-center gap-2" :href="`tel:+${contactPhone?.replace(/[^0-9]/g, '') || '2150666206'}`">
         <div
           class="size-6 bg-divider items-center justify-center rounded-full p-1 hidden md:flex"
         >
           <Icon name="mdi:phone" class="text-white" />
         </div>
-        <span class="text-sm xl:text-xl font-medium">021-5066-6206</span>
+        <span class="text-sm xl:text-xl font-medium">{{ contactPhone || '021-5066-6206' }}</span>
       </a>
       <div class="flex items-center gap-3">
-        <NuxtLink
-          to="#"
+        <a
+          :href="applyNowLink || '#'"
+          target="_blank"
+          rel="noopener noreferrer"
           class="py-1 px-6 rounded-full bg-red-100 hover:bg-red-50 transition-all duration-300 font-bold text-sm xl:text-xl text-white hover:text-red-100 flex items-center justify-center cursor-pointer"
         >
           Apply Now
-        </NuxtLink>
-        <NuxtLink
+        </a>
+        <!-- <NuxtLink
           to="#"
           class="py-1 px-6 rounded-full bg-white hover:bg-red-100 transition-all duration-300 font-medium text-sm xl:text-xl text-red-100 hover:text-white flex items-center justify-center cursor-pointer border border-red-100"
         >
           Join Us
-        </NuxtLink>
+        </NuxtLink> -->
       </div>
     </div>
 

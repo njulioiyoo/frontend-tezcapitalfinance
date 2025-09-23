@@ -1,6 +1,7 @@
 export interface GeneralConfig {
   app_name: string
   app_description: string
+  apply_now_link: string
 }
 
 export interface SocialMediaItem {
@@ -37,6 +38,10 @@ export const useConfiguration = () => {
     return configData.value?.general?.app_description || ''
   })
 
+  const applyNowLink = computed(() => {
+    return configData.value?.general?.apply_now_link || ''
+  })
+
   const socialMedia = computed(() => {
     return configData.value?.contact?.social_media || []
   })
@@ -71,7 +76,8 @@ export const useConfiguration = () => {
       if (data) {
         const generalConfig: GeneralConfig = {
           app_name: data.general?.app_name?.value || data.general?.app_name || '',
-          app_description: data.general?.app_description?.value || data.general?.app_description || ''
+          app_description: data.general?.app_description?.value || data.general?.app_description || '',
+          apply_now_link: data.general?.apply_now_link?.value || data.general?.apply_now_link || ''
         }
 
         // Parse social media data
@@ -123,7 +129,8 @@ export const useConfiguration = () => {
         configData.value = {
           general: {
             app_name: '',
-            app_description: ''
+            app_description: '',
+            apply_now_link: ''
           },
           contact: {
             social_media: [],
@@ -141,7 +148,8 @@ export const useConfiguration = () => {
       configData.value = {
         general: {
           app_name: '',
-          app_description: ''
+          app_description: '',
+          apply_now_link: ''
         },
         contact: {
           social_media: [],
@@ -165,6 +173,7 @@ export const useConfiguration = () => {
     configData: readonly(configData),
     appName,
     appDescription,
+    applyNowLink,
     socialMedia,
     contactPhone,
     contactEmail,

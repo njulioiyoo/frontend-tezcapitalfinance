@@ -1,5 +1,6 @@
 <script setup>
-// Get configuration data
+// Get configuration data and i18n
+const { t } = useI18n()
 const { initConfiguration, socialMedia: configSocialMedia } = useConfiguration()
 
 // Initialize configuration on component mount
@@ -7,84 +8,85 @@ onMounted(async () => {
   await initConfiguration()
 })
 
-const linkMenu = [
+// Dynamic menu structure matching Header.vue
+const linkMenu = computed(() => [
   {
-    title: "About Us",
+    title: t('nav.aboutUs'),
     menu: [
       {
-        label: "Our Story",
-        link: "#",
+        label: t('nav.about.ourStory'),
+        link: "/about",
       },
       {
-        label: "Logo Philosophy",
-        link: "#",
-      },
-      {
-        label: "Management Profiles",
-        link: "#",
+        label: t('nav.about.logoPhilosophy'),
+        link: "/about",
       },
     ],
   },
   {
-    title: "Services",
+    title: t('nav.services'),
     menu: [
       {
-        label: "Working Capital Financing",
-        link: "#",
+        label: t('nav.service.workingCapitalFinancing'),
+        link: "/service",
       },
       {
-        label: "Investment Financing",
-        link: "#",
+        label: t('nav.service.investmentFinancing'),
+        link: "/service",
       },
       {
-        label: "Multi-Purpose Financing",
-        link: "#",
+        label: t('nav.service.multiPurposeFinancing'),
+        link: "/service",
+      },
+      {
+        label: t('nav.service.faq'),
+        link: "/service",
       },
     ],
   },
   {
-    title: "News & Event",
+    title: t('nav.newsEvent'),
     menu: [
       {
-        label: "Articles",
-        link: "#",
+        label: t('nav.news.bisnis'),
+        link: "/news",
       },
       {
-        label: "Corporate Activity",
-        link: "#",
+        label: t('nav.news.companyActivities'),
+        link: "/news",
       },
       {
-        label: "Press Release",
-        link: "#",
+        label: t('nav.news.pressRelease'),
+        link: "/news",
       },
       {
-        label: "Highlights",
-        link: "#",
+        label: t('nav.news.highlights'),
+        link: "/news",
       },
     ],
   },
   {
-    title: "Corporate",
+    title: t('nav.corporate'),
     menu: [
       {
-        label: "Laporan Keuangan",
-        link: "#",
+        label: t('nav.corporateMenu.financialReport'),
+        link: "/corporate",
       },
       {
-        label: "Laporan Tahunan",
-        link: "#",
+        label: t('nav.corporateMenu.annualReport'),
+        link: "/corporate",
       },
       {
-        label: "Laporan Pengaduan",
-        link: "#",
+        label: t('nav.corporateMenu.complaintReport'),
+        link: "/corporate",
       },
       {
-        label: "Announcement",
-        link: "#",
+        label: t('nav.corporateMenu.announcement'),
+        link: "/corporate",
       },
     ],
   },
-];
+]);
 
 const verified = [
   {
