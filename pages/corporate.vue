@@ -229,8 +229,21 @@ const fetchAnnouncements = async () => {
         featured: true, 
         limit: 1 
       })
+      console.log('🎯 Featured announcement response:', featuredResponse)
       if (featuredResponse.data.data.length > 0) {
         featuredAnnouncement.value = featuredResponse.data.data[0]
+        console.log('✅ Featured announcement set:', featuredAnnouncement.value)
+        console.log('🖼️ Featured image URL:', featuredAnnouncement.value.featured_image_url)
+        console.log('🖼️ Featured image path:', featuredAnnouncement.value.featured_image)
+      } else {
+        console.log('❌ No featured announcements found')
+        // Fallback: get the first announcement as featured
+        if (filteredAnnouncements.length > 0) {
+          featuredAnnouncement.value = filteredAnnouncements[0]
+          console.log('🔄 Using first announcement as featured:', featuredAnnouncement.value)
+          console.log('🖼️ Fallback image URL:', featuredAnnouncement.value.featured_image_url)
+          console.log('🖼️ Fallback image path:', featuredAnnouncement.value.featured_image)
+        }
       }
     }
     
@@ -542,8 +555,8 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
             <div class="shadow-[0px_4px_19px_0px_rgba(0,0,0,0.1)] rounded-3xl overflow-hidden">
               <NuxtLink :to="`/news/${featuredAnnouncement.slug}`">
                 <img 
-                  v-if="featuredAnnouncement.featured_image"
-                  :src="featuredAnnouncement.featured_image.startsWith('http') ? featuredAnnouncement.featured_image : `/storage/${featuredAnnouncement.featured_image}`"
+                  v-if="featuredAnnouncement.featured_image_url || featuredAnnouncement.featured_image"
+                  :src="featuredAnnouncement.featured_image_url || (featuredAnnouncement.featured_image?.startsWith('http') ? featuredAnnouncement.featured_image : `${apiStore.baseURL}/storage/${featuredAnnouncement.featured_image}`)"
                   :alt="featuredAnnouncement.title_id"
                   class="w-full h-75 object-cover"
                 />
@@ -671,10 +684,11 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
         <Pagination
           v-if="announcementsPagination && announcementsPagination.last_page > 1"
           v-slot="{ page }"
-          :items-per-page="10"
-          :total="30"
-          :default-page="1"
+          :items-per-page="announcementsPagination.per_page || 5"
+          :total="announcementsPagination.total || 0"
+          :default-page="announcementsCurrentPage"
           class="mt-6"
+          @update:page="handleAnnouncementPageChange"
         >
           <PaginationContent v-slot="{ items }">
             <PaginationPrevious />
