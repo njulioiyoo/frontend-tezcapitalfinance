@@ -102,28 +102,6 @@ const accordionItems = [
   },
 ];
 
-const creditSimulation = [
-  {
-    img: "/img/credit/1.png",
-    label: "Ponsel",
-  },
-  {
-    img: "/img/credit/2.png",
-    label: "Laptop",
-  },
-  {
-    img: "/img/credit/3.png",
-    label: "Motor",
-  },
-  {
-    img: "/img/credit/4.png",
-    label: "Mobil",
-  },
-  {
-    img: "/img/credit/5.png",
-    label: "Alat Musik",
-  },
-];
 </script>
 
 <template>
@@ -160,32 +138,15 @@ const creditSimulation = [
     <!-- Content State -->
     <div v-else-if="serviceItem" class="relative">
       <div class="xl:px-15 px-3 py-8 xl:py-12 relative">
-        <NuxtLink
-          to="/service"
-          class="flex items-center gap-1 text-base text-red-100 mb-6 xl:hidden"
-        >
-          <Icon name="mdi:chevron-left" class="size-4" />
-          Back to Services
-        </NuxtLink>
-        
-        <div class="flex flex-col xl:flex-row gap-6 items-center xl:items-start">
-          <img
-            :src="serviceItem.featured_image_url || '/img/services/1.png'"
-            :alt="getLocalizedTitle(serviceItem)"
-            class="xl:size-150 size-75 object-cover rounded-lg"
-            loading="lazy"
-          />
-          <div class="flex flex-col gap-4 xl:gap-6 text-center xl:text-left">
-            <h1 class="xl:text-5xl text-2xl text-black-100 font-bold">
-              {{ getLocalizedTitle(serviceItem) }}
-            </h1>
-            <div class="prose prose-lg max-w-none">
-              <div v-if="getLocalizedContent(serviceItem)" v-html="getLocalizedContent(serviceItem)" />
-              <div v-else-if="getLocalizedExcerpt(serviceItem)" v-html="getLocalizedExcerpt(serviceItem)" />
-              <p v-else class="text-gray-500">No description available</p>
-            </div>
-          </div>
-        </div>
+        <h1 class="xl:text-5xl text-2xl font-bold mb-6 text-center">
+        {{ getLocalizedTitle(serviceItem) }}
+      </h1>
+      <p class="text-center text-base xl:text-xl">Test</p>
+      <div class="prose prose-lg max-w-none">
+        <div v-if="getLocalizedContent(serviceItem)" v-html="getLocalizedContent(serviceItem)" />
+        <div v-else-if="getLocalizedExcerpt(serviceItem)" v-html="getLocalizedExcerpt(serviceItem)" />
+        <p v-else class="text-gray-500">No description available</p>
+      </div>
         
         <!-- Service Details -->
         <div class="mt-12">
@@ -203,28 +164,6 @@ const creditSimulation = [
               </AccordionContent>
             </AccordionItem>
           </Accordion>
-        </div>
-        
-        <!-- Credit Simulation -->
-        <div class="mt-12">
-          <h2 class="xl:text-5xl text-2xl text-black-100 mb-6 xl:mb-9 text-center xl:text-left">
-            Credit Simulation
-          </h2>
-          <div class="grid grid-cols-2 xl:grid-cols-5 gap-4">
-            <div
-              v-for="item in creditSimulation"
-              :key="item.label"
-              class="flex flex-col items-center gap-2 xl:gap-4 cursor-pointer hover:opacity-80"
-            >
-              <img
-                :src="item.img"
-                :alt="item.label"
-                class="xl:size-25 size-20 object-cover"
-                loading="lazy"
-              />
-              <p class="text-center text-sm xl:text-base">{{ item.label }}</p>
-            </div>
-          </div>
         </div>
         
         <!-- Service meta information -->
