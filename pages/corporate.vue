@@ -46,7 +46,7 @@ const financialFilterYear = ref<number | null>(null)
 const annualFilterYear = ref<number | null>(null)
 const financialCurrentPage = ref(1)
 const annualCurrentPage = ref(1)
-const reportsPerPage = ref(10)
+const reportsPerPage = ref(3)
 
 // Fetch reports data
 const loadFinancialReports = async (resetPage = false) => {
@@ -66,7 +66,9 @@ const loadFinancialReports = async (resetPage = false) => {
       lang: locale.value
     }
     
+    console.log('💰 Loading financial reports with params:', params)
     await fetchFinancialReports(params)
+    console.log('📊 Financial reports loaded, pagination:', financialPagination.value)
   } catch (err) {
     errorFinancial.value = err
     console.error('Failed to load financial reports:', err)
@@ -92,7 +94,9 @@ const loadAnnualReports = async (resetPage = false) => {
       lang: locale.value
     }
     
+    console.log('📋 Loading annual reports with params:', params)
     await fetchAnnualReports(params)
+    console.log('📄 Annual reports loaded:', annualReports.value.length, 'reports')
   } catch (err) {
     errorAnnual.value = err
     console.error('Failed to load annual reports:', err)
@@ -140,13 +144,17 @@ const handleAnnualFilterChange = async (selectedDate: any) => {
 
 // Pagination handlers
 const handleFinancialPageChange = async (page: number) => {
+  console.log('🔄 Changing financial page to:', page)
   financialCurrentPage.value = page
   await loadFinancialReports()
+  console.log('✅ Financial page changed, current page:', financialCurrentPage.value)
 }
 
 const handleAnnualPageChange = async (page: number) => {
+  console.log('🔄 Changing annual page to:', page)
   annualCurrentPage.value = page
   await loadAnnualReports()
+  console.log('✅ Annual page changed, current page:', annualCurrentPage.value)
 }
 
 // Helper functions for localized content
@@ -222,8 +230,13 @@ onMounted(async () => {
     await fetchBannerData()
     
     // Load reports sequentially to avoid overwhelming the server
+    console.log('🔄 About to load financial reports...')
     await loadFinancialReports()
+    console.log('💰 Financial reports after load:', financialReports.value)
+    
+    console.log('🔄 About to load annual reports...')
     await loadAnnualReports()
+    console.log('📊 Annual reports after load:', annualReports.value.length, 'items')
     
     console.log('🎯 Fetching announcements on mount...')
     await fetchAnnouncements()
@@ -455,28 +468,36 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
         <Pagination
           v-if="financialReports && Object.keys(financialReports).length > 0 && financialPagination"
           v-slot="{ page }"
-          :items-per-page="financialPagination.per_page || reportsPerPage"
+          :items-per-page="parseInt(financialPagination.per_page) || reportsPerPage"
           :total="financialPagination.total || 0"
           :default-page="financialCurrentPage"
           class="mt-6"
-          @update:page="handleFinancialPageChange"
         >
           <PaginationContent v-slot="{ items }">
-            <PaginationPrevious />
+            <PaginationPrevious 
+              v-if="financialCurrentPage > 1"
+              @click="handleFinancialPageChange(financialCurrentPage - 1)"
+            />
 
             <template v-for="(item, index) in items" :key="index">
               <PaginationItem
                 v-if="item.type === 'page'"
                 :value="item.value"
-                :is-active="item.value === page"
+                :is-active="item.value === financialCurrentPage"
+                @click="handleFinancialPageChange(item.value)"
               >
                 {{ item.value }}
               </PaginationItem>
+              <PaginationEllipsis 
+                v-else-if="item.type === 'ellipsis'" 
+                :index="index" 
+              />
             </template>
 
-            <PaginationEllipsis :index="4" />
-
-            <PaginationNext />
+            <PaginationNext 
+              v-if="financialPagination && financialCurrentPage < financialPagination.last_page"
+              @click="handleFinancialPageChange(financialCurrentPage + 1)"
+            />
           </PaginationContent>
         </Pagination>
       </TabsContent>
@@ -567,28 +588,36 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
         <Pagination
           v-if="Array.isArray(annualReports) && annualReports.length > 0 && annualPagination"
           v-slot="{ page }"
-          :items-per-page="annualPagination.per_page || reportsPerPage"
+          :items-per-page="parseInt(annualPagination.per_page) || reportsPerPage"
           :total="annualPagination.total || 0"
           :default-page="annualCurrentPage"
           class="mt-6"
-          @update:page="handleAnnualPageChange"
         >
           <PaginationContent v-slot="{ items }">
-            <PaginationPrevious />
+            <PaginationPrevious 
+              v-if="annualCurrentPage > 1"
+              @click="handleAnnualPageChange(annualCurrentPage - 1)"
+            />
 
             <template v-for="(item, index) in items" :key="index">
               <PaginationItem
                 v-if="item.type === 'page'"
                 :value="item.value"
-                :is-active="item.value === page"
+                :is-active="item.value === annualCurrentPage"
+                @click="handleAnnualPageChange(item.value)"
               >
                 {{ item.value }}
               </PaginationItem>
+              <PaginationEllipsis 
+                v-else-if="item.type === 'ellipsis'" 
+                :index="index" 
+              />
             </template>
 
-            <PaginationEllipsis :index="4" />
-
-            <PaginationNext />
+            <PaginationNext 
+              v-if="annualPagination && annualCurrentPage < annualPagination.last_page"
+              @click="handleAnnualPageChange(annualCurrentPage + 1)"
+            />
           </PaginationContent>
         </Pagination>
       </TabsContent>

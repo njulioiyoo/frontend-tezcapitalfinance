@@ -95,16 +95,26 @@ export const useReports = () => {
 
       const url = `${baseURL}/api/v1/reports/financial${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
       
+      console.log('🚀 Fetching financial reports from URL:', url)
       const response: ReportsApiResponse = await $fetch(url, {
         headers: {
           'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        server: false
       })
+      console.log('📈 Financial reports response:', response)
 
       if (response.success) {
         financialReports.value = response.data as FinancialReportsResponse
         financialPagination.value = response.pagination
+        console.log('💾 Financial reports stored in state:', {
+          allCategoryCount: financialReports.value['all-category']?.subKeuangan?.length,
+          allCategoryIds: financialReports.value['all-category']?.subKeuangan?.map(r => r.id),
+          pagination: financialPagination.value
+        })
         return response
       } else {
         throw new Error('Failed to fetch financial reports')

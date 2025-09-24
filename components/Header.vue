@@ -154,7 +154,6 @@ const menuHeader = computed(() => [
         subMenu: [
           { label: t('nav.corporateMenu.financialReport'), link: "/corporate" },
           { label: t('nav.corporateMenu.annualReport'), link: "/corporate" },
-          { label: t('nav.corporateMenu.complaintReport'), link: "/corporate" },
           { label: t('nav.corporateMenu.announcement'), link: "/corporate" },
         ],
       },

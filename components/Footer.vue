@@ -92,10 +92,6 @@ const linkMenu = computed(() => [
         link: "/corporate",
       },
       {
-        label: t('nav.corporateMenu.complaintReport'),
-        link: "/corporate",
-      },
-      {
         label: t('nav.corporateMenu.announcement'),
         link: "/corporate",
       },
