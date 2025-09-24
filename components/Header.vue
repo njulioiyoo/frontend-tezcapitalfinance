@@ -13,9 +13,31 @@ const {
   availableLanguages 
 } = useLanguageConfig();
 const { applyNowLink, contactPhone, initConfiguration } = useConfiguration();
+const apiStore = useApiStore();
 
 const isMobileMenuOpen = ref(false);
 const openAccordion = ref(null);
+const services = ref([]);
+
+// Fetch services data
+const fetchServices = async () => {
+  try {
+    const response = await apiStore.fetchServices()
+    console.log('Services API response:', response)
+    // Handle paginated response structure
+    if (response.data && response.data.data) {
+      services.value = response.data.data || []
+    } else if (response.data) {
+      services.value = response.data || []
+    } else {
+      services.value = []
+    }
+    console.log('Services loaded:', services.value)
+  } catch (error) {
+    console.error('Failed to fetch services:', error)
+    services.value = []
+  }
+}
 
 // Initialize language from config
 onMounted(async () => {
@@ -23,6 +45,9 @@ onMounted(async () => {
     // Initialize configuration
     await initConfiguration();
     console.log('Apply Now Link loaded:', applyNowLink.value);
+    
+    // Fetch services for menu
+    await fetchServices();
     
     // Clean up any old keys
     localStorage.removeItem('i18n_redirected');
@@ -91,16 +116,16 @@ const menuHeader = computed(() => [
       {
         title: t('nav.services'),
         subMenu: [
-          { label: t('nav.service.serviceList'), link: "/service" },
-          { label: t('nav.service.workingCapitalFinancing'), link: "/service" },
-          { label: t('nav.service.investmentFinancing'), link: "/service" },
-          { label: t('nav.service.multiPurposeFinancing'), link: "/service" },
+          ...(Array.isArray(services.value) ? services.value.map(service => ({
+            label: locale.value === 'en' ? (service.title_en || service.title_id || 'Untitled Service') : (service.title_id || service.title_en || 'Untitled Service'),
+            link: `/service/${service.slug || service.id}`
+          })) : [])
         ],
       },
       {
         title: t('nav.relatedInformation'),
         subMenu: [
-          { label: t('nav.service.faq'), link: "/service" },
+          { label: t('nav.service.faq'), link: "/contact" },
         ],
       },
     ],
@@ -156,7 +181,7 @@ const dataHome = computed(() => [
   },
   {
     label: t('nav.service.faq'),
-    link: "/",
+    link: "/contact",
   },
 ]);
 

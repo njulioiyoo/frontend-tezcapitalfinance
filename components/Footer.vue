@@ -1,11 +1,34 @@
 <script setup>
 // Get configuration data and i18n
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { initConfiguration, socialMedia: configSocialMedia, ojkTitle, ojkDescription, ojkImages } = useConfiguration()
+const apiStore = useApiStore()
+
+// Services data
+const services = ref([])
+
+// Fetch services data
+const fetchServices = async () => {
+  try {
+    const response = await apiStore.fetchServices()
+    // Handle paginated response structure
+    if (response.data && response.data.data) {
+      services.value = response.data.data || []
+    } else if (response.data) {
+      services.value = response.data || []
+    } else {
+      services.value = []
+    }
+  } catch (error) {
+    console.error('Failed to fetch services:', error)
+    services.value = []
+  }
+}
 
 // Initialize configuration on component mount
 onMounted(async () => {
   await initConfiguration()
+  await fetchServices()
 })
 
 // Dynamic menu structure matching Header.vue
@@ -26,21 +49,13 @@ const linkMenu = computed(() => [
   {
     title: t('nav.services'),
     menu: [
-      {
-        label: t('nav.service.workingCapitalFinancing'),
-        link: "/service",
-      },
-      {
-        label: t('nav.service.investmentFinancing'),
-        link: "/service",
-      },
-      {
-        label: t('nav.service.multiPurposeFinancing'),
-        link: "/service",
-      },
+      ...(Array.isArray(services.value) ? services.value.map(service => ({
+        label: locale.value === 'en' ? (service.title_en || service.title_id || 'Untitled Service') : (service.title_id || service.title_en || 'Untitled Service'),
+        link: `/service/${service.slug || service.id}`
+      })) : []),
       {
         label: t('nav.service.faq'),
-        link: "/service",
+        link: "/contact",
       },
     ],
   },
