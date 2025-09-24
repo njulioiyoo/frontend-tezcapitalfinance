@@ -141,7 +141,6 @@ const accordionItems = [
         <h1 class="xl:text-5xl text-2xl font-bold mb-6 text-center">
         {{ getLocalizedTitle(serviceItem) }}
       </h1>
-      <p class="text-center text-base xl:text-xl">Test</p>
       <div class="prose prose-lg max-w-none">
         <div v-if="getLocalizedContent(serviceItem)" v-html="getLocalizedContent(serviceItem)" />
         <div v-else-if="getLocalizedExcerpt(serviceItem)" v-html="getLocalizedExcerpt(serviceItem)" />
