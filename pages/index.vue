@@ -298,11 +298,11 @@ const swiper1 = useSwiper(swiperBasicRef);
         {{ t('homepage.learnMore') }}
       </NuxtLink>
     </div>
-    <div class="flex flex-col xl:gap-9 gap-6 py-8 xl:py-12">
+    <!-- Our Partners Section - Hidden for now -->
+    <!-- <div class="flex flex-col xl:gap-9 gap-6 py-8 xl:py-12">
       <h1 class="xl:text-5xl text-2xl text-black-100 font-bold text-center">
         {{ partnersTitle || t('homepage.sections.ourPartners') }}
       </h1>
-      <!-- Partners from API -->
       <div v-if="partners.length > 0" class="flex flex-wrap justify-center gap-6 px-3 xl:px-15">
         <div
           class="flex items-center justify-center"
@@ -317,14 +317,10 @@ const swiper1 = useSwiper(swiperBasicRef);
           />
         </div>
       </div>
-      <!-- No Data Alert -->
       <div v-else class="px-3 xl:px-15">
         <NoDataAlert section="Partners" />
       </div>
-    </div>
-    <div class="py-8 xl:py-12">
-      <div class="bg-divider h-0.25 w-full px-15"></div>
-    </div>
+    </div> -->
     <div class="py-8 xl:py-12" id="news-updates">
       <div class="xl:px-15 px-3">
         <div
