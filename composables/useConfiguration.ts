@@ -99,14 +99,35 @@ export const useConfiguration = () => {
     return []
   })
 
-  // Fetch configuration data using cache
+  // Fetch configuration data directly from API (real-time)
   const fetchConfiguration = async () => {
     try {
       isLoading.value = true
       error.value = null
       
-      const { fetchConfigurations } = useConfigurationCache()
-      const data = await fetchConfigurations()
+      const config = useRuntimeConfig()
+      const baseURL = config.public.apiBaseUrl || 'http://cms.tez-capital.web.local'
+      const url = `${baseURL}/api/v1/configurations?_t=${Date.now()}`
+      
+      const response = await $fetch(url, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        server: false
+      })
+
+      // Handle response structure
+      let data = response
+      if (response && typeof response === 'object') {
+        if (response.data) {
+          data = response.data
+        } else if (response.success && response.data) {
+          data = response.data
+        }
+      }
 
 
       // Extract configuration data - no fallbacks
