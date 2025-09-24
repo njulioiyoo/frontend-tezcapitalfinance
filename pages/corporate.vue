@@ -548,7 +548,7 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
               <div class="flex flex-col gap-3">
                 <p class="xl:text-3xl text-xl">{{ report.year }}</p>
                 <p
-                  class="text-divider text-base xl:text-xl line-clamp-1 xl:line-clamp-2"
+                  class="text-divider text-base xl:text-xl line-clamp-1"
                 >
                   {{ getLocalizedReportDesc(report) }}
                 </p>
