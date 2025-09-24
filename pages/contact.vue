@@ -1,12 +1,55 @@
-<script setup>
+<script setup lang="ts">
 // Get configuration data and homepage data
 const { t, locale } = useI18n()
 const { initConfiguration, contactPhone, contactEmail, contactAddress, contactWhatsapp, appName } = useConfiguration()
 const { initHomepage, services, faqItems, faqTitle } = useHomepage()
 
+// Banner data
+const bannerData = ref({})
+
 // Local loading and error state
 const isLoading = ref(true)
 const error = ref(null)
+
+// Fetch banner data using cache
+const fetchBannerData = async () => {
+  try {
+    const { getBannerConfig } = useConfigurationCache()
+    bannerData.value = await getBannerConfig()
+  } catch (err) {
+    // Silent error handling for banner data
+  }
+}
+
+// Helper function to extract value from configuration object
+const extractConfigValue = (configObj: any) => {
+  if (!configObj) return ''
+  if (typeof configObj === 'string') return configObj
+  if (configObj.value !== undefined) return configObj.value
+  return ''
+}
+
+// Computed banner properties
+const bannerTitle = computed(() => {
+  const titleField = locale.value === 'id' 
+    ? bannerData.value.banner_contact_title_id 
+    : bannerData.value.banner_contact_title_en
+  
+  const defaultTitle = t('contact.contactUs')
+  return extractConfigValue(titleField) || defaultTitle
+})
+
+const bannerDescription = computed(() => {
+  const descField = locale.value === 'id' 
+    ? bannerData.value.banner_contact_description_id 
+    : bannerData.value.banner_contact_description_en
+  
+  return extractConfigValue(descField) || ''
+})
+
+const bannerImage = computed(() => {
+  return extractConfigValue(bannerData.value.banner_contact_image) || '/img/dummy1.jpg'
+})
 
 // Fetch all data
 const fetchData = async () => {
@@ -14,10 +57,11 @@ const fetchData = async () => {
     isLoading.value = true
     error.value = null
     
-    // Fetch configuration and homepage data in parallel
+    // Fetch configuration, homepage, and banner data in parallel
     await Promise.all([
       initConfiguration(),
-      initHomepage()
+      initHomepage(),
+      fetchBannerData()
     ])
   } catch (err) {
     error.value = err
@@ -41,7 +85,7 @@ watch(() => locale.value, () => {
 
 <template>
   <div>
-    <Jumbotron :label="t('contact.contactUs')" img="/img/dummy1.jpg" />
+    <Jumbotron :label="bannerTitle" :desc="bannerDescription" :img="bannerImage" />
     
     <!-- Loading State -->
     <ContactPageSkeleton v-if="isLoading" />

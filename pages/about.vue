@@ -2,6 +2,9 @@
 const { t, locale } = useI18n()
 const apiStore = useApiStore()
 
+// Banner data
+const bannerData = ref({})
+
 // Loading state
 const isLoading = ref(true)
 const error = ref(null)
@@ -56,12 +59,54 @@ const retryFetch = () => {
   fetchData()
 }
 
+// Fetch banner data using cache
+const fetchBannerData = async () => {
+  try {
+    const { getBannerConfig } = useConfigurationCache()
+    bannerData.value = await getBannerConfig()
+  } catch (err) {
+    // Silent error handling for banner data
+  }
+}
+
+// Helper function to extract value from configuration object
+const extractConfigValue = (configObj: any) => {
+  if (!configObj) return ''
+  if (typeof configObj === 'string') return configObj
+  if (configObj.value !== undefined) return configObj.value
+  return ''
+}
+
+// Computed banner properties
+const bannerTitle = computed(() => {
+  const titleField = locale.value === 'id' 
+    ? bannerData.value.banner_about_title_id 
+    : bannerData.value.banner_about_title_en
+  
+  const defaultTitle = t('about.tentangKami')
+  return extractConfigValue(titleField) || defaultTitle
+})
+
+const bannerDescription = computed(() => {
+  const descField = locale.value === 'id' 
+    ? bannerData.value.banner_about_description_id 
+    : bannerData.value.banner_about_description_en
+  
+  return extractConfigValue(descField) || ''
+})
+
+const bannerImage = computed(() => {
+  return extractConfigValue(bannerData.value.banner_about_image) || '/img/dummy1.jpg'
+})
+
 onMounted(() => {
+  fetchBannerData()
   fetchData()
 })
 
 // Watch for language changes and refetch data
 watch(() => locale.value, () => {
+  fetchBannerData()
   fetchData()
 }, { immediate: false })
 
@@ -69,7 +114,7 @@ watch(() => locale.value, () => {
 
 <template>
   <div>
-    <Jumbotron :label="t('about.tentangKami')" img="/img/dummy1.jpg" />
+    <Jumbotron :label="bannerTitle" :desc="bannerDescription" :img="bannerImage" />
     
     <!-- Loading State -->
     <AboutPageSkeleton v-if="isLoading" />

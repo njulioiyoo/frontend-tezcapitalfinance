@@ -6,6 +6,9 @@ import type { NewsResponse, NewsItem } from '~/types/api'
 const { t, locale } = useI18n()
 const apiStore = useApiStore()
 
+// Banner data
+const bannerData = ref({})
+
 // Calendar state
 const selectedDate = ref(null)
 const dateRange = ref({ start: null, end: null })
@@ -213,11 +216,54 @@ const handlePageChange = (page: number) => {
 
 // Lifecycle
 onMounted(() => {
+  fetchBannerData()
   fetchNews()
+})
+
+// Fetch banner data using cache
+const fetchBannerData = async () => {
+  try {
+    const { getBannerConfig } = useConfigurationCache()
+    bannerData.value = await getBannerConfig()
+  } catch (err) {
+    // Silent error handling for banner data
+  }
+}
+
+// Helper function to extract value from configuration object
+const extractConfigValue = (configObj: any) => {
+  if (!configObj) return ''
+  if (typeof configObj === 'string') return configObj
+  if (configObj.value !== undefined) return configObj.value
+  return ''
+}
+
+// Computed banner properties
+const bannerTitle = computed(() => {
+  const titleField = locale.value === 'id' 
+    ? bannerData.value.banner_news_title_id 
+    : bannerData.value.banner_news_title_en
+  
+  const defaultTitle = t('nav.newsEvent')
+  return extractConfigValue(titleField) || defaultTitle
+})
+
+const bannerDescription = computed(() => {
+  const descField = locale.value === 'id' 
+    ? bannerData.value.banner_news_description_id 
+    : bannerData.value.banner_news_description_en
+  
+  const defaultDesc = t('nav.news.jumbotronDesc')
+  return extractConfigValue(descField) || defaultDesc
+})
+
+const bannerImage = computed(() => {
+  return extractConfigValue(bannerData.value.banner_news_image) || 'img/dummy1.jpg'
 })
 
 // Watch for language changes
 watch(() => locale.value, () => {
+  fetchBannerData()
   updateCategories()
   fetchNews()
 }, { immediate: false })
@@ -235,9 +281,9 @@ watch(() => searchQuery.value, (newValue) => {
 <template>
   <div>
     <Jumbotron
-      :label="t('nav.newsEvent')"
-      img="img/dummy1.jpg"
-      :desc="t('nav.news.jumbotronDesc')"
+      :label="bannerTitle"
+      :img="bannerImage"
+      :desc="bannerDescription"
     />
     
     <!-- Loading State -->

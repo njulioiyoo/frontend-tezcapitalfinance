@@ -18,9 +18,16 @@ export interface ContactConfig {
   contact_whatsapp: string
 }
 
+export interface OjkConfig {
+  ojk_title: string
+  ojk_description: string
+  ojk_images: any[]
+}
+
 export interface ConfigurationData {
   general: GeneralConfig
   contact: ContactConfig
+  ojk?: OjkConfig
 }
 
 export const useConfiguration = () => {
@@ -60,6 +67,36 @@ export const useConfiguration = () => {
 
   const contactWhatsapp = computed(() => {
     return configData.value?.contact?.contact_whatsapp || ''
+  })
+
+  // OJK Configuration
+  const ojkTitle = computed(() => {
+    return configData.value?.ojk?.ojk_title?.value || configData.value?.ojk?.ojk_title || 'Berizin dan Diawasi oleh Otoritas Jasa Keuangan'
+  })
+
+  const ojkDescription = computed(() => {
+    return configData.value?.ojk?.ojk_description?.value || configData.value?.ojk?.ojk_description || '© 2025 PT TEZ Capital and Finance. All Rights Reserved'
+  })
+
+  const ojkImages = computed(() => {
+    const ojkImagesData = configData.value?.ojk?.ojk_images?.value || configData.value?.ojk?.ojk_images
+    
+    if (!ojkImagesData) {
+      return []
+    }
+
+    try {
+      if (typeof ojkImagesData === 'string') {
+        const parsed = JSON.parse(ojkImagesData)
+        return Array.isArray(parsed) ? parsed : []
+      } else if (Array.isArray(ojkImagesData)) {
+        return ojkImagesData
+      }
+    } catch (e) {
+      console.warn('Failed to parse OJK images configuration:', e)
+    }
+    
+    return []
   })
 
   // Fetch configuration data using cache
@@ -119,9 +156,24 @@ export const useConfiguration = () => {
           contact_whatsapp: data.contact?.contact_whatsapp?.value || data.contact?.contact_whatsapp || ''
         }
 
+        // Parse OJK configuration data
+        const ojkConfig = {
+          ojk_title: data.ojk?.ojk_title?.value || data.ojk?.ojk_title || '',
+          ojk_description: data.ojk?.ojk_description?.value || data.ojk?.ojk_description || '',
+          ojk_images: data.ojk?.ojk_images?.value || data.ojk?.ojk_images || []
+        }
+        
+        console.log('🏛️ OJK Config loaded:', {
+          title: ojkConfig.ojk_title,
+          description: ojkConfig.ojk_description,
+          images: ojkConfig.ojk_images,
+          rawData: data.ojk
+        })
+
         configData.value = {
           general: generalConfig,
-          contact: contactConfig
+          contact: contactConfig,
+          ojk: ojkConfig
         }
 
       } else {
@@ -138,6 +190,11 @@ export const useConfiguration = () => {
             contact_email: '',
             contact_address: '',
             contact_whatsapp: ''
+          },
+          ojk: {
+            ojk_title: '',
+            ojk_description: '',
+            ojk_images: []
           }
         }
       }
@@ -157,6 +214,11 @@ export const useConfiguration = () => {
           contact_email: '',
           contact_address: '',
           contact_whatsapp: ''
+        },
+        ojk: {
+          ojk_title: '',
+          ojk_description: '',
+          ojk_images: []
         }
       }
     } finally {
@@ -179,6 +241,9 @@ export const useConfiguration = () => {
     contactEmail,
     contactAddress,
     contactWhatsapp,
+    ojkTitle,
+    ojkDescription,
+    ojkImages,
     isLoading: readonly(isLoading),
     error: readonly(error),
     fetchConfiguration,

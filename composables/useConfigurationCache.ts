@@ -12,8 +12,8 @@ const isConfigLoading = ref(false)
 const configError = ref<any>(null)
 const lastFetchTime = ref<number>(0)
 
-// Cache duration in milliseconds (5 minutes)
-const CACHE_DURATION = 5 * 60 * 1000
+// Cache duration in milliseconds (1 minute for testing, normally 5 minutes)
+const CACHE_DURATION = 1 * 60 * 1000
 
 export const useConfigurationCache = () => {
   const config = useRuntimeConfig()

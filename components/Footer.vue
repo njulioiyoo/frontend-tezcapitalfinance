@@ -1,7 +1,7 @@
 <script setup>
 // Get configuration data and i18n
 const { t } = useI18n()
-const { initConfiguration, socialMedia: configSocialMedia } = useConfiguration()
+const { initConfiguration, socialMedia: configSocialMedia, ojkTitle, ojkDescription, ojkImages } = useConfiguration()
 
 // Initialize configuration on component mount
 onMounted(async () => {
@@ -88,20 +88,8 @@ const linkMenu = computed(() => [
   },
 ]);
 
-const verified = [
-  {
-    img: "/img/ojk.png",
-  },
-  {
-    img: "/img/ojk.png",
-  },
-  {
-    img: "/img/ojk.png",
-  },
-  {
-    img: "/img/ojk.png",
-  },
-];
+// OJK images are now managed through configuration
+// Remove hardcoded verified array - using ojkImages from useConfiguration instead
 
 // Map platform names to icons
 const platformIcons = {
@@ -168,19 +156,19 @@ const socialMedia = computed(() => {
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 xl:gap-12">
       <div class="flex gap-3 justify-center items-center order-3 xl:order-1">
         <img
-          v-for="(i, index) in verified"
+          v-for="(ojkImg, index) in ojkImages"
           :key="index"
-          :src="i.img"
-          alt="OJK"
+          :src="ojkImg.url"
+          :alt="ojkImg.alt"
           class="w-18 xl:w-20 h-10 object-contain"
         />
       </div>
       <div class="flex flex-col items-center order-2">
         <p class="text-black-50 font-bold text-center text-sm xl:text-base">
-          Berizin dan Diawasi oleh Otoritas Jasa Keuangan
+          {{ ojkTitle }}
         </p>
         <p class="text-sm text-black-50 text-center">
-          © 2025 PT TEZ Capital and Finance. All Rights Reserved
+          {{ ojkDescription }}
         </p>
       </div>
       <div class="flex gap-6 items-center justify-center order-1 xl:order-3">

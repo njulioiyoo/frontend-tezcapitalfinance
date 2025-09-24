@@ -7,6 +7,9 @@ const apiStore = useApiStore();
 
 const value = ref(today(getLocalTimeZone()));
 
+// Banner data
+const bannerData = ref({})
+
 // Announcements state
 const announcements = ref([])
 const announcementsLoading = ref(false)
@@ -169,11 +172,54 @@ const getLocalizedReportDesc = (report: any) => {
   return report.desc || ''
 }
 
+// Fetch banner data using cache
+const fetchBannerData = async () => {
+  try {
+    const { getBannerConfig } = useConfigurationCache()
+    bannerData.value = await getBannerConfig()
+  } catch (err) {
+    // Silent error handling for banner data
+  }
+}
+
+// Helper function to extract value from configuration object
+const extractConfigValue = (configObj: any) => {
+  if (!configObj) return ''
+  if (typeof configObj === 'string') return configObj
+  if (configObj.value !== undefined) return configObj.value
+  return ''
+}
+
+// Computed banner properties
+const bannerTitle = computed(() => {
+  const titleField = locale.value === 'id' 
+    ? bannerData.value.banner_corporate_title_id 
+    : bannerData.value.banner_corporate_title_en
+  
+  const defaultTitle = locale.value === 'id' ? 'Corporate' : 'Corporate'
+  return extractConfigValue(titleField) || defaultTitle
+})
+
+const bannerDescription = computed(() => {
+  const descField = locale.value === 'id' 
+    ? bannerData.value.banner_corporate_description_id 
+    : bannerData.value.banner_corporate_description_en
+  
+  return extractConfigValue(descField) || ''
+})
+
+const bannerImage = computed(() => {
+  return extractConfigValue(bannerData.value.banner_corporate_image) || '/img/dummy1.jpg'
+})
+
 // Lifecycle
 onMounted(async () => {
   try {
     console.log('Corporate page mounted, loading reports...')
     console.log('API Base URL:', useRuntimeConfig().public.apiBaseUrl)
+    
+    // Fetch banner data
+    await fetchBannerData()
     
     // Load reports sequentially to avoid overwhelming the server
     await loadFinancialReports()
@@ -269,7 +315,8 @@ const handleAnnouncementPageChange = (page: number) => {
 // Watch for language changes
 watch(() => locale.value, async () => {
   try {
-    // Reload reports when language changes
+    // Reload banner and reports when language changes
+    await fetchBannerData()
     await loadFinancialReports()
     await loadAnnualReports()
     await fetchAnnouncements()
@@ -291,7 +338,7 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
 
 <template>
   <div>
-    <Jumbotron label="Corporate" img="/img/dummy1.jpg" />
+    <Jumbotron :label="bannerTitle" :desc="bannerDescription" :img="bannerImage" />
     <Tabs default-value="lap-keuangan" class="w-full">
       <TabsList>
         <TabsTrigger value="lap-keuangan">{{ t('nav.corporateMenu.financialReport') }}</TabsTrigger>
