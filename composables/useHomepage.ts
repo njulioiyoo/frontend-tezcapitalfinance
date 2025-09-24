@@ -93,7 +93,21 @@ export interface NewsData {
   items: NewsItem[]
 }
 
+export interface BannerItem {
+  title: string
+  subtitle: string
+  image: string
+  link: string
+  order: number
+}
+
+export interface BannersData {
+  enabled: boolean
+  items: BannerItem[]
+}
+
 export interface HomepageData {
+  banners: BannersData
   six_reasons: SixReasonsData
   application_process: ApplicationProcessData
   services: ServicesData
@@ -110,6 +124,10 @@ export const useHomepage = () => {
   const error = ref<any>(null)
 
   // Computed values for easy access
+  const banners = computed(() => {
+    return homepageData.value?.banners?.items || []
+  })
+
   const sixReasons = computed(() => {
     return homepageData.value?.six_reasons?.items || []
   })
@@ -184,6 +202,11 @@ export const useHomepage = () => {
 
       // Extract homepage data
       if (data) {
+        const bannersData: BannersData = {
+          enabled: data.banners?.enabled || false,
+          items: data.banners?.items || []
+        }
+
         const sixReasonsData: SixReasonsData = {
           title: data.six_reasons?.title || '',
           subtitle: data.six_reasons?.subtitle || '',
@@ -223,6 +246,7 @@ export const useHomepage = () => {
         }
 
         homepageData.value = {
+          banners: bannersData,
           six_reasons: sixReasonsData,
           application_process: applicationProcessData,
           services: servicesData,
@@ -234,6 +258,10 @@ export const useHomepage = () => {
       } else {
         // No homepage data found
         homepageData.value = {
+          banners: {
+            enabled: false,
+            items: []
+          },
           six_reasons: {
             title: '',
             subtitle: '',
@@ -272,6 +300,10 @@ export const useHomepage = () => {
       
       // No fallback on error
       homepageData.value = {
+        banners: {
+          enabled: false,
+          items: []
+        },
         six_reasons: {
           title: '',
           subtitle: '',
@@ -321,6 +353,7 @@ export const useHomepage = () => {
 
   return {
     homepageData: readonly(homepageData),
+    banners,
     sixReasons,
     sixReasonsTitle,
     applicationProcess,

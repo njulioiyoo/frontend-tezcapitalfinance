@@ -4,7 +4,8 @@ import { useSwiper } from "#imports";
 // Get homepage data with i18n support
 const { locale, t } = useI18n()
 const { 
-  initHomepage, 
+  initHomepage,
+  banners,
   sixReasons, 
   sixReasonsTitle,
   applicationProcess, 
@@ -60,21 +61,43 @@ const linkAnchor = computed(() => [
   },
 ]);
 
-// Gallery data (keeping this as it's not part of homepage API)
-const gallery = [
-  {
-    img: "/img/dummy3.jpg",
-    alt: "Gallery 1",
-  },
-  {
-    img: "/img/dummy2.jpg",
-    alt: "Gallery 2",
-  },
-  {
-    img: "/img/dummy1.jpg",
-    alt: "Gallery 3",
-  },
-];
+// Use banner data from API or fallback to static gallery
+const slideshow = computed(() => {
+  if (banners.value && banners.value.length > 0) {
+    return banners.value.map((banner) => ({
+      img: banner.image,
+      alt: banner.title,
+      title: banner.title,
+      subtitle: banner.subtitle,
+      link: banner.link
+    }))
+  }
+  
+  // Fallback to static gallery
+  return [
+    {
+      img: "/img/dummy3.jpg",
+      alt: "Gallery 1",
+      title: "",
+      subtitle: "",
+      link: ""
+    },
+    {
+      img: "/img/dummy2.jpg",
+      alt: "Gallery 2", 
+      title: "",
+      subtitle: "",
+      link: ""
+    },
+    {
+      img: "/img/dummy1.jpg",
+      alt: "Gallery 3",
+      title: "",
+      subtitle: "",
+      link: ""
+    },
+  ]
+})
 
 const navigateToService = (service) => {
   // Navigate to service detail page
@@ -122,9 +145,9 @@ const swiper1 = useSwiper(swiperBasicRef);
           }"
         >
           <swiper-slide
-            v-for="slide in gallery"
-            :key="`slide-basic-${slide.id}`"
-            class="swiper-slide h-100 xl:h-200"
+            v-for="(slide, index) in slideshow"
+            :key="`slide-basic-${index}`"
+            class="swiper-slide h-100 xl:h-200 relative"
           >
             <img
               :src="slide.img"
@@ -132,6 +155,13 @@ const swiper1 = useSwiper(swiperBasicRef);
               class="w-full h-full object-cover"
               @error="handleImageError($event, 'gallery')"
             />
+            <!-- Banner content overlay -->
+            <div v-if="slide.title || slide.subtitle" class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+              <div class="text-center text-white px-4">
+                <h2 v-if="slide.title" class="text-2xl xl:text-4xl font-bold mb-2">{{ slide.title }}</h2>
+                <p v-if="slide.subtitle" class="text-lg xl:text-xl">{{ slide.subtitle }}</p>
+              </div>
+            </div>
           </swiper-slide>
         </swiper-container>
         <div

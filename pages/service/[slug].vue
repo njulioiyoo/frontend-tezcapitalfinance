@@ -37,6 +37,14 @@ const getLocalizedExcerpt = (item: ServiceItem) => {
   return locale.value === 'en' && item.excerpt_en ? item.excerpt_en : item.excerpt_id;
 };
 
+const getLocalizedRequirements = (item: ServiceItem) => {
+  return locale.value === 'en' && item.requirements_en ? item.requirements_en : item.requirements_id;
+};
+
+const getLocalizedBenefits = (item: ServiceItem) => {
+  return locale.value === 'en' && item.benefits_en ? item.benefits_en : item.benefits_id;
+};
+
 // Fetch service detail
 const fetchServiceDetail = async () => {
   try {
@@ -88,19 +96,65 @@ watch(() => route.params.slug, (newSlug) => {
   }
 });
 
-// Dummy data for features (can be moved to API later)
-const accordionItems = [
-  {
-    value: "item-1",
-    title: "Interest & Fees",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ornare, tellus at laoreet faucibus, dolor massa dignissim justo, facilisis pretium dolor augue non diam.",
-  },
-  {
-    value: "item-2", 
-    title: "Document List",
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ornare, tellus at laoreet faucibus, dolor massa dignissim justo, facilisis pretium dolor augue non diam.",
-  },
-];
+// Dynamic accordion items based on service data
+const accordionItems = computed(() => {
+  if (!serviceItem.value) return [];
+  
+  const items = [];
+  
+  // Interest & Fees section
+  if (serviceItem.value.interest_list_array?.length || serviceItem.value.interest_rate || serviceItem.value.service_duration) {
+    let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
+    content += '<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">Item</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">Detail</th></tr></thead>';
+    content += '<tbody>';
+    
+    if (serviceItem.value.interest_rate) {
+      content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">Interest Rate</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.interest_rate}%</td></tr>`;
+    }
+    
+    if (serviceItem.value.service_duration) {
+      content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">Service Duration</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.service_duration}</td></tr>`;
+    }
+    
+    if (serviceItem.value.interest_list_array?.length) {
+      serviceItem.value.interest_list_array.forEach((item, index) => {
+        const parts = item.split(':');
+        const label = parts[0]?.trim() || `Item ${index + 1}`;
+        const value = parts[1]?.trim() || item;
+        content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${label}</td><td class="border border-gray-300 px-4 py-2">${value}</td></tr>`;
+      });
+    }
+    
+    content += '</tbody></table></div>';
+    
+    items.push({
+      value: "interest-fees",
+      title: "Interest & Fees",
+      content: content
+    });
+  }
+  
+  // Document List section
+  if (serviceItem.value.document_list_array?.length) {
+    let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
+    content += '<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">No</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">Document Required</th></tr></thead>';
+    content += '<tbody>';
+    
+    serviceItem.value.document_list_array.forEach((doc, index) => {
+      content += `<tr><td class="border border-gray-300 px-4 py-2 text-center font-medium">${index + 1}</td><td class="border border-gray-300 px-4 py-2">${doc}</td></tr>`;
+    });
+    
+    content += '</tbody></table></div>';
+    
+    items.push({
+      value: "document-list",
+      title: "Document List",
+      content: content
+    });
+  }
+  
+  return items;
+});
 
 </script>
 
@@ -148,7 +202,7 @@ const accordionItems = [
       </div>
         
         <!-- Service Details -->
-        <div class="mt-12">
+        <div v-if="accordionItems.length" class="mt-12">
           <Accordion type="single" collapsible class="w-full">
             <AccordionItem
               v-for="item in accordionItems"
@@ -159,7 +213,7 @@ const accordionItems = [
                 item.title
               }}</AccordionTrigger>
               <AccordionContent class="xl:text-xl text-base">
-                {{ item.content }}
+                <div v-html="item.content"></div>
               </AccordionContent>
             </AccordionItem>
           </Accordion>

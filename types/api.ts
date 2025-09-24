@@ -151,6 +151,18 @@ export interface ServiceItem {
   featured_image_url?: string
   gallery?: string
   gallery_urls?: string[]
+  // New service-specific fields
+  interest_list?: string[]
+  interest_list_array?: string[]
+  document_list?: string[]
+  document_list_array?: string[]
+  interest_rate?: number
+  service_duration?: string
+  requirements_id?: string
+  requirements_en?: string
+  benefits_id?: string
+  benefits_en?: string
+  // Existing fields
   tags?: string
   tags_array?: string[]
   author?: string
