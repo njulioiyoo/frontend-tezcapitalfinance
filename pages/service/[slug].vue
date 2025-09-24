@@ -100,60 +100,8 @@ watch(() => route.params.slug, (newSlug) => {
 const accordionItems = computed(() => {
   if (!serviceItem.value) return [];
   
-  const items = [];
-  
-  // Interest & Fees section
-  if (serviceItem.value.interest_list_array?.length || serviceItem.value.interest_rate || serviceItem.value.service_duration) {
-    let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
-    content += '<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">Item</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">Detail</th></tr></thead>';
-    content += '<tbody>';
-    
-    if (serviceItem.value.interest_rate) {
-      content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">Interest Rate</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.interest_rate}%</td></tr>`;
-    }
-    
-    if (serviceItem.value.service_duration) {
-      content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">Service Duration</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.service_duration}</td></tr>`;
-    }
-    
-    if (serviceItem.value.interest_list_array?.length) {
-      serviceItem.value.interest_list_array.forEach((item, index) => {
-        const parts = item.split(':');
-        const label = parts[0]?.trim() || `Item ${index + 1}`;
-        const value = parts[1]?.trim() || item;
-        content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${label}</td><td class="border border-gray-300 px-4 py-2">${value}</td></tr>`;
-      });
-    }
-    
-    content += '</tbody></table></div>';
-    
-    items.push({
-      value: "interest-fees",
-      title: "Interest & Fees",
-      content: content
-    });
-  }
-  
-  // Document List section
-  if (serviceItem.value.document_list_array?.length) {
-    let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
-    content += '<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">No</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">Document Required</th></tr></thead>';
-    content += '<tbody>';
-    
-    serviceItem.value.document_list_array.forEach((doc, index) => {
-      content += `<tr><td class="border border-gray-300 px-4 py-2 text-center font-medium">${index + 1}</td><td class="border border-gray-300 px-4 py-2">${doc}</td></tr>`;
-    });
-    
-    content += '</tbody></table></div>';
-    
-    items.push({
-      value: "document-list",
-      title: "Document List",
-      content: content
-    });
-  }
-  
-  return items;
+  // Return empty array - no accordion sections will be shown
+  return [];
 });
 
 </script>
@@ -195,10 +143,18 @@ const accordionItems = computed(() => {
         <h1 class="xl:text-5xl text-2xl font-bold mb-6 text-center">
         {{ getLocalizedTitle(serviceItem) }}
       </h1>
+      <!-- Short Description (Excerpt) -->
+      <div v-if="getLocalizedExcerpt(serviceItem)" class="mb-8 text-xl text-gray-700 leading-relaxed">
+        <div v-html="getLocalizedExcerpt(serviceItem)" />
+      </div>
+      
+      <!-- Separator -->
+      <hr class="my-8 border-t border-gray-200">
+      
+      <!-- Full Content -->
       <div class="prose prose-lg max-w-none">
         <div v-if="getLocalizedContent(serviceItem)" v-html="getLocalizedContent(serviceItem)" />
-        <div v-else-if="getLocalizedExcerpt(serviceItem)" v-html="getLocalizedExcerpt(serviceItem)" />
-        <p v-else class="text-gray-500">No description available</p>
+        <p v-else class="text-gray-500">No detailed content available</p>
       </div>
         
         <!-- Service Details -->
