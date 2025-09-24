@@ -351,7 +351,7 @@ const swiper1 = useSwiper(swiperBasicRef);
               <p class="text-divider text-sm xl:text-base">
                 {{ new Date(article.published_at).toLocaleDateString() }} | {{ article.category }}
               </p>
-              <h4 class="xl:text-4xl text-lg line-clamp-1">{{ article.title }}</h4>
+              <h4 class="xl:text-4xl text-lg line-clamp-1 leading-12">{{ article.title }}</h4>
             </NuxtLink>
           </li>
         </ul>

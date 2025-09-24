@@ -714,7 +714,7 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
                     day: 'numeric' 
                   }) }}
                 </p>
-                <h4 class="xl:text-4xl text-xl line-clamp-1">
+                <h4 class="xl:text-4xl text-xl line-clamp-1 leading-12">
                   {{ locale === 'en' && announcement.title_en ? announcement.title_en : announcement.title_id }}
                 </h4>
               </div>

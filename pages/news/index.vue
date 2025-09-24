@@ -453,7 +453,7 @@ watch(() => searchQuery.value, (newValue) => {
                     <p class="text-divider text-sm xl:text-base">
                       {{ formatDate(item.published_at) }} | {{ getLocalizedCategory(item.category) }}
                     </p>
-                    <h4 class="xl:text-4xl text-xl line-clamp-1">
+                    <h4 class="xl:text-4xl text-xl line-clamp-1 leading-12">
                       {{ getLocalizedTitle(item) }}
                     </h4>
                   </div>
