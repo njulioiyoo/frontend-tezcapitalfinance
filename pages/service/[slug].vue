@@ -104,8 +104,8 @@ const accordionItems = computed(() => {
   
   const items = [];
   
-  // Special case for pembiayaan-serbaguna - tidak ada accordion, return empty
-  if (serviceItem.value.slug === 'pembiayaan-serbaguna') {
+  // Special case for pembiayaan-serbaguna/multiguna - tidak ada accordion, return empty
+  if (serviceItem.value.slug === 'pembiayaan-serbaguna' || serviceItem.value.slug === 'pembiayaan-multiguna') {
     return [];
   } else {
     // For other services, show Interest & Fees and Document List if data exists
@@ -192,6 +192,7 @@ const activeCategory = ref<string | null>(null);
 const priceInput = ref('');
 const dpInput = ref('');
 const selectedVehicle = ref<MotorItem | null>(null);
+const selectedVehicleId = ref<number | null>(null);
 const selectedDp = ref<{dp_percent: number, dp_amount: number} | null>(null);
 const selectedTenor = ref<number | null>(null);
 const monthlyPayment = ref(0);
@@ -252,6 +253,7 @@ const resetForm = () => {
   priceInput.value = '';
   dpInput.value = '';
   selectedVehicle.value = null;
+  selectedVehicleId.value = null;
   selectedDp.value = null;
   selectedTenor.value = null;
   monthlyPayment.value = 0;
@@ -281,11 +283,20 @@ const formatCurrency = (amount: number) => {
 const loadMotorData = async () => {
   try {
     if (activeCategory.value === 'Motor') {
+      console.log('Loading motor data...');
       const [motorsData, areasData, periodsData] = await Promise.all([
         motorApi.getMotors(),
         motorApi.getAreas(),
         motorApi.getPeriods()
       ]);
+      
+      console.log('Motor data loaded:', {
+        motorsCount: motorsData.length,
+        firstMotor: motorsData[0]?.name,
+        motorsSample: motorsData.slice(0, 5).map(m => ({ id: m.id, name: m.name })),
+        areas: areasData,
+        periods: periodsData
+      });
       
       motors.value = motorsData;
       areas.value = areasData;
@@ -294,6 +305,22 @@ const loadMotorData = async () => {
   } catch (error) {
     console.error('Failed to load motor data:', error);
   }
+};
+
+const onVehicleChange = () => {
+  // Find the selected vehicle object based on ID
+  const vehicle = motors.value.find(m => m.id === selectedVehicleId.value);
+  selectedVehicle.value = vehicle || null;
+  
+  console.log('Vehicle selection changed via @change event:', {
+    selectedVehicleId: selectedVehicleId.value,
+    selectedVehicleName: vehicle?.name,
+    selectedVehicleType: typeof selectedVehicleId.value,
+    foundVehicle: vehicle ? JSON.stringify(vehicle, null, 2) : 'Not found'
+  });
+  
+  // Reset DP when vehicle changes
+  selectedDp.value = null;
 };
 
 // Calculate simulation using API
@@ -305,15 +332,31 @@ const calculateSimulation = async () => {
         monthlyPayment.value = 0;
         totalPayment.value = 0;
         calculationResult.value = null;
+        motorApi.error.value = null;
         return;
       }
       
       isCalculating.value = true;
+      motorApi.error.value = null;
+      
+      console.log('Motor calculation params:', {
+        motorId: selectedVehicle.value.id,
+        motorName: selectedVehicle.value.name,
+        dpAmount: selectedDp.value.dp_amount,
+        dpPercent: selectedDp.value.dp_percent,
+        tenorMonths: selectedTenor.value
+      });
+      console.log('Selected vehicle object:', JSON.stringify(selectedVehicle.value, null, 2));
+      console.log('Selected DP object:', JSON.stringify(selectedDp.value, null, 2));
+      console.log('Available DP options:', JSON.stringify(dpOptions.value, null, 2));
+      
       const result = await motorApi.calculateInstallment(
         selectedVehicle.value.id,
         selectedDp.value.dp_amount,
         selectedTenor.value
       );
+      
+      console.log('Motor calculation result:', result);
       
       calculationResult.value = result;
       monthlyPayment.value = result.calculation.monthly_installment;
@@ -341,6 +384,17 @@ const calculateSimulation = async () => {
     }
   } catch (error) {
     console.error('Calculation failed:', error);
+    console.error('Error details:', {
+      message: error.message,
+      status: error.status,
+      data: error.data,
+      response: error.response,
+      statusCode: error.statusCode
+    });
+    
+    // Set error in motorApi for UI display
+    motorApi.error.value = error;
+    
     monthlyPayment.value = 0;
     totalPayment.value = 0;
     calculationResult.value = null;
@@ -354,15 +408,23 @@ const canCalculate = computed(() => {
   if (!activeCategory.value || !selectedTenor.value) return false;
   
   if (activeCategory.value === 'Motor') {
-    return selectedVehicle.value && selectedDp.value;
+    return selectedVehicleId.value && selectedDp.value;
   } else {
     return priceInput.value && dpInput.value;
   }
 });
 
 // Watch for changes to trigger recalculation
-watch([selectedVehicle, selectedDp, selectedTenor], () => {
+watch([selectedVehicleId, selectedDp, selectedTenor], ([vehicleId, dp, tenor]) => {
   if (activeCategory.value === 'Motor') {
+    const vehicle = motors.value.find(m => m.id === vehicleId);
+    console.log('Vehicle selection changed:', {
+      vehicleId: vehicleId,
+      vehicleName: vehicle?.name,
+      dpAmount: dp?.dp_amount,
+      dpPercent: dp?.dp_percent,
+      tenor: tenor
+    });
     calculateSimulation();
   }
 });
@@ -465,7 +527,7 @@ watch([priceInput, dpInput, selectedTenor], () => {
     </div>
     
     <!-- Credit Simulation Section - only for pembiayaan-serbaguna -->
-    <div v-if="serviceItem && serviceItem.slug === 'pembiayaan-serbaguna'" 
+    <div v-if="serviceItem && (serviceItem.slug === 'pembiayaan-serbaguna' || serviceItem.slug === 'pembiayaan-multiguna')" 
          class="relative px-3 xl:px-15 py-8 xl:py-12 bg-red-100 overflow-hidden">
       <img
         src="/img/dummy1.jpg"
@@ -527,18 +589,26 @@ watch([priceInput, dpInput, selectedTenor], () => {
             <h6 class="text-center text-white font-bold text-xl xl:text-2xl">
               Harga Barang
             </h6>
-            <input v-model="priceInput" type="number" placeholder="Rp20.000.000" 
+            <input v-if="activeCategory === 'Motor'" 
+                   :value="selectedVehicle?.price ? formatCurrency(selectedVehicle.price) : ''"
+                   readonly
+                   placeholder="Pilih kendaraan terlebih dahulu" 
+                   class="h-10 bg-gray-100 rounded-lg border border-divider px-3 text-gray-600 cursor-not-allowed" />
+            <input v-else 
+                   v-model="priceInput" 
+                   type="number" 
+                   placeholder="Rp20.000.000" 
                    class="h-10 bg-white rounded-lg border border-divider px-3 text-divider" />
           </div>
           <div v-if="activeCategory === 'Motor'" class="flex flex-col gap-3">
             <h6 class="text-center text-white font-bold text-xl xl:text-2xl">
               Pilih Jenis Kendaraan
             </h6>
-            <select v-model="selectedVehicle" class="h-10 bg-white rounded-lg border border-divider px-3 text-divider">
+            <select v-model="selectedVehicleId" @change="onVehicleChange" class="h-10 bg-white rounded-lg border border-divider px-3 text-divider">
               <option value="">
                 {{ motorApi.isLoading ? 'Memuat data motor...' : 'Pilih Kendaraan' }}
               </option>
-              <option v-for="vehicle in vehicleOptions" :key="vehicle.id" :value="vehicle">
+              <option v-for="vehicle in vehicleOptions" :key="vehicle.id" :value="vehicle.id">
                 {{ vehicle.name }} - {{ formatCurrency(vehicle.price) }} ({{ vehicle.area }})
               </option>
             </select>
@@ -549,9 +619,9 @@ watch([priceInput, dpInput, selectedTenor], () => {
             </h6>
             <select v-if="activeCategory === 'Motor'" v-model="selectedDp" 
                     class="h-10 bg-white rounded-lg border border-divider px-3 text-divider"
-                    :disabled="!selectedVehicle">
+                    :disabled="!selectedVehicleId">
               <option value="">
-                {{ !selectedVehicle ? 'Pilih kendaraan terlebih dahulu' : 'Pilih Uang Muka' }}
+                {{ !selectedVehicleId ? 'Pilih kendaraan terlebih dahulu' : 'Pilih Uang Muka' }}
               </option>
               <option v-for="dp in dpOptions" :key="dp.dp_amount" :value="dp">
                 {{ dp.label }}
@@ -594,8 +664,8 @@ watch([priceInput, dpInput, selectedTenor], () => {
               Estimasi Angsuran
             </h6>
             <h3 class="text-center text-white xl:text-5xl text-2xl font-bold mb-3">
-              <span v-if="motorApi.error && activeCategory === 'Motor'" class="text-red-300">
-                Error perhitungan
+              <span v-if="motorApi.error && activeCategory === 'Motor'" class="text-red-300 text-xl">
+                Error perhitungan - {{ motorApi.error?.data?.message || motorApi.error?.message || 'Gagal menghitung' }}
               </span>
               <span v-else>
                 {{ formatCurrency(monthlyPayment) }}/Bulan
