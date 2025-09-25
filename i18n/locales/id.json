@@ -85,6 +85,7 @@
     "aboutPageLoadError": "Terjadi kesalahan saat mengambil data halaman tentang kami. Data default akan ditampilkan.",
     "newsPageLoadError": "Terjadi kesalahan saat mengambil data berita. Silakan coba lagi nanti.",
     "servicePageLoadError": "Terjadi kesalahan saat mengambil data layanan. Silakan coba lagi nanti.",
+    "serviceDetailLoadError": "Terjadi kesalahan saat mengambil detail layanan. Silakan coba lagi nanti.",
     "homepageLoadError": "Terjadi kesalahan saat mengambil data homepage. Silakan coba lagi.",
     "homepageLoadTitle": "Gagal Memuat Data Homepage",
     "serverError": "Terjadi kesalahan pada server.",
@@ -93,7 +94,19 @@
   "services": {
     "viewDetail": "Lihat Detail",
     "noServicesFound": "Tidak ada layanan ditemukan",
-    "noServicesAvailable": "Belum ada layanan tersedia saat ini."
+    "noServicesAvailable": "Belum ada layanan tersedia saat ini.",
+    "jumbotronDesc": "Temukan layanan terbaik untuk kebutuhan finansial Anda",
+    "noDetailedContent": "Tidak ada konten detail tersedia",
+    "author": "Penulis",
+    "source": "Sumber",
+    "interestAndFees": "Bunga & Biaya",
+    "documentList": "Daftar Dokumen",
+    "item": "Item",
+    "detail": "Detail",
+    "no": "No",
+    "documentRequired": "Dokumen yang Diperlukan",
+    "interestRate": "Tingkat Bunga",
+    "serviceDuration": "Durasi Layanan"
   },
   "maintenance": {
     "title": "Situs Sedang Dalam Pemeliharaan",
@@ -130,5 +143,41 @@
     "singleDate": "Tanggal Tunggal",
     "dateRange": "Rentang Tanggal",
     "clearFilter": "Hapus Filter"
+  },
+  "creditSimulation": {
+    "title": "Simulasi Kredit",
+    "chooseCategory": "Pilih Kategori",
+    "categories": {
+      "phone": "Ponsel",
+      "household": "Peralatan Rumah Tangga",
+      "gadget": "Gadget",
+      "computerLaptop": "Komputer dan Laptop",
+      "motorcycle": "Motor"
+    },
+    "goodsPrice": "Harga Barang",
+    "chooseVehicleType": "Pilih Jenis Kendaraan",
+    "totalDownPayment": "Total Uang Muka",
+    "chooseTenor": "Pilih Tenor",
+    "calculateNow": "Hitung Sekarang",
+    "calculating": "Menghitung...",
+    "installmentEstimate": "Estimasi Angsuran",
+    "perMonth": "/Bulan",
+    "totalToBePaid": "Total yang dibayarkan",
+    "loadingMotorData": "Memuat data motor...",
+    "chooseVehicle": "Pilih Kendaraan",
+    "chooseVehicleFirst": "Pilih kendaraan terlebih dahulu",
+    "chooseDownPayment": "Pilih Uang Muka",
+    "months": "Bulan",
+    "motorPrice": "Harga Motor",
+    "downPayment": "Uang Muka",
+    "tenor": "Tenor",
+    "totalInterest": "Total Bunga",
+    "installmentPerMonth": "Angsuran per Bulan",
+    "calculationNote": "*Perhitungan berdasarkan data motor terbaru dan dapat berubah sewaktu-waktu",
+    "adminFeeNote": "*Biaya tambahan administrasi 2% pada pembayaran pertama",
+    "placeholders": {
+      "goodsPrice": "Rp20.000.000",
+      "downPayment": "Rp10.000.000"
+    }
   }
 }

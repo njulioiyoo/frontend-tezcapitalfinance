@@ -112,15 +112,15 @@ const accordionItems = computed(() => {
     if (serviceItem.value.interest_rate || serviceItem.value.service_duration || 
         (serviceItem.value.interest_list_array && serviceItem.value.interest_list_array.length > 0)) {
       let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
-      content += '<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">Item</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">Detail</th></tr></thead>';
+      content += `<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.item')}</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.detail')}</th></tr></thead>`;
       content += '<tbody>';
       
       if (serviceItem.value.interest_rate) {
-        content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">Interest Rate</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.interest_rate}%</td></tr>`;
+        content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${t('services.interestRate')}</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.interest_rate}%</td></tr>`;
       }
       
       if (serviceItem.value.service_duration) {
-        content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">Service Duration</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.service_duration}</td></tr>`;
+        content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${t('services.serviceDuration')}</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.service_duration}</td></tr>`;
       }
       
       if (serviceItem.value.interest_list_array && serviceItem.value.interest_list_array.length > 0) {
@@ -136,7 +136,7 @@ const accordionItems = computed(() => {
       
       items.push({
         value: "interest-fees",
-        title: "Interest & Fees",
+        title: t('services.interestAndFees'),
         content: content
       });
     }
@@ -144,7 +144,7 @@ const accordionItems = computed(() => {
     // Document List section
     if (serviceItem.value.document_list_array && serviceItem.value.document_list_array.length > 0) {
       let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
-      content += '<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">No</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">Document Required</th></tr></thead>';
+      content += `<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.no')}</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.documentRequired')}</th></tr></thead>`;
       content += '<tbody>';
       
       serviceItem.value.document_list_array.forEach((doc, index) => {
@@ -155,7 +155,7 @@ const accordionItems = computed(() => {
       
       items.push({
         value: "document-list",
-        title: "Document List",
+        title: t('services.documentList'),
         content: content
       });
     }
@@ -165,28 +165,41 @@ const accordionItems = computed(() => {
 });
 
 // Credit Simulation variables and functions
-const creditCategories = ref([
-  {
-    img: "/img/credit/1.png",
-    label: "Ponsel",
-  },
-  {
-    img: "/img/credit/2.png", 
-    label: "Peralatan Rumah Tangga",
-  },
-  {
-    img: "/img/credit/3.png",
-    label: "Gadget",
-  },
-  {
-    img: "/img/credit/4.png",
-    label: "Komputer dan Laptop",
-  },
-  {
-    img: "/img/credit/5.png",
-    label: "Motor",
-  },
-]);
+const creditCategories = computed(() => {
+  try {
+    return [
+      {
+        img: "/img/credit/1.png",
+        label: t('creditSimulation.categories.phone'),
+      },
+      {
+        img: "/img/credit/2.png", 
+        label: t('creditSimulation.categories.household'),
+      },
+      {
+        img: "/img/credit/3.png",
+        label: t('creditSimulation.categories.gadget'),
+      },
+      {
+        img: "/img/credit/4.png",
+        label: t('creditSimulation.categories.computerLaptop'),
+      },
+      {
+        img: "/img/credit/5.png",
+        label: t('creditSimulation.categories.motorcycle'),
+      },
+    ];
+  } catch (error) {
+    // Fallback if i18n is not ready
+    return [
+      { img: "/img/credit/1.png", label: "Ponsel" },
+      { img: "/img/credit/2.png", label: "Peralatan Rumah Tangga" },
+      { img: "/img/credit/3.png", label: "Gadget" },
+      { img: "/img/credit/4.png", label: "Komputer dan Laptop" },
+      { img: "/img/credit/5.png", label: "Motor" },
+    ];
+  }
+});
 
 const activeCategory = ref<string | null>(null);
 const priceInput = ref('');
@@ -243,7 +256,9 @@ const toggleCategory = async (label: string) => {
     resetForm();
     
     // Load motor data if Motor category is selected
-    if (label === 'Motor') {
+    if (isMotorcycleCategory(label)) {
+      // Reset motor API error state
+      motorApi.error.value = null;
       await loadMotorData();
     }
   }
@@ -279,10 +294,20 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
+// Helper function to check if category is motorcycle
+const isMotorcycleCategory = (category: string | null) => {
+  if (!category) return false;
+  try {
+    return category === t('creditSimulation.categories.motorcycle') || category === 'Motor';
+  } catch {
+    return category === 'Motor';
+  }
+};
+
 // Load motor data when category is selected
 const loadMotorData = async () => {
   try {
-    if (activeCategory.value === 'Motor') {
+    if (isMotorcycleCategory(activeCategory.value)) {
       console.log('Loading motor data...');
       const [motorsData, areasData, periodsData] = await Promise.all([
         motorApi.getMotors(),
@@ -326,7 +351,7 @@ const onVehicleChange = () => {
 // Calculate simulation using API
 const calculateSimulation = async () => {
   try {
-    if (activeCategory.value === 'Motor') {
+    if (isMotorcycleCategory(activeCategory.value)) {
       // For motor category, use API calculation
       if (!selectedVehicle.value || !selectedDp.value || !selectedTenor.value) {
         monthlyPayment.value = 0;
@@ -358,9 +383,12 @@ const calculateSimulation = async () => {
       
       console.log('Motor calculation result:', result);
       
+      // Clear error on successful calculation
+      motorApi.error.value = null;
+      
       calculationResult.value = result;
       monthlyPayment.value = result.calculation.monthly_installment;
-      totalPayment.value = result.calculation.total_payment;
+      totalPayment.value = result.calculation.total_installment;
       
     } else {
       // For other categories, use simple calculation
@@ -407,7 +435,7 @@ const calculateSimulation = async () => {
 const canCalculate = computed(() => {
   if (!activeCategory.value || !selectedTenor.value) return false;
   
-  if (activeCategory.value === 'Motor') {
+  if (isMotorcycleCategory(activeCategory.value)) {
     return selectedVehicleId.value && selectedDp.value;
   } else {
     return priceInput.value && dpInput.value;
@@ -416,7 +444,7 @@ const canCalculate = computed(() => {
 
 // Watch for changes to trigger recalculation
 watch([selectedVehicleId, selectedDp, selectedTenor], ([vehicleId, dp, tenor]) => {
-  if (activeCategory.value === 'Motor') {
+  if (isMotorcycleCategory(activeCategory.value)) {
     const vehicle = motors.value.find(m => m.id === vehicleId);
     console.log('Vehicle selection changed:', {
       vehicleId: vehicleId,
@@ -430,7 +458,7 @@ watch([selectedVehicleId, selectedDp, selectedTenor], ([vehicleId, dp, tenor]) =
 });
 
 watch([priceInput, dpInput, selectedTenor], () => {
-  if (activeCategory.value !== 'Motor') {
+  if (!isMotorcycleCategory(activeCategory.value)) {
     calculateSimulation();
   }
 });
@@ -442,7 +470,7 @@ watch([priceInput, dpInput, selectedTenor], () => {
     <Jumbotron
       label="Services"
       img="/img/dummy1.jpg"
-      desc="Temukan layanan terbaik untuk kebutuhan finansial Anda"
+      :desc="t('services.jumbotronDesc')"
     />
     
     <!-- Loading State -->
@@ -485,7 +513,7 @@ watch([priceInput, dpInput, selectedTenor], () => {
       <!-- Full Content -->
       <div class="prose prose-lg max-w-none">
         <div v-if="getLocalizedContent(serviceItem)" v-html="getLocalizedContent(serviceItem)" />
-        <p v-else class="text-gray-500">No detailed content available</p>
+        <p v-else class="text-gray-500">{{ t('services.noDetailedContent') }}</p>
       </div>
         
         <!-- Service Details -->
@@ -509,10 +537,10 @@ watch([priceInput, dpInput, selectedTenor], () => {
         <!-- Service meta information -->
         <div v-if="serviceItem.author || serviceItem.source_url" class="mt-8 pt-6 border-t border-gray-200">
           <div v-if="serviceItem.author" class="mb-2">
-            <span class="font-medium">Author:</span> {{ serviceItem.author }}
+            <span class="font-medium">{{ t('services.author') }}:</span> {{ serviceItem.author }}
           </div>
           <div v-if="serviceItem.source_url">
-            <span class="font-medium">Source:</span>
+            <span class="font-medium">{{ t('services.source') }}:</span>
             <a :href="serviceItem.source_url" target="_blank" rel="noopener noreferrer" class="text-red-100 hover:underline">
               {{ serviceItem.source_url }}
             </a>
@@ -531,21 +559,21 @@ watch([priceInput, dpInput, selectedTenor], () => {
          class="relative px-3 xl:px-15 py-8 xl:py-12 bg-red-100 overflow-hidden">
       <img
         src="/img/dummy1.jpg"
-        alt="Credit Simulation"
+        :alt="t('creditSimulation.title')"
         class="absolute inset-0 w-full h-full object-cover opacity-70 object-center"
       />
       <div class="absolute inset-0 bg-red-100/65 mix-blend-multiply"></div>
       <h1 class="relative z-10 text-white xl:text-5xl text-2xl font-bold text-center mb-12">
-        Credit Simulation
+        {{ t('creditSimulation.title') }}
       </h1>
       <div class="grid grid-cols-1 xl:grid-cols-2 z-10 relative gap-6 xl:gap-12">
         <div class="bg-white/20 rounded-2xl p-6">
           <h6 class="mb-5 text-lg xl:text-2xl text-white font-bold text-center">
-            Pilih Kategori
+            {{ t('creditSimulation.chooseCategory') }}
           </h6>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div
-              v-for="(item, index) in creditCategories.slice(0, 3)"
+              v-for="(item, index) in (creditCategories || []).slice(0, 3)"
               :key="index"
               @click="toggleCategory(item.label)"
               :class="[
@@ -565,7 +593,7 @@ watch([priceInput, dpInput, selectedTenor], () => {
           </div>
           <div class="flex flex-col sm:flex-row justify-center gap-4 mt-4">
             <div
-              v-for="(item, index) in creditCategories.slice(3)"
+              v-for="(item, index) in (creditCategories || []).slice(3)"
               :key="index"
               @click="toggleCategory(item.label)"
               :class="[
@@ -587,26 +615,26 @@ watch([priceInput, dpInput, selectedTenor], () => {
         <div class="flex flex-col gap-5">
           <div class="flex flex-col gap-3">
             <h6 class="text-center text-white font-bold text-xl xl:text-2xl">
-              Harga Barang
+              {{ t('creditSimulation.goodsPrice') }}
             </h6>
-            <input v-if="activeCategory === 'Motor'" 
+            <input v-if="isMotorcycleCategory(activeCategory)" 
                    :value="selectedVehicle?.price ? formatCurrency(selectedVehicle.price) : ''"
                    readonly
-                   placeholder="Pilih kendaraan terlebih dahulu" 
+                   :placeholder="t('creditSimulation.chooseVehicleFirst')" 
                    class="h-10 bg-gray-100 rounded-lg border border-divider px-3 text-gray-600 cursor-not-allowed" />
             <input v-else 
                    v-model="priceInput" 
                    type="number" 
-                   placeholder="Rp20.000.000" 
+                   :placeholder="t('creditSimulation.placeholders.goodsPrice')" 
                    class="h-10 bg-white rounded-lg border border-divider px-3 text-divider" />
           </div>
-          <div v-if="activeCategory === 'Motor'" class="flex flex-col gap-3">
+          <div v-if="isMotorcycleCategory(activeCategory)" class="flex flex-col gap-3">
             <h6 class="text-center text-white font-bold text-xl xl:text-2xl">
-              Pilih Jenis Kendaraan
+              {{ t('creditSimulation.chooseVehicleType') }}
             </h6>
             <select v-model="selectedVehicleId" @change="onVehicleChange" class="h-10 bg-white rounded-lg border border-divider px-3 text-divider">
               <option value="">
-                {{ motorApi.isLoading ? 'Memuat data motor...' : 'Pilih Kendaraan' }}
+                {{ motorApi.isLoading ? t('creditSimulation.loadingMotorData') : t('creditSimulation.chooseVehicle') }}
               </option>
               <option v-for="vehicle in vehicleOptions" :key="vehicle.id" :value="vehicle.id">
                 {{ vehicle.name }} - {{ formatCurrency(vehicle.price) }} ({{ vehicle.area }})
@@ -615,29 +643,29 @@ watch([priceInput, dpInput, selectedTenor], () => {
           </div>
           <div class="flex flex-col gap-3">
             <h6 class="text-center text-white font-bold text-xl xl:text-2xl">
-              Total Uang Muka
+              {{ t('creditSimulation.totalDownPayment') }}
             </h6>
-            <select v-if="activeCategory === 'Motor'" v-model="selectedDp" 
+            <select v-if="isMotorcycleCategory(activeCategory)" v-model="selectedDp" 
                     class="h-10 bg-white rounded-lg border border-divider px-3 text-divider"
                     :disabled="!selectedVehicleId">
               <option value="">
-                {{ !selectedVehicleId ? 'Pilih kendaraan terlebih dahulu' : 'Pilih Uang Muka' }}
+                {{ !selectedVehicleId ? t('creditSimulation.chooseVehicleFirst') : t('creditSimulation.chooseDownPayment') }}
               </option>
               <option v-for="dp in dpOptions" :key="dp.dp_amount" :value="dp">
                 {{ dp.label }}
               </option>
             </select>
-            <input v-else v-model="dpInput" type="number" placeholder="Rp10.000.000" 
+            <input v-else v-model="dpInput" type="number" :placeholder="t('creditSimulation.placeholders.downPayment')" 
                    class="h-10 bg-white rounded-lg border border-divider px-3 text-divider" />
           </div>
 
           <div class="flex flex-col gap-3">
             <h6 class="text-center text-white font-bold text-xl xl:text-2xl">
-              Pilih Tenor
+              {{ t('creditSimulation.chooseTenor') }}
             </h6>
             <div class="flex flex-wrap sm:flex-nowrap items-center gap-4">
               <div
-                v-for="option in (activeCategory === 'Motor' ? tenorOptions : [6, 12, 18, 24])"
+                v-for="option in (isMotorcycleCategory(activeCategory) ? tenorOptions : [6, 12, 18, 24])"
                 :key="option"
                 @click="toggleTenor(option)"
                 :class="[
@@ -647,7 +675,7 @@ watch([priceInput, dpInput, selectedTenor], () => {
                     : 'bg-red-100 text-white hover:bg-red-50 hover:text-black-100',
                 ]"
               >
-                {{ option }} Bulan
+                {{ option }} {{ t('creditSimulation.months') }}
               </div>
             </div>
           </div>
@@ -656,57 +684,54 @@ watch([priceInput, dpInput, selectedTenor], () => {
             :disabled="isCalculating || !canCalculate"
             class="py-3 bg-white font-bold text-xl xl:text-2xl text-red-100 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span v-if="isCalculating">Menghitung...</span>
-            <span v-else>Hitung Sekarang</span>
+            <span v-if="isCalculating">{{ t('creditSimulation.calculating') }}</span>
+            <span v-else>{{ t('creditSimulation.calculateNow') }}</span>
           </button>
           <div class="bg-white/20 p-6 rounded-2xl">
             <h6 class="font-bold text-2xl text-white mb-6 text-center">
-              Estimasi Angsuran
+              {{ t('creditSimulation.installmentEstimate') }}
             </h6>
             <h3 class="text-center text-white xl:text-5xl text-2xl font-bold mb-3">
-              <span v-if="motorApi.error && activeCategory === 'Motor'" class="text-red-300 text-xl">
-                Error perhitungan - {{ motorApi.error?.data?.message || motorApi.error?.message || 'Gagal menghitung' }}
-              </span>
-              <span v-else>
-                {{ formatCurrency(monthlyPayment) }}/Bulan
+              <span>
+                {{ formatCurrency(monthlyPayment) }}{{ t('creditSimulation.perMonth') }}
               </span>
             </h3>
             <p class="text-center text-white text-lg mb-4">
-              Total yang dibayarkan {{ formatCurrency(totalPayment) }}
+              {{ t('creditSimulation.totalToBePaid') }} {{ formatCurrency(totalPayment) }}
             </p>
             
             <!-- Additional details for Motor calculation -->
-            <div v-if="activeCategory === 'Motor' && calculationResult" class="mb-6 text-white text-sm space-y-2">
+            <div v-if="isMotorcycleCategory(activeCategory) && calculationResult" class="mb-6 text-white text-sm space-y-2">
               <div class="flex justify-between">
-                <span>Harga Motor:</span>
+                <span>{{ t('creditSimulation.motorPrice') }}:</span>
                 <span>{{ formatCurrency(parseFloat(calculationResult.calculation.motor_price)) }}</span>
               </div>
               <div class="flex justify-between">
-                <span>Uang Muka ({{ calculationResult.calculation.dp_percent }}%):</span>
+                <span>{{ t('creditSimulation.downPayment') }} ({{ calculationResult.calculation.dp_percent }}%):</span>
                 <span>{{ formatCurrency(calculationResult.calculation.dp_amount) }}</span>
               </div>
               <div class="flex justify-between">
-                <span>Tenor:</span>
-                <span>{{ calculationResult.calculation.tenor_months }} Bulan</span>
+                <span>{{ t('creditSimulation.tenor') }}:</span>
+                <span>{{ calculationResult.calculation.tenor_months }} {{ t('creditSimulation.months') }}</span>
               </div>
               <div class="flex justify-between">
-                <span>Total Bunga:</span>
+                <span>{{ t('creditSimulation.totalInterest') }}:</span>
                 <span>{{ formatCurrency(calculationResult.calculation.total_interest) }}</span>
               </div>
               <div class="border-t border-white/30 pt-2">
                 <div class="flex justify-between font-semibold">
-                  <span>Angsuran per Bulan:</span>
+                  <span>{{ t('creditSimulation.installmentPerMonth') }}:</span>
                   <span>{{ formatCurrency(calculationResult.calculation.monthly_installment) }}</span>
                 </div>
               </div>
             </div>
             
             <p class="text-xs text-white">
-              <span v-if="activeCategory === 'Motor'">
-                *Perhitungan berdasarkan data motor terbaru dan dapat berubah sewaktu-waktu
+              <span v-if="isMotorcycleCategory(activeCategory)">
+                {{ t('creditSimulation.calculationNote') }}
               </span>
               <span v-else>
-                *Biaya tambahan administrasi 2% pada pembayaran pertama
+                {{ t('creditSimulation.adminFeeNote') }}
               </span>
             </p>
           </div>

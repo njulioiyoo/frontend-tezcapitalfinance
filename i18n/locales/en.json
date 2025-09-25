@@ -85,6 +85,7 @@
     "aboutPageLoadError": "An error occurred while fetching about page data. Default data will be displayed.",
     "newsPageLoadError": "An error occurred while fetching news data. Please try again later.",
     "servicePageLoadError": "An error occurred while fetching services data. Please try again later.",
+    "serviceDetailLoadError": "An error occurred while fetching service details. Please try again later.",
     "homepageLoadError": "An error occurred while fetching homepage data. Please try again.",
     "homepageLoadTitle": "Failed to Load Homepage Data",
     "serverError": "A server error occurred.",
@@ -93,7 +94,19 @@
   "services": {
     "viewDetail": "View Detail",
     "noServicesFound": "No services found",
-    "noServicesAvailable": "No services are available at the moment."
+    "noServicesAvailable": "No services are available at the moment.",
+    "jumbotronDesc": "Find the best services for your financial needs",
+    "noDetailedContent": "No detailed content available",
+    "author": "Author",
+    "source": "Source",
+    "interestAndFees": "Interest & Fees",
+    "documentList": "Document List",
+    "item": "Item",
+    "detail": "Detail",
+    "no": "No",
+    "documentRequired": "Document Required",
+    "interestRate": "Interest Rate",
+    "serviceDuration": "Service Duration"
   },
   "maintenance": {
     "title": "Site Under Maintenance",
@@ -130,5 +143,41 @@
     "singleDate": "Single Date",
     "dateRange": "Date Range",
     "clearFilter": "Clear Filter"
+  },
+  "creditSimulation": {
+    "title": "Credit Simulation",
+    "chooseCategory": "Choose Category",
+    "categories": {
+      "phone": "Phone",
+      "household": "Household Equipment",
+      "gadget": "Gadget",
+      "computerLaptop": "Computer and Laptop",
+      "motorcycle": "Motorcycle"
+    },
+    "goodsPrice": "Goods Price",
+    "chooseVehicleType": "Choose Vehicle Type",
+    "totalDownPayment": "Total Down Payment",
+    "chooseTenor": "Choose Tenor",
+    "calculateNow": "Calculate Now",
+    "calculating": "Calculating...",
+    "installmentEstimate": "Installment Estimate",
+    "perMonth": "/Month",
+    "totalToBePaid": "Total to be paid",
+    "loadingMotorData": "Loading motor data...",
+    "chooseVehicle": "Choose Vehicle",
+    "chooseVehicleFirst": "Please choose vehicle first",
+    "chooseDownPayment": "Choose Down Payment",
+    "months": "Months",
+    "motorPrice": "Motor Price",
+    "downPayment": "Down Payment",
+    "tenor": "Tenor",
+    "totalInterest": "Total Interest",
+    "installmentPerMonth": "Installment per Month",
+    "calculationNote": "*Calculation based on latest motor data and subject to change",
+    "adminFeeNote": "*Additional administration fee 2% on first payment",
+    "placeholders": {
+      "goodsPrice": "Rp20,000,000",
+      "downPayment": "Rp10,000,000"
+    }
   }
 }

@@ -245,7 +245,7 @@ export const useMotorApi = () => {
   
   return {
     isLoading: readonly(isLoading),
-    error: readonly(error),
+    error: error, // Remove readonly to allow setting from component
     getMotors,
     getAreas,
     getPeriods,

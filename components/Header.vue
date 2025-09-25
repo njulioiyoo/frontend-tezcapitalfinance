@@ -164,19 +164,19 @@ const menuHeader = computed(() => [
 const dataHome = computed(() => [
   {
     label: t('nav.homeMenu.reasonsToChoose'),
-    link: "/",
+    link: "/#why-choose",
   },
   {
     label: t('nav.homeMenu.ourServices'),
-    link: "/",
+    link: "/service",
   },
   {
     label: t('nav.homeMenu.applicationProcess'),
-    link: "/",
+    link: "/#application-process",
   },
   {
     label: t('nav.homeMenu.newsUpdates'),
-    link: "/",
+    link: "/news",
   },
   {
     label: t('nav.service.faq'),
@@ -201,6 +201,33 @@ const setLang = async (langCode) => {
   await setLocale(langCode);
   if (process.client) {
     localStorage.setItem('app_language', langCode);
+  }
+};
+
+// Function to handle anchor link navigation
+const handleNavigation = (link) => {
+  if (link.includes('#')) {
+    // If it's an anchor link, navigate to home page first then scroll
+    if (route.path !== '/') {
+      // If not on homepage, navigate to homepage first
+      navigateTo(link);
+    } else {
+      // If already on homepage, just scroll to section
+      const sectionId = link.split('#')[1];
+      scrollToSection(`#${sectionId}`);
+    }
+  } else {
+    // Regular navigation
+    navigateTo(link);
+  }
+};
+
+// Function to scroll to section
+const scrollToSection = (id) => {
+  const el = document.querySelector(id);
+  if (el) {
+    const y = el.getBoundingClientRect().top + window.scrollY - 100;
+    window.scrollTo({ top: y, behavior: "smooth" });
   }
 };
 </script>
@@ -306,13 +333,14 @@ const setLang = async (langCode) => {
                     class="cursor-pointer"
                     v-for="(i, index) in dataHome"
                     :key="index"
+                    @click="handleNavigation(i.link)"
                   >
-                    <NuxtLink class="flex gap-1 items-center" :to="i.link">
+                    <div class="flex gap-1 items-center cursor-pointer">
                       <Icon name="mdi:chevron-right" />
                       <span class="block text-sm font-medium">
                         {{ i.label }}
                       </span>
-                    </NuxtLink>
+                    </div>
                   </li>
                 </ul>
               </div>
@@ -406,6 +434,37 @@ const setLang = async (langCode) => {
       class="xl:hidden bg-white border-t border-t-grey"
     >
       <ul class="flex flex-col divide-y divide-gray-100 text-right">
+        <!-- Home Menu -->
+        <li>
+          <button
+            class="w-full text-left p-3 flex justify-between items-center"
+            @click="toggleAccordion(-1)"
+          >
+            <Icon
+              :name="
+                openAccordion === -1 ? 'mdi:chevron-up' : 'mdi:chevron-down'
+              "
+              class="size-6"
+            />
+            <span>{{ t('nav.home') }}</span>
+          </button>
+
+          <!-- Home Accordion content -->
+          <div v-if="openAccordion === -1" class="px-3 pb-3">
+            <ul class="space-y-3">
+              <li v-for="(sub, sIdx) in dataHome" :key="sIdx">
+                <div
+                  class="flex items-center justify-end gap-1 text-sm hover:text-red-500 cursor-pointer py-2"
+                  @click="handleNavigation(sub.link); isMobileMenuOpen = false"
+                >
+                  <Icon name="mdi:chevron-right" class="size-4" />
+                  {{ sub.label }}
+                </div>
+              </li>
+            </ul>
+          </div>
+        </li>
+        
         <li v-for="(item, index) in menuHeader" :key="index">
           <button
             class="w-full text-left p-3 flex justify-between items-center"

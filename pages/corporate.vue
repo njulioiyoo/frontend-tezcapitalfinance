@@ -46,7 +46,7 @@ const financialFilterYear = ref<number | null>(null)
 const annualFilterYear = ref<number | null>(null)
 const financialCurrentPage = ref(1)
 const annualCurrentPage = ref(1)
-const reportsPerPage = ref(3)
+const reportsPerPage = ref(4)
 
 // Fetch reports data
 const loadFinancialReports = async (resetPage = false) => {

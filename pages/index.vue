@@ -305,12 +305,12 @@ const swiper1 = useSwiper(swiperBasicRef);
       <div v-else class="px-3 xl:px-15">
         <NoDataAlert section="Application Process" />
       </div>
-      <NuxtLink
+      <!-- <NuxtLink
         to="/service/pembiayaan-investasi"
         class="rounded-full mx-auto w-fit py-3 px-12 bg-red-100 hover:bg-red-50 hover:text-red-100 transition-all duration-300 cursor-pointer font-bold text-white text-xl xl:text-2xl uppercase"
       >
         {{ t('homepage.learnMore') }}
-      </NuxtLink>
+      </NuxtLink> -->
     </div>
     <!-- Our Partners Section - Hidden for now -->
     <!-- <div class="flex flex-col xl:gap-9 gap-6 py-8 xl:py-12">
@@ -402,12 +402,12 @@ const swiper1 = useSwiper(swiperBasicRef);
           <div v-else>
             <NoDataAlert section="FAQ" />
           </div>
-          <NuxtLink
+          <!-- <NuxtLink
             to="#"
             class="rounded-full w-fit mx-auto xl:mx-0 py-3 px-12 bg-red-100 hover:bg-red-50 hover:text-red-100 transition-all duration-300 cursor-pointer font-bold text-white text-xl xl:text-2xl uppercase"
           >
             {{ t('homepage.learnMore') }}
-          </NuxtLink>
+          </NuxtLink> -->
         </div>
       </div>
     </div>
