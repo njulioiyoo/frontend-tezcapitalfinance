@@ -202,12 +202,13 @@ watch(() => route.params.slug, (newSlug) => {
         </div>
         
         <img
-          :src="newsItem.featured_image_url || '/img/dummy1.jpg'"
+          v-if="newsItem.featured_image_url"
+          :src="newsItem.featured_image_url"
           :alt="getLocalizedTitle(newsItem)"
           class="xl:h-125 h-75 w-full object-contain object-center my-6 xl:my-12"
           loading="lazy"
         />
-        
+     
         <!-- Content -->
         <div class="prose prose-lg max-w-none">
           <div v-if="getLocalizedContent(newsItem)" v-html="getLocalizedContent(newsItem)" />
