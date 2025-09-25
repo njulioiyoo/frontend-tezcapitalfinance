@@ -171,10 +171,12 @@
     "motorPrice": "Harga Motor",
     "downPayment": "Uang Muka",
     "tenor": "Tenor",
+    "loanAmount": "Jumlah Pinjaman",
     "totalInterest": "Total Bunga",
     "installmentPerMonth": "Angsuran per Bulan",
     "calculationNote": "*Perhitungan berdasarkan data motor terbaru dan dapat berubah sewaktu-waktu",
     "adminFeeNote": "*Biaya tambahan administrasi 2% pada pembayaran pertama",
+    "calculationError": "Perhitungan gagal. Silakan periksa input Anda dan coba lagi.",
     "placeholders": {
       "goodsPrice": "Rp20.000.000",
       "downPayment": "Rp10.000.000"

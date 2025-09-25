@@ -294,6 +294,26 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
+// Format input with thousands separator
+const formatInputValue = (value: string) => {
+  const numericValue = value.replace(/[^\d]/g, '');
+  if (!numericValue) return '';
+  
+  return new Intl.NumberFormat('id-ID').format(parseInt(numericValue));
+};
+
+const formatPriceInput = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const formattedValue = formatInputValue(target.value);
+  priceInput.value = formattedValue;
+};
+
+const formatDpInput = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const formattedValue = formatInputValue(target.value);
+  dpInput.value = formattedValue;
+};
+
 // Helper function to check if category is motorcycle
 const isMotorcycleCategory = (category: string | null) => {
   if (!category) return false;
@@ -391,24 +411,49 @@ const calculateSimulation = async () => {
       totalPayment.value = result.calculation.total_installment;
       
     } else {
-      // For other categories, use simple calculation
-      const price = parseFloat(priceInput.value) || 0;
-      const downPayment = parseFloat(dpInput.value) || 0;
+      // For other categories, use proper calculation
+      const price = parseFloat(priceInput.value.toString().replace(/[^\d]/g, '')) || 0;
+      const downPayment = parseFloat(dpInput.value.toString().replace(/[^\d]/g, '')) || 0;
       
       if (!selectedTenor.value || price === 0 || downPayment === 0) {
         monthlyPayment.value = 0;
         totalPayment.value = 0;
+        motorApi.error.value = null;
+        return;
+      }
+      
+      // Clear any existing errors
+      motorApi.error.value = null;
+      
+      // Validate down payment not exceeding price
+      if (downPayment >= price) {
+        monthlyPayment.value = 0;
+        totalPayment.value = 0;
+        motorApi.error.value = null;
         return;
       }
       
       const loanAmount = price - downPayment;
       const tenorMonths = selectedTenor.value;
-      const interestRate = 0.02; // 2% per month (example rate)
       
-      // Simple calculation for non-motor categories
-      const monthlyInterest = loanAmount * interestRate;
-      monthlyPayment.value = (loanAmount + (monthlyInterest * tenorMonths)) / tenorMonths;
-      totalPayment.value = monthlyPayment.value * tenorMonths + downPayment;
+      // Use different interest rates based on tenor (more realistic)
+      let monthlyInterestRate;
+      if (tenorMonths <= 6) {
+        monthlyInterestRate = 0.018; // 1.8% per month for short term
+      } else if (tenorMonths <= 12) {
+        monthlyInterestRate = 0.02; // 2% per month for medium term
+      } else if (tenorMonths <= 18) {
+        monthlyInterestRate = 0.022; // 2.2% per month for longer term
+      } else {
+        monthlyInterestRate = 0.025; // 2.5% per month for longest term
+      }
+      
+      // Calculate using flat rate method (common in consumer financing)
+      const totalInterest = loanAmount * monthlyInterestRate * tenorMonths;
+      const totalLoan = loanAmount + totalInterest;
+      
+      monthlyPayment.value = totalLoan / tenorMonths;
+      totalPayment.value = totalLoan; // Only the installments, not including DP
     }
   } catch (error) {
     console.error('Calculation failed:', error);
@@ -624,8 +669,9 @@ watch([priceInput, dpInput, selectedTenor], () => {
                    class="h-10 bg-gray-100 rounded-lg border border-divider px-3 text-gray-600 cursor-not-allowed" />
             <input v-else 
                    v-model="priceInput" 
-                   type="number" 
+                   type="text" 
                    :placeholder="t('creditSimulation.placeholders.goodsPrice')" 
+                   @input="formatPriceInput"
                    class="h-10 bg-white rounded-lg border border-divider px-3 text-divider" />
           </div>
           <div v-if="isMotorcycleCategory(activeCategory)" class="flex flex-col gap-3">
@@ -655,7 +701,8 @@ watch([priceInput, dpInput, selectedTenor], () => {
                 {{ dp.label }}
               </option>
             </select>
-            <input v-else v-model="dpInput" type="number" :placeholder="t('creditSimulation.placeholders.downPayment')" 
+            <input v-else v-model="dpInput" type="text" :placeholder="t('creditSimulation.placeholders.downPayment')" 
+                   @input="formatDpInput"
                    class="h-10 bg-white rounded-lg border border-divider px-3 text-divider" />
           </div>
 
@@ -687,6 +734,14 @@ watch([priceInput, dpInput, selectedTenor], () => {
             <span v-if="isCalculating">{{ t('creditSimulation.calculating') }}</span>
             <span v-else>{{ t('creditSimulation.calculateNow') }}</span>
           </button>
+          
+          <!-- Error Alert for Credit Simulation -->
+          <div v-if="motorApi.error.value" class="bg-red-500/20 border border-red-500/50 rounded-xl p-4 mb-4">
+            <p class="text-white text-sm font-medium text-center">
+              {{ t('creditSimulation.calculationError') }}
+            </p>
+          </div>
+          
           <div class="bg-white/20 p-6 rounded-2xl">
             <h6 class="font-bold text-2xl text-white mb-6 text-center">
               {{ t('creditSimulation.installmentEstimate') }}
@@ -722,6 +777,32 @@ watch([priceInput, dpInput, selectedTenor], () => {
                 <div class="flex justify-between font-semibold">
                   <span>{{ t('creditSimulation.installmentPerMonth') }}:</span>
                   <span>{{ formatCurrency(calculationResult.calculation.monthly_installment) }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Additional details for Non-Motor calculation -->
+            <div v-else-if="!isMotorcycleCategory(activeCategory) && monthlyPayment > 0 && priceInput && dpInput" class="mb-6 text-white text-sm space-y-2">
+              <div class="flex justify-between">
+                <span>{{ t('creditSimulation.goodsPrice') }}:</span>
+                <span>{{ formatCurrency(parseFloat(priceInput.toString().replace(/[^\d]/g, ''))) }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>{{ t('creditSimulation.downPayment') }}:</span>
+                <span>{{ formatCurrency(parseFloat(dpInput.toString().replace(/[^\d]/g, ''))) }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>{{ t('creditSimulation.tenor') }}:</span>
+                <span>{{ selectedTenor }} {{ t('creditSimulation.months') }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>{{ t('creditSimulation.loanAmount') }}:</span>
+                <span>{{ formatCurrency(parseFloat(priceInput.toString().replace(/[^\d]/g, '')) - parseFloat(dpInput.toString().replace(/[^\d]/g, ''))) }}</span>
+              </div>
+              <div class="border-t border-white/30 pt-2">
+                <div class="flex justify-between font-semibold">
+                  <span>{{ t('creditSimulation.installmentPerMonth') }}:</span>
+                  <span>{{ formatCurrency(monthlyPayment) }}</span>
                 </div>
               </div>
             </div>

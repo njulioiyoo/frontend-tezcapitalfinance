@@ -171,10 +171,12 @@
     "motorPrice": "Motor Price",
     "downPayment": "Down Payment",
     "tenor": "Tenor",
+    "loanAmount": "Loan Amount",
     "totalInterest": "Total Interest",
     "installmentPerMonth": "Installment per Month",
     "calculationNote": "*Calculation based on latest motor data and subject to change",
     "adminFeeNote": "*Additional administration fee 2% on first payment",
+    "calculationError": "Calculation failed. Please check your input and try again.",
     "placeholders": {
       "goodsPrice": "Rp20,000,000",
       "downPayment": "Rp10,000,000"
