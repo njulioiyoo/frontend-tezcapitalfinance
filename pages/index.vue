@@ -61,40 +61,32 @@ const linkAnchor = computed(() => [
   },
 ]);
 
-// Use banner data from API or fallback to static gallery
-const slideshow = computed(() => {
+// Gallery data for slider
+const gallery = computed(() => {
   if (banners.value && banners.value.length > 0) {
-    return banners.value.map((banner) => ({
+    return banners.value.map((banner, index) => ({
+      id: index + 1,
       img: banner.image,
-      alt: banner.title,
-      title: banner.title,
-      subtitle: banner.subtitle,
-      link: banner.link
+      alt: banner.title
     }))
   }
   
   // Fallback to static gallery
   return [
     {
+      id: 1,
       img: "/img/dummy3.jpg",
-      alt: "Gallery 1",
-      title: "",
-      subtitle: "",
-      link: ""
+      alt: "Gallery 1"
     },
     {
+      id: 2,
       img: "/img/dummy2.jpg",
-      alt: "Gallery 2", 
-      title: "",
-      subtitle: "",
-      link: ""
+      alt: "Gallery 2"
     },
     {
+      id: 3,
       img: "/img/dummy1.jpg",
-      alt: "Gallery 3",
-      title: "",
-      subtitle: "",
-      link: ""
+      alt: "Gallery 3"
     },
   ]
 })
@@ -145,23 +137,15 @@ const swiper1 = useSwiper(swiperBasicRef);
           }"
         >
           <swiper-slide
-            v-for="(slide, index) in slideshow"
-            :key="`slide-basic-${index}`"
-            class="swiper-slide h-100 xl:h-200 relative"
+            v-for="slide in gallery"
+            :key="`slide-basic-${slide.id}`"
+            class="swiper-slide h-100 xl:h-200"
           >
             <img
               :src="slide.img"
               :alt="slide.alt"
               class="w-full h-full object-cover"
-              @error="handleImageError($event, 'gallery')"
             />
-            <!-- Banner content overlay -->
-            <div v-if="slide.title || slide.subtitle" class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-              <div class="text-center text-white px-4">
-                <h2 v-if="slide.title" class="text-2xl xl:text-4xl font-bold mb-2">{{ slide.title }}</h2>
-                <p v-if="slide.subtitle" class="text-lg xl:text-xl">{{ slide.subtitle }}</p>
-              </div>
-            </div>
           </swiper-slide>
         </swiper-container>
         <div
@@ -322,7 +306,7 @@ const swiper1 = useSwiper(swiperBasicRef);
         <NoDataAlert section="Application Process" />
       </div>
       <NuxtLink
-        to="#"
+        to="/service/pembiayaan-investasi"
         class="rounded-full mx-auto w-fit py-3 px-12 bg-red-100 hover:bg-red-50 hover:text-red-100 transition-all duration-300 cursor-pointer font-bold text-white text-xl xl:text-2xl uppercase"
       >
         {{ t('homepage.learnMore') }}
@@ -371,7 +355,7 @@ const swiper1 = useSwiper(swiperBasicRef);
         <ul v-if="news.length > 0" class="flex flex-col gap-4 xl:gap-5">
           <li v-for="article in news" :key="article.id">
             <NuxtLink
-              :to="article.url"
+              :to="`/news/${article.slug}`"
               class="flex flex-col gap-1 pb-5 border-b border-b-divider"
             >
               <p class="text-divider text-sm xl:text-base">

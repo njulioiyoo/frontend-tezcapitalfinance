@@ -112,7 +112,6 @@ export interface HomepageData {
   application_process: ApplicationProcessData
   services: ServicesData
   partners: PartnersData
-  news: NewsData
   faq: FAQData
 }
 
@@ -160,13 +159,9 @@ export const useHomepage = () => {
     return homepageData.value?.partners?.title || ''
   })
 
-  const news = computed(() => {
-    return homepageData.value?.news?.items || []
-  })
-
-  const newsTitle = computed(() => {
-    return homepageData.value?.news?.title || ''
-  })
+  const news = ref<NewsItem[]>([])
+  const newsTitle = ref('Latest News')
+  const newsSubtitle = ref('')
 
   const faqItems = computed(() => {
     return homepageData.value?.faq?.items || []
@@ -175,6 +170,29 @@ export const useHomepage = () => {
   const faqTitle = computed(() => {
     return homepageData.value?.faq?.title || ''
   })
+
+  // Fetch news data separately
+  const fetchNews = async () => {
+    try {
+      const newsResponse = await apiStore.fetchNews()
+      if (newsResponse && newsResponse.data && newsResponse.data.data) {
+        // Transform news data to match expected format
+        news.value = newsResponse.data.data.slice(0, 4).map(item => ({
+          ...item,
+          title: locale.value === 'en' && item.title_en ? item.title_en : item.title_id,
+          excerpt: locale.value === 'en' && item.excerpt_en ? item.excerpt_en : item.excerpt_id,
+          content: locale.value === 'en' && item.content_en ? item.content_en : item.content_id,
+          category: item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : ''
+        }))
+        // Set title from configuration or default
+        newsTitle.value = 'Latest News'
+        newsSubtitle.value = ''
+      }
+    } catch (err) {
+      console.error('Failed to fetch news:', err)
+      news.value = []
+    }
+  }
 
   // Fetch homepage data
   const fetchHomepage = async () => {
@@ -186,6 +204,7 @@ export const useHomepage = () => {
       // Minimum loading time untuk skeleton
       const [response] = await Promise.all([
         apiStore.fetchHomepage(),
+        fetchNews(),
         new Promise(resolve => setTimeout(resolve, 500))
       ])
       
@@ -232,11 +251,6 @@ export const useHomepage = () => {
           items: data.partners?.items || []
         }
 
-        const newsData: NewsData = {
-          title: data.news?.title || '',
-          subtitle: data.news?.subtitle || '',
-          items: data.news?.items || []
-        }
 
         const faqData: FAQData = {
           enabled: data.faq?.enabled || false,
@@ -251,7 +265,6 @@ export const useHomepage = () => {
           application_process: applicationProcessData,
           services: servicesData,
           partners: partnersData,
-          news: newsData,
           faq: faqData
         }
 
@@ -278,11 +291,6 @@ export const useHomepage = () => {
             items: []
           },
           partners: {
-            title: '',
-            subtitle: '',
-            items: []
-          },
-          news: {
             title: '',
             subtitle: '',
             items: []
@@ -320,11 +328,6 @@ export const useHomepage = () => {
           items: []
         },
         partners: {
-          title: '',
-          subtitle: '',
-          items: []
-        },
-        news: {
           title: '',
           subtitle: '',
           items: []
