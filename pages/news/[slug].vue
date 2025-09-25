@@ -204,7 +204,7 @@ watch(() => route.params.slug, (newSlug) => {
         <img
           :src="newsItem.featured_image_url || '/img/dummy1.jpg'"
           :alt="getLocalizedTitle(newsItem)"
-          class="xl:h-125 h-75 w-full object-cover object-center my-6 xl:my-12"
+          class="xl:h-125 h-75 w-full object-contain object-center my-6 xl:my-12"
           loading="lazy"
         />
         
