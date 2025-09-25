@@ -105,6 +105,8 @@
     "detail": "Detail",
     "no": "No",
     "documentRequired": "Dokumen yang Diperlukan",
+    "documentType": "Jenis Dokumen",
+    "document": "Dokumen",
     "interestRate": "Tingkat Bunga",
     "serviceDuration": "Durasi Layanan"
   },
@@ -167,6 +169,8 @@
     "chooseVehicle": "Pilih Kendaraan",
     "chooseVehicleFirst": "Pilih kendaraan terlebih dahulu",
     "chooseDownPayment": "Pilih Uang Muka",
+    "searchVehicle": "Cari kendaraan...",
+    "noVehiclesFound": "Tidak ada kendaraan ditemukan",
     "months": "Bulan",
     "motorPrice": "Harga Motor",
     "downPayment": "Uang Muka",

@@ -170,6 +170,7 @@ export interface ServiceItem {
   is_published: boolean
   published_at: string
   is_featured: boolean
+  show_credit_simulation: boolean
   status: string
   meta_title_id?: string
   meta_title_en?: string

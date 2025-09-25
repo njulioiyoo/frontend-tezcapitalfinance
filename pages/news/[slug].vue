@@ -31,7 +31,15 @@ const getLocalizedTitle = (item: NewsItem) => {
 };
 
 const getLocalizedContent = (item: NewsItem) => {
-  return locale.value === 'en' && item.content_en ? item.content_en : item.content_id;
+  const content = locale.value === 'en' && item.content_en ? item.content_en : item.content_id;
+  if (!content) return '';
+  
+  // Simple HTML decode
+  return content
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"');
 };
 
 const getLocalizedExcerpt = (item: NewsItem) => {
@@ -210,10 +218,8 @@ watch(() => route.params.slug, (newSlug) => {
         />
      
         <!-- Content -->
-        <div class="prose prose-lg max-w-none">
-          <div v-if="getLocalizedContent(newsItem)" v-html="getLocalizedContent(newsItem)" />
-          <div v-else-if="getLocalizedExcerpt(newsItem)" v-html="getLocalizedExcerpt(newsItem)" />
-          <p v-else class="text-gray-500">{{ t('nav.news.noContentAvailable') }}</p>
+        <div class="max-w-none news-content">
+          <div v-html="getLocalizedContent(newsItem)"></div>
         </div>
         
         <!-- Event specific information -->
@@ -257,26 +263,51 @@ watch(() => route.params.slug, (newSlug) => {
   </div>
 </template>
 
-<style scoped>
-.prose {
-  color: inherit;
+<style>
+.news-content {
+  line-height: 1.6 !important;
 }
 
-.prose h1,
-.prose h2,
-.prose h3,
-.prose h4,
-.prose h5,
-.prose h6 {
-  color: inherit;
+.news-content p {
+  margin: 1rem 0 !important;
+  display: block !important;
 }
 
-.prose a {
-  color: #dc2626;
-  text-decoration: none;
+.news-content ol, .news-content ul {
+  margin: 1rem 0 !important;
+  padding-left: 2rem !important;
+  display: block !important;
 }
 
-.prose a:hover {
-  text-decoration: underline;
+.news-content ol li, .news-content ul li {
+  margin: 0.5rem 0 !important;
+  display: list-item !important;
+}
+
+.news-content ol {
+  list-style-type: decimal !important;
+}
+
+.news-content ul {
+  list-style-type: disc !important;
+}
+
+.news-content .ql-indent-1 {
+  margin-left: 3rem !important;
+  padding-left: 1rem !important;
+}
+
+.news-content .ql-indent-2 {
+  margin-left: 4rem !important;
+  padding-left: 1rem !important;
+}
+
+.news-content a {
+  color: #dc2626 !important;
+  text-decoration: none !important;
+}
+
+.news-content a:hover {
+  text-decoration: underline !important;
 }
 </style>

@@ -144,11 +144,26 @@ const accordionItems = computed(() => {
     // Document List section
     if (serviceItem.value.document_list_array && serviceItem.value.document_list_array.length > 0) {
       let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
-      content += `<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.no')}</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.documentRequired')}</th></tr></thead>`;
+      content += `<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.documentType')}</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.documentRequired')}</th></tr></thead>`;
       content += '<tbody>';
       
       serviceItem.value.document_list_array.forEach((doc, index) => {
-        content += `<tr><td class="border border-gray-300 px-4 py-2 text-center font-medium">${index + 1}</td><td class="border border-gray-300 px-4 py-2">${doc}</td></tr>`;
+        // Parse document format "key: value" or fallback to simple format
+        const parts = doc.split(':');
+        let docType = '';
+        let docDescription = '';
+        
+        if (parts.length >= 2) {
+          // New format: "Document Type: Description" - docType is dynamic data from backend
+          docType = parts[0].trim();
+          docDescription = parts.slice(1).join(':').trim(); // Handle cases where description contains ':'
+        } else {
+          // Old format: simple string - use translation for generic document label
+          docType = `${t('services.document')} ${index + 1}`;
+          docDescription = doc;
+        }
+        
+        content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${docType}</td><td class="border border-gray-300 px-4 py-2">${docDescription}</td></tr>`;
       });
       
       content += '</tbody></table></div>';
@@ -217,6 +232,7 @@ const isCalculating = ref(false);
 const motors = ref<MotorItem[]>([]);
 const areas = ref<string[]>([]);
 const periods = ref<string[]>([]);
+const isLoadingMotorData = ref(false);
 
 // Available tenors from motor data
 const tenorOptions = ref([11, 17, 23, 29, 35]);
@@ -243,6 +259,15 @@ const vehicleOptions = computed(() => {
     area: motor.area,
     period: motor.period,
     installment_plans: motor.installment_plans
+  }));
+});
+
+// Vehicle options for SearchableSelect component
+const searchableVehicleOptions = computed(() => {
+  return motors.value.map(motor => ({
+    value: motor.id,
+    label: motor.name,
+    subtitle: `${formatCurrency(motor.price)} (${motor.area})`
   }));
 });
 
@@ -328,20 +353,13 @@ const isMotorcycleCategory = (category: string | null) => {
 const loadMotorData = async () => {
   try {
     if (isMotorcycleCategory(activeCategory.value)) {
-      console.log('Loading motor data...');
+      isLoadingMotorData.value = true;
+      
       const [motorsData, areasData, periodsData] = await Promise.all([
         motorApi.getMotors(),
         motorApi.getAreas(),
         motorApi.getPeriods()
       ]);
-      
-      console.log('Motor data loaded:', {
-        motorsCount: motorsData.length,
-        firstMotor: motorsData[0]?.name,
-        motorsSample: motorsData.slice(0, 5).map(m => ({ id: m.id, name: m.name })),
-        areas: areasData,
-        periods: periodsData
-      });
       
       motors.value = motorsData;
       areas.value = areasData;
@@ -349,6 +367,8 @@ const loadMotorData = async () => {
     }
   } catch (error) {
     console.error('Failed to load motor data:', error);
+  } finally {
+    isLoadingMotorData.value = false;
   }
 };
 
@@ -366,6 +386,18 @@ const onVehicleChange = () => {
   
   // Reset DP when vehicle changes
   selectedDp.value = null;
+};
+
+// Handler for SearchableSelect vehicle selection  
+interface SearchableSelectOption {
+  value: string | number
+  label: string
+  subtitle?: string
+}
+
+const onSearchableVehicleChange = (option: SearchableSelectOption | null) => {
+  selectedVehicleId.value = option?.value || null;
+  onVehicleChange();
 };
 
 // Calculate simulation using API
@@ -415,7 +447,7 @@ const calculateSimulation = async () => {
       const price = parseFloat(priceInput.value.toString().replace(/[^\d]/g, '')) || 0;
       const downPayment = parseFloat(dpInput.value.toString().replace(/[^\d]/g, '')) || 0;
       
-      if (!selectedTenor.value || price === 0 || downPayment === 0) {
+      if (!selectedTenor.value || price === 0) {
         monthlyPayment.value = 0;
         totalPayment.value = 0;
         motorApi.error.value = null;
@@ -426,7 +458,7 @@ const calculateSimulation = async () => {
       motorApi.error.value = null;
       
       // Validate down payment not exceeding price
-      if (downPayment >= price) {
+      if (downPayment > price) {
         monthlyPayment.value = 0;
         totalPayment.value = 0;
         motorApi.error.value = null;
@@ -483,7 +515,7 @@ const canCalculate = computed(() => {
   if (isMotorcycleCategory(activeCategory.value)) {
     return selectedVehicleId.value && selectedDp.value;
   } else {
-    return priceInput.value && dpInput.value;
+    return priceInput.value; // Only require price input, down payment can be 0
   }
 });
 
@@ -599,8 +631,8 @@ watch([priceInput, dpInput, selectedTenor], () => {
       </NuxtLink>
     </div>
     
-    <!-- Credit Simulation Section - only for pembiayaan-serbaguna -->
-    <div v-if="serviceItem && (serviceItem.slug === 'pembiayaan-serbaguna' || serviceItem.slug === 'pembiayaan-multiguna')" 
+    <!-- Credit Simulation Section - controlled by show_credit_simulation flag -->
+    <div v-if="serviceItem && serviceItem.show_credit_simulation" 
          class="relative px-3 xl:px-15 py-8 xl:py-12 bg-red-100 overflow-hidden">
       <img
         src="/img/dummy1.jpg"
@@ -678,14 +710,15 @@ watch([priceInput, dpInput, selectedTenor], () => {
             <h6 class="text-center text-white font-bold text-xl xl:text-2xl">
               {{ t('creditSimulation.chooseVehicleType') }}
             </h6>
-            <select v-model="selectedVehicleId" @change="onVehicleChange" class="h-10 bg-white rounded-lg border border-divider px-3 text-divider">
-              <option value="">
-                {{ motorApi.isLoading ? t('creditSimulation.loadingMotorData') : t('creditSimulation.chooseVehicle') }}
-              </option>
-              <option v-for="vehicle in vehicleOptions" :key="vehicle.id" :value="vehicle.id">
-                {{ vehicle.name }} - {{ formatCurrency(vehicle.price) }} ({{ vehicle.area }})
-              </option>
-            </select>
+            <SearchableSelect
+              v-model="selectedVehicleId"
+              :options="searchableVehicleOptions"
+              :placeholder="isLoadingMotorData ? t('creditSimulation.loadingMotorData') : t('creditSimulation.chooseVehicle')"
+              :search-placeholder="t('creditSimulation.searchVehicle')"
+              :no-results-text="t('creditSimulation.noVehiclesFound')"
+              :disabled="isLoadingMotorData"
+              @change="onSearchableVehicleChange"
+            />
           </div>
           <div class="flex flex-col gap-3">
             <h6 class="text-center text-white font-bold text-xl xl:text-2xl">

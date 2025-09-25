@@ -105,6 +105,8 @@
     "detail": "Detail",
     "no": "No",
     "documentRequired": "Document Required",
+    "documentType": "Document Type",
+    "document": "Document",
     "interestRate": "Interest Rate",
     "serviceDuration": "Service Duration"
   },
@@ -167,6 +169,8 @@
     "chooseVehicle": "Choose Vehicle",
     "chooseVehicleFirst": "Please choose vehicle first",
     "chooseDownPayment": "Choose Down Payment",
+    "searchVehicle": "Search vehicle...",
+    "noVehiclesFound": "No vehicles found",
     "months": "Months",
     "motorPrice": "Motor Price",
     "downPayment": "Down Payment",
