@@ -311,7 +311,7 @@ const toggleTenor = (option: number) => {
   } else {
     selectedTenor.value = option;
   }
-  calculateSimulation();
+  // Remove auto-calculation - calculation will only happen when button is clicked
 };
 
 const formatCurrency = (amount: number) => {
@@ -486,7 +486,10 @@ const calculateSimulation = async () => {
       const interestPayment = totalInterest / tenorMonths;
       
       monthlyPayment.value = principalPayment + interestPayment;
-      totalPayment.value = totalInterest + loanAmount; // Total installments (excluding down payment)
+      
+      // Total payment calculation: Loan Amount + Total Interest (excluding down payment and admin fee)
+      const totalCost = loanAmount + totalInterest;
+      totalPayment.value = totalCost;
       
       // Store calculation details for display
       nonMotorCalculationDetails.value = {
@@ -499,7 +502,8 @@ const calculateSimulation = async () => {
         totalInterest: totalInterest,
         administrativeFee: administrativeFee,
         monthlyInstallment: monthlyPayment.value,
-        totalPayment: totalPayment.value + downPayment // Include down payment for total cost
+        totalInstallments: loanAmount + totalInterest, // Just the installment portion
+        totalPayment: totalCost // Complete total including DP and admin fee
       };
     }
   } catch (error) {
@@ -527,33 +531,11 @@ const calculateSimulation = async () => {
 const canCalculate = computed(() => {
   if (!activeCategory.value || !selectedTenor.value) return false;
   
-  if (isMotorcycleCategory(activeCategory.value)) {
-    return selectedVehicleId.value && selectedDp.value;
-  } else {
-    return priceInput.value; // Only require price input, down payment can be 0
-  }
+  // Since motorcycle category is hidden, only check for non-motor categories
+  return priceInput.value && priceInput.value.trim() !== ''; // Require price input
 });
 
-// Watch for changes to trigger recalculation
-watch([selectedVehicleId, selectedDp, selectedTenor], ([vehicleId, dp, tenor]) => {
-  if (isMotorcycleCategory(activeCategory.value)) {
-    const vehicle = motors.value.find(m => m.id === vehicleId);
-    console.log('Vehicle selection changed:', {
-      vehicleId: vehicleId,
-      vehicleName: vehicle?.name,
-      dpAmount: dp?.dp_amount,
-      dpPercent: dp?.dp_percent,
-      tenor: tenor
-    });
-    calculateSimulation();
-  }
-});
-
-watch([priceInput, dpInput, selectedTenor], () => {
-  if (!isMotorcycleCategory(activeCategory.value)) {
-    calculateSimulation();
-  }
-});
+// Remove auto-calculation - calculation will only happen when button is clicked
 
 </script>
 
