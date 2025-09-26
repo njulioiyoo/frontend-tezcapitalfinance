@@ -487,8 +487,8 @@ const calculateSimulation = async () => {
       
       monthlyPayment.value = principalPayment + interestPayment;
       
-      // Total payment calculation: Loan Amount + Total Interest (excluding down payment and admin fee)
-      const totalCost = loanAmount + totalInterest;
+      // Total payment calculation: Loan Amount + Total Interest + Admin fee (excluding down payment)
+      const totalCost = loanAmount + totalInterest + administrativeFee;
       totalPayment.value = totalCost;
       
       // Store calculation details for display
