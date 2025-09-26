@@ -34,6 +34,14 @@ onMounted(async () => {
   await new Promise(resolve => setTimeout(resolve, 100))
   await initHomepage()
   swiperInstance.value = swiperBasicRef.value.swiper;
+  
+  // Handle anchor scrolling if URL contains hash
+  if (process.client && window.location.hash) {
+    // Wait a bit more for all content to be loaded
+    setTimeout(() => {
+      scrollToSection(window.location.hash);
+    }, 500);
+  }
 })
 
 // Watch for language changes and refetch data

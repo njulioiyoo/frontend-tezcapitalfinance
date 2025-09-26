@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -168,7 +168,7 @@ const dataHome = computed(() => [
   },
   {
     label: t('nav.homeMenu.ourServices'),
-    link: "/service",
+    link: "/#our-services", // Changed to homepage anchor
   },
   {
     label: t('nav.homeMenu.applicationProcess'),
@@ -176,11 +176,11 @@ const dataHome = computed(() => [
   },
   {
     label: t('nav.homeMenu.newsUpdates'),
-    link: "/news",
+    link: "/#news-updates", // Changed to homepage anchor
   },
   {
     label: t('nav.service.faq'),
-    link: "/contact",
+    link: "/#faq", // Changed to homepage anchor
   },
 ]);
 
@@ -207,10 +207,9 @@ const setLang = async (langCode) => {
 // Function to handle anchor link navigation
 const handleNavigation = (link) => {
   if (link.includes('#')) {
-    // If it's an anchor link, navigate to home page first then scroll
     if (route.path !== '/') {
-      // If not on homepage, navigate to homepage first
-      navigateTo(link);
+      // If not on homepage, use full URL navigation which will preserve the hash
+      window.location.href = link;
     } else {
       // If already on homepage, just scroll to section
       const sectionId = link.split('#')[1];
