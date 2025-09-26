@@ -199,10 +199,11 @@ const creditCategories = computed(() => {
         img: "/img/credit/4.png",
         label: t('creditSimulation.categories.computerLaptop'),
       },
-      {
-        img: "/img/credit/5.png",
-        label: t('creditSimulation.categories.motorcycle'),
-      },
+      // Motorcycle category temporarily hidden
+      // {
+      //   img: "/img/credit/5.png",
+      //   label: t('creditSimulation.categories.motorcycle'),
+      // },
     ];
   } catch (error) {
     // Fallback if i18n is not ready
@@ -211,7 +212,8 @@ const creditCategories = computed(() => {
       { img: "/img/credit/2.png", label: "Peralatan Rumah Tangga" },
       { img: "/img/credit/3.png", label: "Gadget" },
       { img: "/img/credit/4.png", label: "Komputer dan Laptop" },
-      { img: "/img/credit/5.png", label: "Motor" },
+      // Motorcycle category temporarily hidden
+      // { img: "/img/credit/5.png", label: "Motor" },
     ];
   }
 });
@@ -226,6 +228,7 @@ const selectedTenor = ref<number | null>(null);
 const monthlyPayment = ref(0);
 const totalPayment = ref(0);
 const calculationResult = ref<any>(null);
+const nonMotorCalculationDetails = ref<any>(null);
 const isCalculating = ref(false);
 
 // Dynamic data from API
@@ -299,6 +302,7 @@ const resetForm = () => {
   monthlyPayment.value = 0;
   totalPayment.value = 0;
   calculationResult.value = null;
+  nonMotorCalculationDetails.value = null;
 };
 
 const toggleTenor = (option: number) => {
@@ -443,11 +447,11 @@ const calculateSimulation = async () => {
       totalPayment.value = result.calculation.total_installment;
       
     } else {
-      // For other categories, use proper calculation
-      const price = parseFloat(priceInput.value.toString().replace(/[^\d]/g, '')) || 0;
+      // For other categories, use proper calculation based on Excel formula
+      const principal = parseFloat(priceInput.value.toString().replace(/[^\d]/g, '')) || 0;
       const downPayment = parseFloat(dpInput.value.toString().replace(/[^\d]/g, '')) || 0;
       
-      if (!selectedTenor.value || price === 0) {
+      if (!selectedTenor.value || principal === 0) {
         monthlyPayment.value = 0;
         totalPayment.value = 0;
         motorApi.error.value = null;
@@ -457,35 +461,46 @@ const calculateSimulation = async () => {
       // Clear any existing errors
       motorApi.error.value = null;
       
-      // Validate down payment not exceeding price
-      if (downPayment > price) {
+      // Validate down payment not exceeding principal
+      if (downPayment > principal) {
         monthlyPayment.value = 0;
         totalPayment.value = 0;
         motorApi.error.value = null;
         return;
       }
       
-      const loanAmount = price - downPayment;
+      const loanAmount = principal - downPayment;
       const tenorMonths = selectedTenor.value;
       
-      // Use different interest rates based on tenor (more realistic)
-      let monthlyInterestRate;
-      if (tenorMonths <= 6) {
-        monthlyInterestRate = 0.018; // 1.8% per month for short term
-      } else if (tenorMonths <= 12) {
-        monthlyInterestRate = 0.02; // 2% per month for medium term
-      } else if (tenorMonths <= 18) {
-        monthlyInterestRate = 0.022; // 2.2% per month for longer term
-      } else {
-        monthlyInterestRate = 0.025; // 2.5% per month for longest term
-      }
+      // Fixed rates based on Excel formula
+      const flatRate = 0.026; // 2.6% flat rate
+      const administrativeFeeRate = 0.02; // 2% administrative fee
       
-      // Calculate using flat rate method (common in consumer financing)
-      const totalInterest = loanAmount * monthlyInterestRate * tenorMonths;
-      const totalLoan = loanAmount + totalInterest;
+      // Calculate based on Excel formula
+      const totalInterest = loanAmount * flatRate * tenorMonths; // (Principal-DP) * FlatRate * Tenor
+      const administrativeFee = loanAmount * administrativeFeeRate; // (Principal-DP) * AdminFee
+      const totalAmount = principal + totalInterest + administrativeFee; // Principal + TotalInterest + AdminFee
       
-      monthlyPayment.value = totalLoan / tenorMonths;
-      totalPayment.value = totalLoan; // Only the installments, not including DP
+      // Monthly installment = ((Principal-DP)/Tenor) + (TotalInterest/Tenor)
+      const principalPayment = loanAmount / tenorMonths;
+      const interestPayment = totalInterest / tenorMonths;
+      
+      monthlyPayment.value = principalPayment + interestPayment;
+      totalPayment.value = totalInterest + loanAmount; // Total installments (excluding down payment)
+      
+      // Store calculation details for display
+      nonMotorCalculationDetails.value = {
+        principal: principal,
+        downPayment: downPayment,
+        loanAmount: loanAmount,
+        tenorMonths: tenorMonths,
+        flatRate: flatRate,
+        administrativeFeeRate: administrativeFeeRate,
+        totalInterest: totalInterest,
+        administrativeFee: administrativeFee,
+        monthlyInstallment: monthlyPayment.value,
+        totalPayment: totalPayment.value + downPayment // Include down payment for total cost
+      };
     }
   } catch (error) {
     console.error('Calculation failed:', error);
@@ -815,27 +830,39 @@ watch([priceInput, dpInput, selectedTenor], () => {
             </div>
             
             <!-- Additional details for Non-Motor calculation -->
-            <div v-else-if="!isMotorcycleCategory(activeCategory) && monthlyPayment > 0 && priceInput && dpInput" class="mb-6 text-white text-sm space-y-2">
+            <div v-else-if="!isMotorcycleCategory(activeCategory) && nonMotorCalculationDetails" class="mb-6 text-white text-sm space-y-2">
               <div class="flex justify-between">
                 <span>{{ t('creditSimulation.goodsPrice') }}:</span>
-                <span>{{ formatCurrency(parseFloat(priceInput.toString().replace(/[^\d]/g, ''))) }}</span>
+                <span>{{ formatCurrency(nonMotorCalculationDetails.principal) }}</span>
               </div>
               <div class="flex justify-between">
                 <span>{{ t('creditSimulation.downPayment') }}:</span>
-                <span>{{ formatCurrency(parseFloat(dpInput.toString().replace(/[^\d]/g, ''))) }}</span>
+                <span>{{ formatCurrency(nonMotorCalculationDetails.downPayment) }}</span>
               </div>
               <div class="flex justify-between">
                 <span>{{ t('creditSimulation.tenor') }}:</span>
-                <span>{{ selectedTenor }} {{ t('creditSimulation.months') }}</span>
+                <span>{{ nonMotorCalculationDetails.tenorMonths }} {{ t('creditSimulation.months') }}</span>
               </div>
               <div class="flex justify-between">
                 <span>{{ t('creditSimulation.loanAmount') }}:</span>
-                <span>{{ formatCurrency(parseFloat(priceInput.toString().replace(/[^\d]/g, '')) - parseFloat(dpInput.toString().replace(/[^\d]/g, ''))) }}</span>
+                <span>{{ formatCurrency(nonMotorCalculationDetails.loanAmount) }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Flat Rate:</span>
+                <span>{{ (nonMotorCalculationDetails.flatRate * 100).toFixed(1) }}%</span>
+              </div>
+              <div class="flex justify-between">
+                <span>{{ t('creditSimulation.totalInterest') }}:</span>
+                <span>{{ formatCurrency(nonMotorCalculationDetails.totalInterest) }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Admin Fee ({{ (nonMotorCalculationDetails.administrativeFeeRate * 100) }}%):</span>
+                <span>{{ formatCurrency(nonMotorCalculationDetails.administrativeFee) }}</span>
               </div>
               <div class="border-t border-white/30 pt-2">
                 <div class="flex justify-between font-semibold">
                   <span>{{ t('creditSimulation.installmentPerMonth') }}:</span>
-                  <span>{{ formatCurrency(monthlyPayment) }}</span>
+                  <span>{{ formatCurrency(nonMotorCalculationDetails.monthlyInstallment) }}</span>
                 </div>
               </div>
             </div>
