@@ -25,17 +25,30 @@ const {
 // Image fallback handler
 const { handleImageError } = useImageFallback()
 
+const swiperBasicRef = ref(null);
+const swiperInstance = ref(null);
+
 // Initialize homepage data
 onMounted(async () => {
   // Small delay to ensure skeleton shows
   await new Promise(resolve => setTimeout(resolve, 100))
   await initHomepage()
+  swiperInstance.value = swiperBasicRef.value.swiper;
 })
 
 // Watch for language changes and refetch data
 watch(() => locale.value, () => {
   initHomepage()
 }, { immediate: false })
+
+
+const slidePrev = () => {
+  swiperInstance.value?.slidePrev();
+};
+
+const slideNext = () => {
+  swiperInstance.value?.slideNext();
+};
 
 
 const linkAnchor = computed(() => [
@@ -103,9 +116,6 @@ const scrollToSection = (id) => {
     window.scrollTo({ top: y, behavior: "smooth" });
   }
 };
-
-const swiperBasicRef = ref(null);
-const swiper1 = useSwiper(swiperBasicRef);
 </script>
 <template>
   <div>
@@ -153,13 +163,13 @@ const swiper1 = useSwiper(swiperBasicRef);
         >
           <button
             class="cursor-pointer size-8 xl:size-12 flex items-center justify-center bg-white rounded-full"
-            @click="swiper1.prev()"
+            @click="slidePrev"
           >
             <Icon name="mdi:chevron-left" class="size-6 text-red-100" />
           </button>
           <button
             class="cursor-pointer size-8 xl:size-12 flex items-center justify-center bg-white rounded-full"
-            @click="swiper1.next()"
+            @click="slideNext"
           >
             <Icon
               name="mdi:chevron-right"
