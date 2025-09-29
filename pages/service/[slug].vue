@@ -120,11 +120,12 @@ const accordionItems = computed(() => {
   
   const items = [];
   
-  // Special case for pembiayaan-serbaguna/multiguna - tidak ada accordion, return empty
+  // Special case for pembiayaan-serbaguna/multiguna - no accordion, return empty
   if (serviceItem.value.slug === 'pembiayaan-serbaguna' || serviceItem.value.slug === 'pembiayaan-multiguna') {
     return [];
   } else {
-    // For other services, show Interest & Fees and Document List if data exists
+    // For other services, show Interest section and separate Fees section if data exists
+    // Interest section
     if ((serviceItem.value.interest_rate && parseFloat(serviceItem.value.interest_rate) > 0) || 
         (serviceItem.value.service_duration && serviceItem.value.service_duration.trim() !== '' && serviceItem.value.service_duration !== '0') || 
         (serviceItem.value.interest_list_array && serviceItem.value.interest_list_array.length > 0)) {
@@ -141,19 +142,54 @@ const accordionItems = computed(() => {
       }
       
       if (serviceItem.value.interest_list_array && serviceItem.value.interest_list_array.length > 0) {
-        serviceItem.value.interest_list_array.forEach((item, index) => {
-          const parts = item.split(':');
-          const label = parts[0]?.trim() || `Item ${index + 1}`;
-          const value = parts[1]?.trim() || item;
-          content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${label}</td><td class="border border-gray-300 px-4 py-2">${value}</td></tr>`;
+        serviceItem.value.interest_list_array.forEach((item) => {
+          if (typeof item === 'object' && item.name && typeof item.rate === 'number') {
+            // New structure with name and rate
+            content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${item.name}</td><td class="border border-gray-300 px-4 py-2">${item.rate}% ${t('services.perYear')}</td></tr>`;
+          } else if (typeof item === 'string') {
+            // Legacy structure - fallback for backward compatibility
+            const parts = item.split(':');
+            const label = parts[0]?.trim() || `Interest`;
+            const value = parts[1]?.trim() || item;
+            content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${label}</td><td class="border border-gray-300 px-4 py-2">${value}</td></tr>`;
+          }
         });
       }
       
       content += '</tbody></table></div>';
       
       items.push({
-        value: "interest-fees",
-        title: t('services.interestAndFees'),
+        value: "interest",
+        title: t('services.interest'),
+        content: content
+      });
+    }
+    
+    // Fees section
+    if (serviceItem.value.fees_list_array && serviceItem.value.fees_list_array.length > 0) {
+      let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
+      content += `<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.feeType')}</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.detail')}</th></tr></thead>`;
+      content += '<tbody>';
+      
+      serviceItem.value.fees_list_array.forEach((item, index) => {
+        if (typeof item === 'object' && item.name && typeof item.value === 'number') {
+          // New structure with name, type, and value
+          const displayValue = item.type === 'percentage' ? `${item.value}%` : formatCurrencySimple(item.value);
+          content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${item.name}</td><td class="border border-gray-300 px-4 py-2">${displayValue}</td></tr>`;
+        } else if (typeof item === 'string') {
+          // Legacy structure - fallback for backward compatibility  
+          const parts = item.split(':');
+          const label = parts[0]?.trim() || `Fee ${index + 1}`;
+          const value = parts[1]?.trim() || item;
+          content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${label}</td><td class="border border-gray-300 px-4 py-2">${value}</td></tr>`;
+        }
+      });
+      
+      content += '</tbody></table></div>';
+      
+      items.push({
+        value: "fees",
+        title: t('services.fees'),
         content: content
       });
     }
@@ -332,12 +368,21 @@ const toggleTenor = (option: number) => {
 };
 
 const formatCurrency = (amount: number) => {
-  if (amount === 0) return "Rp-";
-  return new Intl.NumberFormat('id-ID', {
+  if (amount === 0) return `${t('services.currency')}-`;
+  
+  const currencyCode = 'IDR';
+  const localeCode = locale.value === 'en' ? 'en-US' : 'id-ID';
+  
+  return new Intl.NumberFormat(localeCode, {
     style: 'currency',
-    currency: 'IDR',
+    currency: currencyCode,
     minimumFractionDigits: 0
   }).format(amount);
+};
+
+const formatCurrencySimple = (amount: number) => {
+  const currencySymbol = t('services.currency');
+  return `${currencySymbol} ${amount.toLocaleString(locale.value === 'en' ? 'en-US' : 'id-ID')}`;
 };
 
 // Format input with thousands separator

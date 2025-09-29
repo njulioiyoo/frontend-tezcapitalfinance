@@ -101,6 +101,9 @@
     "author": "Penulis",
     "source": "Sumber",
     "interestAndFees": "Bunga & Biaya",
+    "interest": "Bunga",
+    "fees": "Biaya",
+    "feeType": "Jenis Biaya",
     "documentList": "Daftar Dokumen",
     "item": "Item",
     "detail": "Detail",
@@ -109,7 +112,10 @@
     "documentType": "Jenis Dokumen",
     "document": "Dokumen",
     "interestRate": "Tingkat Bunga",
-    "serviceDuration": "Durasi Layanan"
+    "serviceDuration": "Durasi Layanan",
+    "perYear": "per tahun",
+    "percentage": "persen",
+    "currency": "Rp"
   },
   "maintenance": {
     "title": "Situs Sedang Dalam Pemeliharaan",

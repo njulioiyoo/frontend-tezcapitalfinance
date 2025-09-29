@@ -101,6 +101,9 @@
     "author": "Author",
     "source": "Source",
     "interestAndFees": "Interest & Fees",
+    "interest": "Interest",
+    "fees": "Fees",
+    "feeType": "Fee Type",
     "documentList": "Document List",
     "item": "Item",
     "detail": "Detail",
@@ -109,7 +112,10 @@
     "documentType": "Document Type",
     "document": "Document",
     "interestRate": "Interest Rate",
-    "serviceDuration": "Service Duration"
+    "serviceDuration": "Service Duration",
+    "perYear": "per year",
+    "percentage": "percent",
+    "currency": "IDR"
   },
   "maintenance": {
     "title": "Site Under Maintenance",

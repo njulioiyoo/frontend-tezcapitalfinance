@@ -152,10 +152,12 @@ export interface ServiceItem {
   gallery?: string
   gallery_urls?: string[]
   // New service-specific fields
-  interest_list?: string[]
-  interest_list_array?: string[]
+  interest_list?: { name: string; rate: number }[]
+  interest_list_array?: { name: string; rate: number }[]
   document_list?: string[]
   document_list_array?: string[]
+  fees_list?: { name: string; type: string; value: number }[]
+  fees_list_array?: { name: string; type: string; value: number }[]
   interest_rate?: number
   service_duration?: string
   requirements_id?: string
@@ -270,6 +272,7 @@ export interface CorporateData {
     file?: string
   }
 }
+
 
 // API Response wrapper
 export interface ApiResponse<T> {
