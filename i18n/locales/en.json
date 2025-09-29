@@ -39,7 +39,8 @@
       "next": "Next",
       "jumbotronDesc": "Find the latest news about TEZ Capital here",
       "author": "Author",
-      "source": "Source"
+      "source": "Source",
+      "backToNews": "Back to News"
     },
     "corporateMenu": {
       "financialReport": "Financial Report",

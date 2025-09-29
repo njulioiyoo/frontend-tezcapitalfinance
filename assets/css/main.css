@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 :root {
   --swiper-pagination-bullet-inactive-color: #bbb;
@@ -63,6 +64,7 @@
   font-weight: 900;
   font-style: normal;
 }
+
 
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {

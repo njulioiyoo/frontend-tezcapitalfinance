@@ -32,11 +32,27 @@ const getLocalizedTitle = (item: ServiceItem) => {
 };
 
 const getLocalizedContent = (item: ServiceItem) => {
-  return locale.value === 'en' && item.content_en ? item.content_en : item.content_id;
+  const content = locale.value === 'en' && item.content_en ? item.content_en : item.content_id;
+  if (!content) return '';
+  
+  // Simple HTML decode
+  return content
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"');
 };
 
 const getLocalizedExcerpt = (item: ServiceItem) => {
-  return locale.value === 'en' && item.excerpt_en ? item.excerpt_en : item.excerpt_id;
+  const excerpt = locale.value === 'en' && item.excerpt_en ? item.excerpt_en : item.excerpt_id;
+  if (!excerpt) return '';
+  
+  // Simple HTML decode
+  return excerpt
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"');
 };
 
 const getLocalizedRequirements = (item: ServiceItem) => {
@@ -109,17 +125,18 @@ const accordionItems = computed(() => {
     return [];
   } else {
     // For other services, show Interest & Fees and Document List if data exists
-    if (serviceItem.value.interest_rate || serviceItem.value.service_duration || 
+    if ((serviceItem.value.interest_rate && parseFloat(serviceItem.value.interest_rate) > 0) || 
+        (serviceItem.value.service_duration && serviceItem.value.service_duration.trim() !== '' && serviceItem.value.service_duration !== '0') || 
         (serviceItem.value.interest_list_array && serviceItem.value.interest_list_array.length > 0)) {
       let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
       content += `<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.item')}</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.detail')}</th></tr></thead>`;
       content += '<tbody>';
       
-      if (serviceItem.value.interest_rate) {
+      if (serviceItem.value.interest_rate && parseFloat(serviceItem.value.interest_rate) > 0) {
         content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${t('services.interestRate')}</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.interest_rate}%</td></tr>`;
       }
       
-      if (serviceItem.value.service_duration) {
+      if (serviceItem.value.service_duration && serviceItem.value.service_duration.trim() !== '' && serviceItem.value.service_duration !== '0') {
         content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${t('services.serviceDuration')}</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.service_duration}</td></tr>`;
       }
       
@@ -864,26 +881,3 @@ const canCalculate = computed(() => {
   </div>
 </template>
 
-<style scoped>
-.prose {
-  color: inherit;
-}
-
-.prose h1,
-.prose h2,
-.prose h3,
-.prose h4,
-.prose h5,
-.prose h6 {
-  color: inherit;
-}
-
-.prose a {
-  color: #dc2626;
-  text-decoration: none;
-}
-
-.prose a:hover {
-  text-decoration: underline;
-}
-</style>

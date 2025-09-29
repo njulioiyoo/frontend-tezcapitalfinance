@@ -22,7 +22,7 @@ const services = ref([]);
 // Fetch services data
 const fetchServices = async () => {
   try {
-    const response = await apiStore.fetchServices()
+    const response = await apiStore.fetchServices({ limit: 5 })
     console.log('Services API response:', response)
     // Handle paginated response structure
     if (response.data && response.data.data) {

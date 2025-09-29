@@ -220,6 +220,18 @@ const bannerImage = computed(() => {
   return extractConfigValue(bannerData.value.banner_corporate_image) || '/img/dummy1.jpg'
 })
 
+// Computed property to filter out monthly and quarterly financial reports tabs
+const filteredFinancialReports = computed(() => {
+  if (!financialReports.value) return null
+  
+  const filtered = { ...financialReports.value }
+  // Remove monthly and quarterly tabs
+  delete filtered.bulanan
+  delete filtered.triwulan
+  
+  return filtered
+})
+
 // Lifecycle
 onMounted(async () => {
   try {
@@ -408,14 +420,14 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
 
         <!-- Financial Reports Content -->
         <Tabs
-          v-else-if="financialReports && Object.keys(financialReports).length > 0"
+          v-else-if="filteredFinancialReports && Object.keys(filteredFinancialReports).length > 0"
           default-value="all-category"
           class="w-full"
           orientation="vertical"
         >
           <TabsList class="flex flex-col max-w-full xl:max-w-75 border-0 h-fit">
             <TabsTrigger
-              v-for="(tab, key) in financialReports"
+              v-for="(tab, key) in filteredFinancialReports"
               :key="key"
               :value="key"
               class="w-full justify-between px-0"
@@ -425,7 +437,7 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
             </TabsTrigger>
           </TabsList>
           <TabsContent
-            v-for="(tab, key) in financialReports"
+            v-for="(tab, key) in filteredFinancialReports"
             :key="key"
             :value="key"
           >
@@ -466,7 +478,7 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
           <p class="text-lg">{{ t('corporate.noFinancialReportsAvailable') }}</p>
         </div>
         <Pagination
-          v-if="financialReports && Object.keys(financialReports).length > 0 && financialPagination"
+          v-if="filteredFinancialReports && Object.keys(filteredFinancialReports).length > 0 && financialPagination"
           v-slot="{ page }"
           :items-per-page="parseInt(financialPagination.per_page) || reportsPerPage"
           :total="financialPagination.total || 0"

@@ -126,9 +126,9 @@ watch(() => locale.value, () => {
           </a>
           
           <!-- WhatsApp from API (if available) -->
-          <a v-if="contactWhatsapp && String(contactWhatsapp).trim() !== ''" class="flex items-center gap-2" :href="`https://wa.me/${String(contactWhatsapp).replace(/[^0-9]/g, '')}`" target="_blank" rel="noopener noreferrer">
+          <a v-if="extractConfigValue(contactWhatsapp) && extractConfigValue(contactWhatsapp).trim() !== ''" class="flex items-center gap-2" :href="`https://wa.me/${extractConfigValue(contactWhatsapp).replace(/[^0-9]/g, '')}`" target="_blank" rel="noopener noreferrer">
             <Icon name="mdi:whatsapp" class="text-red-100 size-6" />
-            <span class="text-lg xl:text-xl">{{ contactWhatsapp }}</span>
+            <span class="text-lg xl:text-xl">{{ extractConfigValue(contactWhatsapp) }}</span>
           </a>
         </div>
       </div>
