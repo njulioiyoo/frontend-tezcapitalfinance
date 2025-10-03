@@ -1,6 +1,6 @@
 <template>
-  <div class="text-center team-member-card">
-    <div class="relative mb-4 overflow-hidden rounded-lg">
+  <div class="text-left team-member-card">
+    <div class="relative mb-4 overflow-hidden">
       <img 
         :src="member.image" 
         :alt="member.name"

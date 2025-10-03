@@ -62,7 +62,6 @@
           </div>
         </div>
 
-        <!-- Results Count -->
         <div class="mb-6 xl:mb-8">
           <p class="text-divider text-base xl:text-lg">
             Menampilkan {{ jobsStore.filteredJobs.length }} lowongan
@@ -70,7 +69,6 @@
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-grey overflow-hidden">
-          <!-- Table Header -->
           <div class="grid grid-cols-1 xl:grid-cols-4 gap-4 xl:gap-6 p-4 xl:p-6 bg-grey border-b border-divider font-bold text-black-100">
             <div>Posisi</div>
             <div class="hidden xl:block">Kategori</div>
@@ -123,6 +121,7 @@
               </NuxtLink>
             </div>
 
+            <!-- Empty State -->
             <div v-else class="py-12 xl:py-20 text-center">
               <Icon name="mdi:briefcase-search" class="w-16 h-16 xl:w-20 xl:h-20 text-divider mx-auto mb-4 xl:mb-6" />
               <h3 class="text-lg xl:text-2xl font-bold text-black-100 mb-2 xl:mb-3">
