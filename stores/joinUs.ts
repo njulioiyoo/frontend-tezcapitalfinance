@@ -9,7 +9,7 @@ export const useJoinUsStore = defineStore('joinUs', () => {
     content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut a gravida metus. Pellentesque interdum tristique lacus, vitae ultrices sapien ultrices hendrerit. Quisque diam velit, vestibulum nec risus sit amet, mollis dapibus nunc. Nunc pharetra eget ante quis lacinia. Maecenas blandit, magna vel commodo blandit, nibh purus hendrerit quam, nec interdum leo arcu ac ipsum.
 
 Fusce ullamcorper ornare odio, id rutrum diam dignissim semper. Fusce nec massa sit nunc vulputate faucibus at vitae lectus. Sed interdum hendrerit mi, sit amet tincidunt quam ultrices quis.`,
-    image: "/img/ceo-image.jpg",
+    image: "/img/profile/1.png",
     name: "Arwin Rasyid",
     position: "CEO & Founder"
   }
@@ -17,23 +17,23 @@ Fusce ullamcorper ornare odio, id rutrum diam dignissim semper. Fusce nec massa 
   const workSections = [
     {
       id: 1,
-      title: "Working Capital Financing",
-      description: "Short-Term Funding that Support Business Sustainability and Expansion",
-      icon: "/img/icons/working-capital.svg",
+      title: "Pembiayaan Modal Kerja",
+      description: "Pendanaan Jangka Pendek yang Mendukung Keberlanjutan dan Ekspansi Bisnis",
+      icon: "/img/services/1.png",
       color: "#B91C4C"
     },
     {
       id: 2,
-      title: "Investment Financing",
-      description: "Mid-Term Financing to Support Equipment Investment and Business Growth",
-      icon: "/img/icons/investment.svg",
+      title: "Pembiayaan Investasi",
+      description: "Pembiayaan Jangka Menengah untuk Mendukung Investasi Peralatan dan Pertumbuhan Bisnis",
+      icon: "/img/services/2.png",
       color: "#B91C4C"
     },
     {
       id: 3,
-      title: "Multi-Purpose Financing",
-      description: "Supports financing for the purchase of products and services",
-      icon: "/img/icons/multi-purpose.svg",
+      title: "Pembiayaan Multiguna",
+      description: "Mendukung pembiayaan untuk pembelian produk dan layanan",
+      icon: "/img/services/3.png",
       color: "#B91C4C"
     }
   ]

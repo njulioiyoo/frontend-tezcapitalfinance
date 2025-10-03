@@ -5,10 +5,9 @@
       img="/img/dummy1.jpg" 
     />
 
-    <section class="py-8 xl:py-12 bg-white">
-      <div class="px-3 xl:px-15">
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 xl:gap-12 items-center">
-          <!-- CEO Content -->
+    <section class=" py-8 xl:py-12 bg-white flex justify-center">
+      <div class="w-[85%] px-3 xl:px-15 border-b-2 border-b-gray-400">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 xl:gap-12 items-center mb-6">
           <div>
             <h2 class="xl:text-5xl text-2xl font-bold text-black-100 mb-6 xl:mb-8">
               {{ joinUsStore.ceoMessage.title }}
@@ -28,7 +27,7 @@
               <img 
                 :src="joinUsStore.ceoMessage.image" 
                 :alt="joinUsStore.ceoMessage.name"
-                class="w-80 h-96 xl:w-96 xl:h-120 object-cover rounded-2xl shadow-sm"
+                class="w-80 h-96 xl:w-96 xl:h-120 object-cover shadow-sm"
                 @error="handleImageError"
               />
             </div>
@@ -37,8 +36,8 @@
       </div>
     </section>
 
-    <section class="py-8 xl:py-12 bg-grey">
-      <div class="px-3 xl:px-15">
+    <section class="py-8 xl:py-12 flex justify-center">
+      <div class="w-[85%] px-3 xl:px-15 border-b-2 border-b-gray-400 pb-12">
         <div class="text-center mb-6 xl:mb-12">
           <h2 class="xl:text-5xl text-2xl font-bold text-black-100 mb-6 xl:mb-8">
             Get to Know Our Work
@@ -106,8 +105,8 @@
       </div>
     </section>
 
-    <section class="py-8 xl:py-12 bg-grey">
-      <div class="px-3 xl:px-15">
+    <section class="py-8 xl:py-12 bg-grey justify-center mx-auto">
+      <div class="w-[85%] px-3 xl:px-15 border-b-2 border-b-gray-400 pb-12 mx-auto ">
         <div class="text-center mb-6 xl:mb-12">
           <h2 class="xl:text-5xl text-2xl font-bold text-black-100">
             Explore Our Workplace
@@ -204,7 +203,6 @@
               <div class="text-s text-gray-400 tracking-wide mb-2">Departemen</div>
               <div class="text-gray-900 font-semibold text-base">{{ job.department }}</div>
             </div>
-            
             <div class="hidden xl:block text-left pl-12 pr-8">
               <div class="text-s text-gray-400 tracking-wide mb-2">Lokasi</div>
               <div class="text-gray-900 font-semibold text-base">{{ job.location }}</div>
@@ -220,7 +218,7 @@
 
         <div class="text-center mt-8">
           <NuxtLink 
-            to="/join-us/careers"
+            to="/list-job/careers"
             class="rounded-full py-3 px-8 xl:px-12 bg-red-100 hover:bg-red-50 hover:text-red-100 text-white font-bold text-lg xl:text-xl transition-all duration-300 cursor-pointer inline-block"
           >
             See All Job
@@ -276,6 +274,7 @@ const scrollTeamRight = () => {
   }
 }
 
+// Update state scroll njul 
 const updateScrollState = () => {
   if (teamContainer.value) {
     const { scrollLeft, scrollWidth, clientWidth } = teamContainer.value
@@ -298,6 +297,7 @@ useHead({
   ]
 })
 
+// Handle error image nih njul 
 const handleImageError = (event: Event) => {
   const target = event.target as HTMLImageElement
   target.src = '/img/placeholder-ceo.jpg'

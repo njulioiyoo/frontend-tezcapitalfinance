@@ -1,10 +1,5 @@
 <template>
-  <div 
-    class="relative rounded-lg overflow-hidden"
-    :class="[
-      section.highlighted ? 'workplace-card-highlighted' : 'border border-gray-200'
-    ]"
-  >
+  <div class="relative rounded-lg overflow-hidden border border-gray-200">
     <div class="relative">
       <img 
         :src="section.image" 
