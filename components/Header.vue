@@ -300,11 +300,11 @@ const scrollToSection = (id) => {
             class="py-1 px-6 rounded-full bg-red-100 hover:bg-red-50 transition-all duration-300 font-bold text-xl text-white hover:text-red-100 flex items-center justify-center cursor-pointer"
             >{{ t('nav.applyNow') }}</a
           >
-          <!-- <NuxtLink
-            to="#"
+          <NuxtLink
+            to="/join-us"
             class="py-1 px-6 rounded-full bg-white hover:bg-red-100 transition-all duration-300 font-medium text-xl text-red-100 hover:text-white flex items-center justify-center cursor-pointer border border-red-100"
             >{{ t('nav.joinUs') }}</NuxtLink
-          > -->
+          >
         </div>
       </div>
       <div class="border-y border-y-grey">
