@@ -78,4 +78,67 @@
   .no-scrollbar {
     scrollbar-width: none;
   }
+
+  .join-us-hero {
+    background: linear-gradient(135deg, #a6192e 0%, #d2485c 100%);
+  }
+
+  .team-member-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .team-member-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .workplace-card-highlighted {
+    border: 3px solid #3b82f6;
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+  }
+
+  .job-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .job-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .work-section-icon {
+    transition: transform 0.3s ease;
+  }
+
+  .work-section-icon:hover {
+    transform: scale(1.1);
+  }
+
+  .search-input:focus {
+    box-shadow: 0 0 0 3px rgba(166, 25, 46, 0.1);
+  }
+
+  .category-procurement {
+    background-color: #fef2f2;
+    color: #991b1b;
+  }
+
+  .category-talent {
+    background-color: #eff6ff;
+    color: #1e40af;
+  }
+
+  .category-tax {
+    background-color: #faf5ff;
+    color: #7c3aed;
+  }
+
+  .certification-logo {
+    filter: grayscale(100%);
+    transition: filter 0.3s ease;
+  }
+
+  .certification-logo:hover {
+    filter: grayscale(0%);
+  }
 }
