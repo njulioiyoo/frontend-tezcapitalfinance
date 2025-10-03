@@ -192,28 +192,32 @@ const getCategoryColor = (category: string) => {
     </div>
 
     <!-- Get to Know Our Work Section -->
-    <div class="bg-grey px-3 xl:px-15 py-8 xl:py-12">
+    <div class="px-3 xl:px-15 py-8 xl:py-12">
       <h2 class="text-black-100 font-bold text-2xl xl:text-4xl mb-8 xl:mb-12 text-center">
         Get to Know Our Work
       </h2>
       
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8 mb-8 xl:mb-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-12 mb-8 xl:mb-12">
         <div
           v-for="service in services"
           :key="service.id"
-          class="flex flex-col items-center text-center"
+          class="w-full max-w-100 mx-auto rounded-2xl p-3 flex flex-col gap-5 transition-all duration-300 select-none cursor-pointer bg-white hover:bg-red-50"
         >
           <img
             :src="service.icon"
             :alt="service.title"
-            class="w-20 h-20 xl:w-24 xl:h-24 mb-4 object-contain"
+            class="w-full h-25 xl:h-43 object-contain"
           />
-          <h3 class="text-red-100 font-bold text-lg xl:text-xl mb-3">
-            {{ service.title }}
-          </h3>
-          <p class="text-black-100 text-sm xl:text-base">
-            {{ service.description }}
-          </p>
+          <div
+            class="p-3 rounded-xl flex flex-col gap-2 items-center justify-center h-auto xl:h-35 bg-white/50"
+          >
+            <h3 class="text-red-100 text-center font-bold text-lg xl:text-xl">
+              {{ service.title }}
+            </h3>
+            <p class="text-center text-sm xl:text-base text-red-100">
+              {{ service.description }}
+            </p>
+          </div>
         </div>
       </div>
 
