@@ -125,66 +125,57 @@ const accordionItems = computed(() => {
     return [];
   } else {
     // For other services, show Interest section and separate Fees section if data exists
-    // Interest section
-    if ((serviceItem.value.interest_rate && parseFloat(serviceItem.value.interest_rate) > 0) || 
-        (serviceItem.value.service_duration && serviceItem.value.service_duration.trim() !== '' && serviceItem.value.service_duration !== '0') || 
-        (serviceItem.value.interest_list_array && serviceItem.value.interest_list_array.length > 0)) {
+    // Interest & Fees section (from dynamic tables) - use bilingual data
+    const interestData = locale.value === 'en' ? serviceItem.value.interest_list_en_array : serviceItem.value.interest_list_id_array;
+    if (interestData && interestData.headers && interestData.rows && interestData.rows.length > 0) {
       let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
-      content += `<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.item')}</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.detail')}</th></tr></thead>`;
+      
+      // Dynamic headers from the CMS
+      content += '<thead><tr class="bg-gray-100">';
+      interestData.headers.forEach(header => {
+        content += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold">${header}</th>`;
+      });
+      content += '</tr></thead>';
+      
+      // Dynamic rows from the CMS
       content += '<tbody>';
-      
-      if (serviceItem.value.interest_rate && parseFloat(serviceItem.value.interest_rate) > 0) {
-        content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${t('services.interestRate')}</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.interest_rate}%</td></tr>`;
-      }
-      
-      if (serviceItem.value.service_duration && serviceItem.value.service_duration.trim() !== '' && serviceItem.value.service_duration !== '0') {
-        content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${t('services.serviceDuration')}</td><td class="border border-gray-300 px-4 py-2">${serviceItem.value.service_duration}</td></tr>`;
-      }
-      
-      if (serviceItem.value.interest_list_array && serviceItem.value.interest_list_array.length > 0) {
-        serviceItem.value.interest_list_array.forEach((item) => {
-          if (typeof item === 'object' && item.name && typeof item.rate === 'number') {
-            // New structure with name and rate
-            content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${item.name}</td><td class="border border-gray-300 px-4 py-2">${item.rate}% ${t('services.perYear')}</td></tr>`;
-          } else if (typeof item === 'string') {
-            // Legacy structure - fallback for backward compatibility
-            const parts = item.split(':');
-            const label = parts[0]?.trim() || `Interest`;
-            const value = parts[1]?.trim() || item;
-            content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${label}</td><td class="border border-gray-300 px-4 py-2">${value}</td></tr>`;
-          }
+      interestData.rows.forEach(row => {
+        content += '<tr>';
+        row.forEach(cell => {
+          content += `<td class="border border-gray-300 px-4 py-2">${cell}</td>`;
         });
-      }
-      
+        content += '</tr>';
+      });
       content += '</tbody></table></div>';
       
       items.push({
         value: "interest",
-        title: t('services.interest'),
+        title: t('services.interestAndFees'),
         content: content
       });
     }
     
-    // Fees section
-    if (serviceItem.value.fees_list_array && serviceItem.value.fees_list_array.length > 0) {
+    // Fees section (from dynamic tables) - use bilingual data
+    const feesData = locale.value === 'en' ? serviceItem.value.fees_list_en_array : serviceItem.value.fees_list_id_array;
+    if (feesData && feesData.headers && feesData.rows && feesData.rows.length > 0) {
       let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
-      content += `<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.feeType')}</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.detail')}</th></tr></thead>`;
-      content += '<tbody>';
       
-      serviceItem.value.fees_list_array.forEach((item, index) => {
-        if (typeof item === 'object' && item.name && typeof item.value === 'number') {
-          // New structure with name, type, and value
-          const displayValue = item.type === 'percentage' ? `${item.value}%` : formatCurrencySimple(item.value);
-          content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${item.name}</td><td class="border border-gray-300 px-4 py-2">${displayValue}</td></tr>`;
-        } else if (typeof item === 'string') {
-          // Legacy structure - fallback for backward compatibility  
-          const parts = item.split(':');
-          const label = parts[0]?.trim() || `Fee ${index + 1}`;
-          const value = parts[1]?.trim() || item;
-          content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${label}</td><td class="border border-gray-300 px-4 py-2">${value}</td></tr>`;
-        }
+      // Dynamic headers from the CMS
+      content += '<thead><tr class="bg-gray-100">';
+      feesData.headers.forEach(header => {
+        content += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold">${header}</th>`;
       });
+      content += '</tr></thead>';
       
+      // Dynamic rows from the CMS
+      content += '<tbody>';
+      feesData.rows.forEach(row => {
+        content += '<tr>';
+        row.forEach(cell => {
+          content += `<td class="border border-gray-300 px-4 py-2">${cell}</td>`;
+        });
+        content += '</tr>';
+      });
       content += '</tbody></table></div>';
       
       items.push({
@@ -194,31 +185,27 @@ const accordionItems = computed(() => {
       });
     }
     
-    // Document List section
-    if (serviceItem.value.document_list_array && serviceItem.value.document_list_array.length > 0) {
+    // Document List section (from dynamic tables) - use bilingual data
+    const documentData = locale.value === 'en' ? serviceItem.value.document_list_en_array : serviceItem.value.document_list_id_array;
+    if (documentData && documentData.headers && documentData.rows && documentData.rows.length > 0) {
       let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
-      content += `<thead><tr class="bg-gray-100"><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.documentType')}</th><th class="border border-gray-300 px-4 py-2 text-left font-semibold">${t('services.documentRequired')}</th></tr></thead>`;
-      content += '<tbody>';
       
-      serviceItem.value.document_list_array.forEach((doc, index) => {
-        // Parse document format "key: value" or fallback to simple format
-        const parts = doc.split(':');
-        let docType = '';
-        let docDescription = '';
-        
-        if (parts.length >= 2) {
-          // New format: "Document Type: Description" - docType is dynamic data from backend
-          docType = parts[0].trim();
-          docDescription = parts.slice(1).join(':').trim(); // Handle cases where description contains ':'
-        } else {
-          // Old format: simple string - use translation for generic document label
-          docType = `${t('services.document')} ${index + 1}`;
-          docDescription = doc;
-        }
-        
-        content += `<tr><td class="border border-gray-300 px-4 py-2 font-medium">${docType}</td><td class="border border-gray-300 px-4 py-2">${docDescription}</td></tr>`;
+      // Dynamic headers from the CMS
+      content += '<thead><tr class="bg-gray-100">';
+      documentData.headers.forEach(header => {
+        content += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold">${header}</th>`;
       });
+      content += '</tr></thead>';
       
+      // Dynamic rows from the CMS
+      content += '<tbody>';
+      documentData.rows.forEach(row => {
+        content += '<tr>';
+        row.forEach(cell => {
+          content += `<td class="border border-gray-300 px-4 py-2">${cell}</td>`;
+        });
+        content += '</tr>';
+      });
       content += '</tbody></table></div>';
       
       items.push({

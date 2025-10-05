@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getLocalTimeZone, today } from "@internationalized/date"
-import { ref, computed, watch, onMounted } from "vue"
+import { ref, computed, watch, onMounted, nextTick } from "vue"
 import type { NewsResponse, NewsItem } from '~/types/api'
 
 const { t, locale } = useI18n()
@@ -214,10 +214,34 @@ const handlePageChange = (page: number) => {
   fetchNews()
 }
 
+// Hash navigation mapping
+const hashToCategoryMap = {
+  'bisnis': 'business',
+  'company-activities': 'company-activities', 
+  'press-release': 'press-release',
+  'highlights': 'highlights'
+}
+
+// Handle hash navigation
+const handleHashNavigation = () => {
+  if (process.client && window.location.hash) {
+    const hash = window.location.hash.slice(1) // Remove #
+    if (hashToCategoryMap[hash]) {
+      currentCategory.value = hashToCategoryMap[hash]
+      fetchNews()
+    }
+  }
+}
+
 // Lifecycle
 onMounted(() => {
   fetchBannerData()
   fetchNews()
+  
+  // Handle hash navigation on page load
+  nextTick(() => {
+    handleHashNavigation()
+  })
 })
 
 // Fetch banner data using cache
@@ -276,6 +300,16 @@ watch(() => searchQuery.value, (newValue) => {
     handleSearch()
   }, 500)
 })
+
+// Watch for route changes to handle hash navigation
+const route = useRoute()
+watch(() => route.hash, (newHash) => {
+  if (newHash && process.client) {
+    nextTick(() => {
+      handleHashNavigation()
+    })
+  }
+}, { immediate: true })
 </script>
 
 <template>
@@ -301,7 +335,7 @@ watch(() => searchQuery.value, (newValue) => {
     <!-- Content State -->
     <div v-else>
       <!-- Highlights Section -->
-      <div class="px-3 xl:px-15 py-8 xl:py-12" v-if="highlightedNews.length">
+      <div class="px-3 xl:px-15 py-8 xl:py-12" v-if="highlightedNews.length" id="highlights">
         <h1 class="text-black-100 font-bold xl:text-5xl text-2xl mb-6 xl:mb-9">
           {{ t('nav.news.highlights') }}
         </h1>
@@ -359,6 +393,7 @@ watch(() => searchQuery.value, (newValue) => {
               v-for="(label, key) in categories"
               :key="key"
               :value="key"
+              :id="Object.keys(hashToCategoryMap).find(hash => hashToCategoryMap[hash] === key) || key"
               @click="handleCategoryChange(key)"
             >
               {{ label }}
@@ -441,7 +476,7 @@ watch(() => searchQuery.value, (newValue) => {
             </div>
           </div>
           
-          <TabsContent :value="currentCategory" class="xl:mt-6 space-y-4 mt-0">
+          <TabsContent :value="currentCategory" class="xl:mt-6 space-y-4 mt-0" :id="Object.keys(hashToCategoryMap).find(hash => hashToCategoryMap[hash] === currentCategory) || currentCategory">
             <!-- News List -->
             <ul class="flex flex-col" v-if="currentNews.length">
               <li v-for="(item, idx) in currentNews" :key="idx">

@@ -38,11 +38,11 @@ const linkMenu = computed(() => [
     menu: [
       {
         label: t('nav.about.ourStory'),
-        link: "/about",
+        link: "/about#our-story",
       },
       {
         label: t('nav.about.logoPhilosophy'),
-        link: "/about",
+        link: "/about#logo-philosophy",
       },
     ],
   },
@@ -55,7 +55,7 @@ const linkMenu = computed(() => [
       })) : []),
       {
         label: t('nav.service.faq'),
-        link: "/contact",
+        link: "/contact#faq",
       },
     ],
   },
@@ -64,19 +64,19 @@ const linkMenu = computed(() => [
     menu: [
       {
         label: t('nav.news.bisnis'),
-        link: "/news",
+        link: "/news#bisnis",
       },
       {
         label: t('nav.news.companyActivities'),
-        link: "/news",
+        link: "/news#company-activities",
       },
       {
         label: t('nav.news.pressRelease'),
-        link: "/news",
+        link: "/news#press-release",
       },
       {
         label: t('nav.news.highlights'),
-        link: "/news",
+        link: "/news#highlights",
       },
     ],
   },
@@ -85,15 +85,15 @@ const linkMenu = computed(() => [
     menu: [
       {
         label: t('nav.corporateMenu.financialReport'),
-        link: "/corporate",
+        link: "/corporate#financial-report",
       },
       {
         label: t('nav.corporateMenu.annualReport'),
-        link: "/corporate",
+        link: "/corporate#annual-report",
       },
       {
         label: t('nav.corporateMenu.announcement'),
-        link: "/corporate",
+        link: "/corporate#announcement",
       },
     ],
   },

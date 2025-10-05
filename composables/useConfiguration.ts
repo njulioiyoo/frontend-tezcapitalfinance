@@ -24,10 +24,15 @@ export interface OjkConfig {
   ojk_images: any[]
 }
 
+export interface JoinUsConfig {
+  career_application_email: string
+}
+
 export interface ConfigurationData {
   general: GeneralConfig
   contact: ContactConfig
   ojk?: OjkConfig
+  join_us?: JoinUsConfig
 }
 
 export const useConfiguration = () => {
@@ -97,6 +102,11 @@ export const useConfiguration = () => {
     }
     
     return []
+  })
+
+  // Join Us Configuration
+  const careerApplicationEmail = computed(() => {
+    return configData.value?.join_us?.career_application_email || ''
   })
 
   // Fetch configuration data directly from API (real-time)
@@ -184,6 +194,11 @@ export const useConfiguration = () => {
           ojk_images: data.ojk?.ojk_images?.value || data.ojk?.ojk_images || []
         }
         
+        // Parse Join Us configuration data
+        const joinUsConfig: JoinUsConfig = {
+          career_application_email: data.join_us?.career_application_email?.value || data.join_us?.career_application_email || ''
+        }
+        
         console.log('🏛️ OJK Config loaded:', {
           title: ojkConfig.ojk_title,
           description: ojkConfig.ojk_description,
@@ -194,7 +209,8 @@ export const useConfiguration = () => {
         configData.value = {
           general: generalConfig,
           contact: contactConfig,
-          ojk: ojkConfig
+          ojk: ojkConfig,
+          join_us: joinUsConfig
         }
 
       } else {
@@ -216,6 +232,9 @@ export const useConfiguration = () => {
             ojk_title: '',
             ojk_description: '',
             ojk_images: []
+          },
+          join_us: {
+            career_application_email: ''
           }
         }
       }
@@ -240,6 +259,9 @@ export const useConfiguration = () => {
           ojk_title: '',
           ojk_description: '',
           ojk_images: []
+        },
+        join_us: {
+          career_application_email: ''
         }
       }
     } finally {
@@ -265,6 +287,7 @@ export const useConfiguration = () => {
     ojkTitle,
     ojkDescription,
     ojkImages,
+    careerApplicationEmail,
     isLoading: readonly(isLoading),
     error: readonly(error),
     fetchConfiguration,

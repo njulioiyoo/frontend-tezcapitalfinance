@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nextTick } from 'vue'
 const { t, locale } = useI18n()
 const apiStore = useApiStore()
 
@@ -102,6 +103,16 @@ const bannerImage = computed(() => {
 onMounted(() => {
   fetchBannerData()
   fetchData()
+  
+  // Handle hash navigation on page load
+  nextTick(() => {
+    if (process.client && window.location.hash) {
+      const hash = window.location.hash
+      setTimeout(() => {
+        scrollToSection(hash)
+      }, 500) // Wait for content to load
+    }
+  })
 })
 
 // Watch for language changes and refetch data
@@ -109,6 +120,18 @@ watch(() => locale.value, () => {
   fetchBannerData()
   fetchData()
 }, { immediate: false })
+
+// Watch for route changes to handle hash navigation
+const route = useRoute()
+watch(() => route.hash, (newHash) => {
+  if (newHash && process.client) {
+    nextTick(() => {
+      setTimeout(() => {
+        scrollToSection(newHash)
+      }, 300)
+    })
+  }
+}, { immediate: true })
 
 </script>
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getLocalTimeZone, today } from "@internationalized/date";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, nextTick } from "vue";
 
 const { t, locale } = useI18n();
 const apiStore = useApiStore();
@@ -157,6 +157,26 @@ const handleAnnualPageChange = async (page: number) => {
   console.log('✅ Annual page changed, current page:', annualCurrentPage.value)
 }
 
+// Hash navigation mapping
+const hashToTabMap = {
+  'financial-report': 'lap-keuangan',
+  'annual-report': 'lap-tahunan',
+  'announcement': 'announcement'
+}
+
+// Current tab state
+const currentTab = ref('lap-keuangan')
+
+// Handle hash navigation
+const handleHashNavigation = () => {
+  if (process.client && window.location.hash) {
+    const hash = window.location.hash.slice(1) // Remove #
+    if (hashToTabMap[hash]) {
+      currentTab.value = hashToTabMap[hash]
+    }
+  }
+}
+
 // Helper functions for localized content
 const getLocalizedTitle = (item: any) => {
   if (!item) return ''
@@ -259,6 +279,11 @@ onMounted(async () => {
     console.error('Failed to load reports data:', error)
     // Don't rethrow to prevent page crash
   }
+  
+  // Handle hash navigation on page load
+  nextTick(() => {
+    handleHashNavigation()
+  })
 })
 
 // Fetch announcements function
@@ -359,16 +384,26 @@ watch(() => announcementsSearchQuery.value, (newValue) => {
     handleAnnouncementSearch()
   }, 500)
 })
+
+// Watch for route changes to handle hash navigation
+const route = useRoute()
+watch(() => route.hash, (newHash) => {
+  if (newHash && process.client) {
+    nextTick(() => {
+      handleHashNavigation()
+    })
+  }
+}, { immediate: true })
 </script>
 
 <template>
   <div>
     <Jumbotron :label="bannerTitle" :desc="bannerDescription" :img="bannerImage" />
-    <Tabs default-value="lap-keuangan" class="w-full">
+    <Tabs :model-value="currentTab" class="w-full">
       <TabsList>
-        <TabsTrigger value="lap-keuangan">{{ t('nav.corporateMenu.financialReport') }}</TabsTrigger>
-        <TabsTrigger value="lap-tahunan">{{ t('nav.corporateMenu.annualReport') }}</TabsTrigger>
-        <TabsTrigger value="announcement">{{ t('nav.corporateMenu.announcement') }}</TabsTrigger>
+        <TabsTrigger value="lap-keuangan" id="financial-report" @click="currentTab = 'lap-keuangan'">{{ t('nav.corporateMenu.financialReport') }}</TabsTrigger>
+        <TabsTrigger value="lap-tahunan" id="annual-report" @click="currentTab = 'lap-tahunan'">{{ t('nav.corporateMenu.annualReport') }}</TabsTrigger>
+        <TabsTrigger value="announcement" id="announcement" @click="currentTab = 'announcement'">{{ t('nav.corporateMenu.announcement') }}</TabsTrigger>
       </TabsList>
       <TabsContent value="lap-keuangan" class="xl:py-12 xl:px-15 py-8 px-3">
         <div
