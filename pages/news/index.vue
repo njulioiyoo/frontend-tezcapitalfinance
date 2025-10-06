@@ -32,7 +32,6 @@ const categories = ref({})
 
 // Function to update categories with i18n
 const updateCategories = () => {
-  console.log('🔄 updateCategories called, locale:', locale.value)
   
   // Test with hardcoded categories to verify i18n works
   const testCategories = {
@@ -43,37 +42,29 @@ const updateCategories = () => {
     'highlights': t('nav.news.highlights')
   }
   
-  console.log('🧪 Test categories with i18n:', testCategories)
   categories.value = testCategories
   
   // Keep the original API-based logic for debugging
   if (newsResponse.value && newsResponse.value.categories) {
-    console.log('📊 newsResponse.categories:', newsResponse.value.categories)
     
     // Map API categories to i18n keys
     const mappedCategories = {}
     Object.keys(newsResponse.value.categories).forEach(key => {
-      console.log(`🗂️ Processing category: ${key}`)
       switch(key) {
         case 'business':
           mappedCategories[key] = t('nav.news.bisnis')
-          console.log(`  ✅ business -> ${mappedCategories[key]}`)
           break
         case 'company-activities':
           mappedCategories[key] = t('nav.news.companyActivities')
-          console.log(`  ✅ company-activities -> ${mappedCategories[key]}`)
           break
         case 'press-release':
           mappedCategories[key] = t('nav.news.pressRelease')
-          console.log(`  ✅ press-release -> ${mappedCategories[key]}`)
           break
         case 'highlights':
           mappedCategories[key] = t('nav.news.highlights')
-          console.log(`  ✅ highlights -> ${mappedCategories[key]}`)
           break
         default:
           mappedCategories[key] = newsResponse.value.categories[key]
-          console.log(`  ⚠️ default case: ${key} -> ${mappedCategories[key]}`)
       }
     })
     
@@ -82,11 +73,9 @@ const updateCategories = () => {
       ...mappedCategories
     }
     
-    console.log('🔄 API-based categories:', apiBasedCategories)
     // Comment out to use hardcoded for now: categories.value = apiBasedCategories
   }
   
-  console.log('✅ Final categories (hardcoded test):', categories.value)
 }
 
 const featuredNews = computed(() => {
@@ -226,11 +215,9 @@ const hashToCategoryMap = {
 const handleHashNavigation = () => {
   if (process.client && window.location.hash) {
     const hash = window.location.hash.slice(1) // Remove #
-    console.log('🔗 News hash navigation:', hash)
     
     if (hashToCategoryMap[hash]) {
       currentCategory.value = hashToCategoryMap[hash]
-      console.log('📑 News category changed to:', currentCategory.value)
       fetchNews()
       
       // Scroll to the tabs section after setting the category
@@ -238,21 +225,18 @@ const handleHashNavigation = () => {
         // Add a small delay to ensure DOM is updated
         setTimeout(() => {
           const tabsElement = document.getElementById('news-tabs')
-          console.log('🎯 News tabs element found:', !!tabsElement)
           
           if (tabsElement) {
             const offset = 100 // Offset for fixed header
             const elementPosition = tabsElement.getBoundingClientRect().top
             const offsetPosition = elementPosition + window.pageYOffset - offset
             
-            console.log('📍 News scrolling to position:', offsetPosition)
             
             window.scrollTo({
               top: offsetPosition,
               behavior: 'smooth'
             })
           } else {
-            console.log('❌ News tabs element not found, retrying...')
             // Retry after a longer delay
             setTimeout(() => {
               const retryElement = document.getElementById('news-tabs')
@@ -261,7 +245,6 @@ const handleHashNavigation = () => {
                 const elementPosition = retryElement.getBoundingClientRect().top
                 const offsetPosition = elementPosition + window.pageYOffset - offset
                 
-                console.log('🔄 Retry scroll to position:', offsetPosition)
                 
                 window.scrollTo({
                   top: offsetPosition,

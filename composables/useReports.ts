@@ -95,7 +95,6 @@ export const useReports = () => {
 
       const url = `${baseURL}/api/v1/reports/financial${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
       
-      console.log('🚀 Fetching financial reports from URL:', url)
       const response: ReportsApiResponse = await $fetch(url, {
         headers: {
           'Accept': 'application/json',
@@ -105,16 +104,10 @@ export const useReports = () => {
         },
         server: false
       })
-      console.log('📈 Financial reports response:', response)
 
       if (response.success) {
         financialReports.value = response.data as FinancialReportsResponse
         financialPagination.value = response.pagination
-        console.log('💾 Financial reports stored in state:', {
-          allCategoryCount: financialReports.value['all-category']?.subKeuangan?.length,
-          allCategoryIds: financialReports.value['all-category']?.subKeuangan?.map(r => r.id),
-          pagination: financialPagination.value
-        })
         return response
       } else {
         throw new Error('Failed to fetch financial reports')
@@ -122,7 +115,6 @@ export const useReports = () => {
 
     } catch (err: any) {
       error.value = err
-      console.error('Error fetching financial reports:', err)
       throw err
     } finally {
       isLoading.value = false
@@ -180,7 +172,6 @@ export const useReports = () => {
 
     } catch (err: any) {
       error.value = err
-      console.error('Error fetching annual reports:', err)
       throw err
     } finally {
       isLoading.value = false
@@ -199,7 +190,6 @@ export const useReports = () => {
 
       return response.data
     } catch (err: any) {
-      console.error('Error fetching report:', err)
       throw err
     }
   }
@@ -222,7 +212,6 @@ export const useReports = () => {
         throw new Error('Download URL not available')
       }
     } catch (err: any) {
-      console.error('Error downloading report:', err)
       throw err
     }
   }

@@ -20,7 +20,6 @@ const fetchServices = async () => {
       services.value = []
     }
   } catch (error) {
-    console.error('Failed to fetch services:', error)
     services.value = []
   }
 }

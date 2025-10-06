@@ -79,7 +79,6 @@ const { data: career, pending, error } = await useLazyAsyncData(
       return careerResponse
     } catch (err: any) {
       // Log error for debugging
-      console.error('Career fetch error:', err)
       
       // Throw 404 for any error (job not found, network issues, etc.)
       throw createError({
@@ -134,12 +133,9 @@ Hormat saya,
 
 // Handle apply action with loading state
 const handleApplyClick = async () => {
-  console.log('handleApplyClick configData:', configData.value)
-  console.log('handleApplyClick careerApplicationEmail:', careerApplicationEmail.value)
   
   // Use the computed value instead of accessing configData directly
   const email = careerApplicationEmail.value
-  console.log('handleApplyClick email:', email)
   
   if (!email) {
     alert(t('joinUs.detail.emailNotConfigured'))
@@ -168,7 +164,6 @@ const handleApplyClick = async () => {
     }, 1000)
     
   } catch (error) {
-    console.error('Error opening email client:', error)
     alert(t('joinUs.detail.emailClientError'))
   } finally {
     // Reset loading state after delay
@@ -180,13 +175,10 @@ const handleApplyClick = async () => {
 
 // Debug watcher for configData
 watch(configData, (newValue) => {
-  console.log('🔧 configData changed:', newValue)
-  console.log('🔧 careerApplicationEmail:', careerApplicationEmail.value)
 }, { deep: true })
 
 // Debug watcher for careerApplicationEmail
 watch(careerApplicationEmail, (newValue) => {
-  console.log('📧 careerApplicationEmail changed:', newValue)
 })
 
 // Dynamic head based on career data

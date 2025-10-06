@@ -55,7 +55,6 @@ export const useConfigurationCache = () => {
       configError.value = null
 
       const url = `${baseURL}/api/v1/configurations?_t=${Date.now()}`
-      console.log('🔄 Fetching configurations from:', url)
       
       const response = await $fetch(url, {
         headers: {
@@ -80,16 +79,13 @@ export const useConfigurationCache = () => {
       configurationCache.value = data
       lastFetchTime.value = Date.now()
       
-      console.log('✅ Configurations cached successfully')
       return data
 
     } catch (err) {
-      console.error('❌ Failed to fetch configurations:', err)
       configError.value = err
       
       // Don't clear cache on error, use stale data if available
       if (configurationCache.value) {
-        console.log('⚠️ Using stale configuration data due to error')
         return configurationCache.value
       }
       

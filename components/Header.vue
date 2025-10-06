@@ -23,7 +23,6 @@ const services = ref([]);
 const fetchServices = async () => {
   try {
     const response = await apiStore.fetchServices({ limit: 5 })
-    console.log('Services API response:', response)
     // Handle paginated response structure
     if (response.data && response.data.data) {
       services.value = response.data.data || []
@@ -32,9 +31,7 @@ const fetchServices = async () => {
     } else {
       services.value = []
     }
-    console.log('Services loaded:', services.value)
   } catch (error) {
-    console.error('Failed to fetch services:', error)
     services.value = []
   }
 }
@@ -44,7 +41,6 @@ onMounted(async () => {
   if (process.client) {
     // Initialize configuration
     await initConfiguration();
-    console.log('Apply Now Link loaded:', applyNowLink.value);
     
     // Fetch services for menu
     await fetchServices();

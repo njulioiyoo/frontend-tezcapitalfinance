@@ -456,7 +456,6 @@ const loadMotorData = async () => {
       periods.value = periodsData;
     }
   } catch (error) {
-    console.error('Failed to load motor data:', error);
   } finally {
     isLoadingMotorData.value = false;
   }
@@ -466,13 +465,6 @@ const onVehicleChange = () => {
   // Find the selected vehicle object based on ID
   const vehicle = motors.value.find(m => m.id === selectedVehicleId.value);
   selectedVehicle.value = vehicle || null;
-  
-  console.log('Vehicle selection changed via @change event:', {
-    selectedVehicleId: selectedVehicleId.value,
-    selectedVehicleName: vehicle?.name,
-    selectedVehicleType: typeof selectedVehicleId.value,
-    foundVehicle: vehicle ? JSON.stringify(vehicle, null, 2) : 'Not found'
-  });
   
   // Reset DP when vehicle changes
   selectedDp.value = null;
@@ -506,24 +498,12 @@ const calculateSimulation = async () => {
       isCalculating.value = true;
       motorApi.error.value = null;
       
-      console.log('Motor calculation params:', {
-        motorId: selectedVehicle.value.id,
-        motorName: selectedVehicle.value.name,
-        dpAmount: selectedDp.value.dp_amount,
-        dpPercent: selectedDp.value.dp_percent,
-        tenorMonths: selectedTenor.value
-      });
-      console.log('Selected vehicle object:', JSON.stringify(selectedVehicle.value, null, 2));
-      console.log('Selected DP object:', JSON.stringify(selectedDp.value, null, 2));
-      console.log('Available DP options:', JSON.stringify(dpOptions.value, null, 2));
-      
       const result = await motorApi.calculateInstallment(
         selectedVehicle.value.id,
         selectedDp.value.dp_amount,
         selectedTenor.value
       );
       
-      console.log('Motor calculation result:', result);
       
       // Clear error on successful calculation
       motorApi.error.value = null;
@@ -593,15 +573,6 @@ const calculateSimulation = async () => {
       };
     }
   } catch (error) {
-    console.error('Calculation failed:', error);
-    console.error('Error details:', {
-      message: error.message,
-      status: error.status,
-      data: error.data,
-      response: error.response,
-      statusCode: error.statusCode
-    });
-    
     // Set error in motorApi for UI display
     motorApi.error.value = error;
     

@@ -189,7 +189,6 @@ export const useHomepage = () => {
         newsSubtitle.value = ''
       }
     } catch (err) {
-      console.error('Failed to fetch news:', err)
       news.value = []
     }
   }

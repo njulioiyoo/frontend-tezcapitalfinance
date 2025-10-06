@@ -1,18 +1,14 @@
 export default defineNuxtPlugin(() => {
-  console.log('🔧 Maintenance plugin starting...')
   
   // Skip on server side
   if (process.server) {
-    console.log('🔧 Skipping maintenance check on server side')
     return
   }
 
-  console.log('🔧 Maintenance plugin running on client side')
   
   // Use nextTick to ensure everything is ready
   nextTick(async () => {
     try {
-      console.log('🔧 Starting async maintenance check...')
       
       // Use cached configuration to avoid duplicate API calls
       const { getMaintenanceConfig } = useConfigurationCache()

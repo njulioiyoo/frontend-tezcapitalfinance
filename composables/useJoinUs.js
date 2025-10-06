@@ -44,7 +44,6 @@ Fusce ullamcorper ornare odio, id rutrum diam dignissim semper. Fusce nec massa 
         }
       }
     } catch (error) {
-      console.error('Error loading join us data:', error)
       joinUsData.value.error = error
       
       // Fallback to default values based on locale

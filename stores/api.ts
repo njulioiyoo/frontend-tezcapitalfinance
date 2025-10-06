@@ -38,7 +38,6 @@ export const useApiStore = defineStore('api', () => {
     }
     
     try {
-      console.log('🔥 API Call URL:', finalUrl)
       const data = await $fetch<T>(finalUrl, {
         ...options,
         headers: {
@@ -53,10 +52,8 @@ export const useApiStore = defineStore('api', () => {
         default: () => null
       })
       
-      console.log(`API Response for ${endpoint}:`, data)
       return data
     } catch (error) {
-      console.error(`API Error for ${endpoint}:`, error)
       throw error
     }
   }

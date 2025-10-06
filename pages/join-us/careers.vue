@@ -228,7 +228,6 @@ const fetchCareers = async () => {
     careers.value = response
   } catch (err) {
     error.value = err?.message || 'Failed to fetch careers'
-    console.error('Error fetching careers:', err)
   } finally {
     pending.value = false
   }

@@ -215,7 +215,6 @@ const fetchFeaturedCareers = async () => {
     }
   } catch (err) {
     careersError.value = err?.message || 'Failed to fetch careers'
-    console.error('Error fetching featured careers:', err)
   } finally {
     careersLoading.value = false
   }

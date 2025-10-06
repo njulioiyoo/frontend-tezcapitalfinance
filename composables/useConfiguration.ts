@@ -98,7 +98,6 @@ export const useConfiguration = () => {
         return ojkImagesData
       }
     } catch (e) {
-      console.warn('Failed to parse OJK images configuration:', e)
     }
     
     return []
@@ -106,7 +105,6 @@ export const useConfiguration = () => {
 
   // Join Us Configuration
   const careerApplicationEmail = computed(() => {
-    console.log('careerApplicationEmail computed:', configData.value?.join_us?.career_application_email);
     return configData.value?.join_us?.career_application_email || ''
   })
 
@@ -130,7 +128,6 @@ export const useConfiguration = () => {
         server: false
       })
 
-      console.log('API Response:', response);
 
       // Handle response structure
       let data = response
@@ -209,13 +206,6 @@ export const useConfiguration = () => {
           }
         }
         
-        console.log('🏛️ OJK Config loaded:', {
-          title: ojkConfig.ojk_title,
-          description: ojkConfig.ojk_description,
-          images: ojkConfig.ojk_images,
-          rawData: data.ojk
-        })
-
         configData.value = {
           general: generalConfig,
           contact: contactConfig,

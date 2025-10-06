@@ -146,13 +146,6 @@ export const useMotorApi = () => {
       isLoading.value = true
       error.value = null
       
-      console.log('🚀 Sending calculation request:', {
-        motorId,
-        dpAmount,
-        tenorMonths,
-        url: `${apiStore.baseURL}/api/v1/motors/calculate`
-      });
-      
       const response = await $fetch('api/v1/motors/calculate', {
         method: 'POST',
         baseURL: apiStore.baseURL,
@@ -167,14 +160,9 @@ export const useMotorApi = () => {
         }
       })
       
-      console.log('✅ Calculation response:', response);
       
       return response.data as CalculationResult
     } catch (err: any) {
-      console.error('❌ Calculation API error:', err);
-      console.error('Error response data:', err.data);
-      console.error('Error status:', err.status);
-      console.error('Error message:', err.message);
       
       error.value = err
       throw err

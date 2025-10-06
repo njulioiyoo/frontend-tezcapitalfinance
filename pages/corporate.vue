@@ -70,12 +70,9 @@ const loadFinancialReports = async (resetPage = false) => {
       lang: locale.value
     }
     
-    console.log('💰 Loading financial reports with params:', params)
     await fetchFinancialReports(params)
-    console.log('📊 Financial reports loaded, pagination:', financialPagination.value)
   } catch (err) {
     errorFinancial.value = err
-    console.error('Failed to load financial reports:', err)
   } finally {
     isLoadingFinancial.value = false
   }
@@ -98,12 +95,9 @@ const loadAnnualReports = async (resetPage = false) => {
       lang: locale.value
     }
     
-    console.log('📋 Loading annual reports with params:', params)
     await fetchAnnualReports(params)
-    console.log('📄 Annual reports loaded:', annualReports.value.length, 'reports')
   } catch (err) {
     errorAnnual.value = err
-    console.error('Failed to load annual reports:', err)
   } finally {
     isLoadingAnnual.value = false
   }
@@ -114,7 +108,6 @@ const handleReportDownload = async (reportId) => {
   try {
     await downloadReport(reportId)
   } catch (err) {
-    console.error('Failed to download report:', err)
     // You could show a toast notification here
   }
 }
@@ -148,17 +141,13 @@ const handleAnnualFilterChange = async (selectedDate: any) => {
 
 // Pagination handlers
 const handleFinancialPageChange = async (page: number) => {
-  console.log('🔄 Changing financial page to:', page)
   financialCurrentPage.value = page
   await loadFinancialReports()
-  console.log('✅ Financial page changed, current page:', financialCurrentPage.value)
 }
 
 const handleAnnualPageChange = async (page: number) => {
-  console.log('🔄 Changing annual page to:', page)
   annualCurrentPage.value = page
   await loadAnnualReports()
-  console.log('✅ Annual page changed, current page:', annualCurrentPage.value)
 }
 
 // Hash navigation mapping
@@ -175,23 +164,19 @@ const currentTab = ref('lap-keuangan')
 const handleHashNavigation = () => {
   if (process.client && window.location.hash) {
     const hash = window.location.hash.slice(1) // Remove #
-    console.log('🔗 Hash navigation:', hash)
     
     if (hashToTabMap[hash]) {
       currentTab.value = hashToTabMap[hash]
-      console.log('📑 Tab changed to:', currentTab.value)
       
       // Scroll to the tabs section after setting the tab
       nextTick(() => {
         const tabsElement = document.getElementById('corporate-tabs')
-        console.log('🎯 Tabs element found:', !!tabsElement)
         
         if (tabsElement) {
           const offset = 100 // Offset for fixed header
           const elementPosition = tabsElement.getBoundingClientRect().top
           const offsetPosition = elementPosition + window.pageYOffset - offset
           
-          console.log('📍 Scrolling to position:', offsetPosition)
           
           window.scrollTo({
             top: offsetPosition,
@@ -281,28 +266,18 @@ const filteredFinancialReports = computed(() => {
 // Lifecycle
 onMounted(async () => {
   try {
-    console.log('Corporate page mounted, loading reports...')
-    console.log('API Base URL:', useRuntimeConfig().public.apiBaseUrl)
     
     // Fetch banner data
     await fetchBannerData()
     
     // Load reports sequentially to avoid overwhelming the server
-    console.log('🔄 About to load financial reports...')
     await loadFinancialReports()
-    console.log('💰 Financial reports after load:', financialReports.value)
     
-    console.log('🔄 About to load annual reports...')
     await loadAnnualReports()
-    console.log('📊 Annual reports after load:', annualReports.value.length, 'items')
     
-    console.log('🎯 Fetching announcements on mount...')
     await fetchAnnouncements()
-    console.log('📢 Announcements after fetch:', announcements.value)
     
-    console.log('Reports loaded successfully')
   } catch (error) {
-    console.error('Failed to load reports data:', error)
     // Don't rethrow to prevent page crash
   }
   
@@ -329,13 +304,9 @@ const fetchAnnouncements = async () => {
     }
     
     const response = await apiStore.fetchNews(params)
-    console.log('🎯 API call params:', params)
-    console.log('✅ Fetched announcements:', response.data.data)
-    console.log('📊 Data types:', response.data.data.map(item => ({id: item.id, type: item.type, title: item.title_id})))
     
     // Filter hanya yang type announcement (double check)
     const filteredAnnouncements = response.data.data.filter(item => item.type === 'announcement')
-    console.log('🔥 Filtered announcements only:', filteredAnnouncements)
     
     announcements.value = filteredAnnouncements
     announcementsPagination.value = {
@@ -351,27 +322,18 @@ const fetchAnnouncements = async () => {
         featured: true, 
         limit: 1 
       })
-      console.log('🎯 Featured announcement response:', featuredResponse)
       if (featuredResponse.data.data.length > 0) {
         featuredAnnouncement.value = featuredResponse.data.data[0]
-        console.log('✅ Featured announcement set:', featuredAnnouncement.value)
-        console.log('🖼️ Featured image URL:', featuredAnnouncement.value.featured_image_url)
-        console.log('🖼️ Featured image path:', featuredAnnouncement.value.featured_image)
       } else {
-        console.log('❌ No featured announcements found')
         // Fallback: get the first announcement as featured
         if (filteredAnnouncements.length > 0) {
           featuredAnnouncement.value = filteredAnnouncements[0]
-          console.log('🔄 Using first announcement as featured:', featuredAnnouncement.value)
-          console.log('🖼️ Fallback image URL:', featuredAnnouncement.value.featured_image_url)
-          console.log('🖼️ Fallback image path:', featuredAnnouncement.value.featured_image)
         }
       }
     }
     
   } catch (err) {
     announcementsError.value = err
-    console.error('Failed to fetch announcements:', err)
   } finally {
     announcementsLoading.value = false
   }
@@ -397,7 +359,6 @@ watch(() => locale.value, async () => {
     await loadAnnualReports()
     await fetchAnnouncements()
   } catch (error) {
-    console.error('Failed to reload reports after language change:', error)
   }
 }, { immediate: false })
 
@@ -439,7 +400,7 @@ onMounted(async () => {
   await Promise.all([
     loadFinancialReports(),
     loadAnnualReports(),
-    loadAnnouncements()
+    fetchAnnouncements()
   ])
 })
 
