@@ -506,7 +506,31 @@ const getDepartmentColor = (department: string) => {
           <!-- Loading State -->
           <div v-if="careersLoading" class="space-y-0">
             <div v-for="n in 4" :key="n" class="border-b border-grey py-4">
-              <div class="grid grid-cols-1 md:grid-cols-[3fr_1.5fr_1fr] gap-6 xl:gap-8 items-start">
+              <!-- Mobile Skeleton -->
+              <div class="block md:hidden">
+                <div class="flex flex-col space-y-3">
+                  <!-- Job Title Skeleton -->
+                  <div>
+                    <div class="bg-gray-200 animate-pulse h-4 w-24 mb-1 rounded"></div>
+                    <div class="bg-gray-200 animate-pulse h-5 w-48 rounded"></div>
+                  </div>
+                  
+                  <!-- Department & Location Row Skeleton -->
+                  <div class="flex justify-between items-center">
+                    <div class="flex flex-col">
+                      <div class="bg-gray-200 animate-pulse h-3 w-16 mb-1 rounded"></div>
+                      <div class="bg-gray-200 animate-pulse h-4 w-24 rounded"></div>
+                    </div>
+                    <div class="flex flex-col">
+                      <div class="bg-gray-200 animate-pulse h-3 w-12 mb-1 rounded"></div>
+                      <div class="bg-gray-200 animate-pulse h-4 w-20 rounded"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Desktop Skeleton -->
+              <div class="hidden md:grid grid-cols-[3fr_1.5fr_1fr] gap-6 xl:gap-8 items-start">
                 <!-- Job Title Column Skeleton -->
                 <div class="flex flex-col">
                   <div class="bg-gray-200 animate-pulse h-4 w-24 mb-1 rounded"></div>
@@ -536,7 +560,37 @@ const getDepartmentColor = (department: string) => {
               :to="`/join-us/detail-job/${job.slug}`"
               class="block border-b border-grey py-4 hover:bg-gray-50 transition-all duration-300"
             >
-              <div class="grid grid-cols-1 md:grid-cols-[3fr_1.5fr_1fr] gap-6 xl:gap-8 items-start">
+              <!-- Mobile Layout -->
+              <div class="block md:hidden">
+                <div class="flex flex-col space-y-3">
+                  <!-- Job Title -->
+                  <div>
+                    <span class="text-sm font-medium mb-1" :class="getDepartmentColor(job.department_id)">
+                      {{ job.department_id || 'Department' }}
+                    </span>
+                    <h3 class="text-black-100 font-semibold text-base">
+                      {{ job.title_id }}
+                    </h3>
+                  </div>
+                  
+                  <!-- Department & Location Row -->
+                  <div class="flex justify-between items-center">
+                    <div class="flex flex-col">
+                      <span class="text-divider text-xs font-medium mb-1">{{ t('joinUs.department') }}</span>
+                      <span class="text-black-100 text-sm font-semibold">
+                        {{ job.department_id || (job.tags && job.tags.length > 0 ? job.tags[0] : '-') }}
+                      </span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-divider text-xs font-medium mb-1">{{ t('joinUs.location') }}</span>
+                      <span class="text-black-100 text-sm font-semibold">{{ job.location_id }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Desktop Layout -->
+              <div class="hidden md:grid grid-cols-[3fr_1.5fr_1fr] gap-6 xl:gap-8 items-start">
                 <!-- Job Title Column -->
                 <div class="flex flex-col">
                   <span class="text-sm font-medium mb-1" :class="getDepartmentColor(job.department_id)">

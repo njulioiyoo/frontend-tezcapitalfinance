@@ -91,7 +91,37 @@
                   :to="`/join-us/detail-job/${career.slug}`"
                   class="block border-b border-grey py-4 hover:bg-gray-50 transition-all duration-300"
                 >
-                  <div class="grid grid-cols-1 md:grid-cols-[3fr_1.5fr_1fr] gap-6 xl:gap-8 items-start">
+                  <!-- Mobile Layout -->
+                  <div class="block md:hidden">
+                    <div class="flex flex-col space-y-3">
+                      <!-- Job Title -->
+                      <div>
+                        <span class="text-sm font-medium mb-1 text-red-100">
+                          {{ career.department_id || t('joinUs.department') }}
+                        </span>
+                        <h3 class="text-black-100 font-semibold text-base">
+                          {{ career.title_id }}
+                        </h3>
+                      </div>
+                      
+                      <!-- Department & Location Row -->
+                      <div class="flex justify-between items-center">
+                        <div class="flex flex-col">
+                          <span class="text-divider text-xs font-medium mb-1">{{ t('joinUs.department') }}</span>
+                          <span class="text-black-100 text-sm font-semibold">
+                            {{ career.department_id || (career.tags && career.tags.length > 0 ? career.tags[0] : '-') }}
+                          </span>
+                        </div>
+                        <div class="flex flex-col">
+                          <span class="text-divider text-xs font-medium mb-1">{{ t('joinUs.location') }}</span>
+                          <span class="text-black-100 text-sm font-semibold">{{ career.location_id }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Desktop Layout -->
+                  <div class="hidden md:grid grid-cols-[3fr_1.5fr_1fr] gap-6 xl:gap-8 items-start">
                     <!-- Job Title Column -->
                     <div class="flex flex-col">
                       <span class="text-sm font-medium mb-1 text-red-100">

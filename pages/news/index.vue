@@ -226,9 +226,52 @@ const hashToCategoryMap = {
 const handleHashNavigation = () => {
   if (process.client && window.location.hash) {
     const hash = window.location.hash.slice(1) // Remove #
+    console.log('🔗 News hash navigation:', hash)
+    
     if (hashToCategoryMap[hash]) {
       currentCategory.value = hashToCategoryMap[hash]
+      console.log('📑 News category changed to:', currentCategory.value)
       fetchNews()
+      
+      // Scroll to the tabs section after setting the category
+      nextTick(() => {
+        // Add a small delay to ensure DOM is updated
+        setTimeout(() => {
+          const tabsElement = document.getElementById('news-tabs')
+          console.log('🎯 News tabs element found:', !!tabsElement)
+          
+          if (tabsElement) {
+            const offset = 100 // Offset for fixed header
+            const elementPosition = tabsElement.getBoundingClientRect().top
+            const offsetPosition = elementPosition + window.pageYOffset - offset
+            
+            console.log('📍 News scrolling to position:', offsetPosition)
+            
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            })
+          } else {
+            console.log('❌ News tabs element not found, retrying...')
+            // Retry after a longer delay
+            setTimeout(() => {
+              const retryElement = document.getElementById('news-tabs')
+              if (retryElement) {
+                const offset = 100
+                const elementPosition = retryElement.getBoundingClientRect().top
+                const offsetPosition = elementPosition + window.pageYOffset - offset
+                
+                console.log('🔄 Retry scroll to position:', offsetPosition)
+                
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: 'smooth'
+                })
+              }
+            }, 500)
+          }
+        }, 100)
+      })
     }
   }
 }
@@ -242,6 +285,14 @@ onMounted(() => {
   nextTick(() => {
     handleHashNavigation()
   })
+  
+  // Add hash change listener
+  window.addEventListener('hashchange', handleHashNavigation)
+})
+
+// Cleanup on unmount
+onUnmounted(() => {
+  window.removeEventListener('hashchange', handleHashNavigation)
 })
 
 // Fetch banner data using cache
@@ -387,7 +438,7 @@ watch(() => route.hash, (newHash) => {
 
       <!-- Main Content Section -->
       <div class="px-3 xl:px-15 pb-8 xl:pb-12">
-        <Tabs :model-value="currentCategory" class="w-full mt-3 xl:mt-12">
+        <Tabs :model-value="currentCategory" class="w-full mt-3 xl:mt-12" id="news-tabs">
           <TabsList>
             <TabsTrigger
               v-for="(label, key) in categories"

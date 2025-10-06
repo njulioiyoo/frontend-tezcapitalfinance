@@ -48,6 +48,10 @@ const financialCurrentPage = ref(1)
 const annualCurrentPage = ref(1)
 const reportsPerPage = ref(4)
 
+// Tab state is already declared below
+
+// Hash handling is already implemented below with handleHashNavigation
+
 // Fetch reports data
 const loadFinancialReports = async (resetPage = false) => {
   try {
@@ -171,8 +175,30 @@ const currentTab = ref('lap-keuangan')
 const handleHashNavigation = () => {
   if (process.client && window.location.hash) {
     const hash = window.location.hash.slice(1) // Remove #
+    console.log('🔗 Hash navigation:', hash)
+    
     if (hashToTabMap[hash]) {
       currentTab.value = hashToTabMap[hash]
+      console.log('📑 Tab changed to:', currentTab.value)
+      
+      // Scroll to the tabs section after setting the tab
+      nextTick(() => {
+        const tabsElement = document.getElementById('corporate-tabs')
+        console.log('🎯 Tabs element found:', !!tabsElement)
+        
+        if (tabsElement) {
+          const offset = 100 // Offset for fixed header
+          const elementPosition = tabsElement.getBoundingClientRect().top
+          const offsetPosition = elementPosition + window.pageYOffset - offset
+          
+          console.log('📍 Scrolling to position:', offsetPosition)
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          })
+        }
+      })
     }
   }
 }
@@ -394,12 +420,39 @@ watch(() => route.hash, (newHash) => {
     })
   }
 }, { immediate: true })
+
+// Initialize data on mount
+onMounted(async () => {
+  // Small delay to ensure skeleton shows
+  await new Promise(resolve => setTimeout(resolve, 100))
+  
+  // Handle initial hash
+  handleHashNavigation()
+  
+  // Add hash change listener
+  window.addEventListener('hashchange', handleHashNavigation)
+  
+  // Fetch banner data
+  await fetchBannerData()
+  
+  // Load initial data
+  await Promise.all([
+    loadFinancialReports(),
+    loadAnnualReports(),
+    loadAnnouncements()
+  ])
+})
+
+// Cleanup on unmount
+onUnmounted(() => {
+  window.removeEventListener('hashchange', handleHashNavigation)
+})
 </script>
 
 <template>
   <div>
     <Jumbotron :label="bannerTitle" :desc="bannerDescription" :img="bannerImage" />
-    <Tabs :model-value="currentTab" class="w-full">
+    <Tabs :model-value="currentTab" class="w-full" id="corporate-tabs">
       <TabsList>
         <TabsTrigger value="lap-keuangan" id="financial-report" @click="currentTab = 'lap-keuangan'">{{ t('nav.corporateMenu.financialReport') }}</TabsTrigger>
         <TabsTrigger value="lap-tahunan" id="annual-report" @click="currentTab = 'lap-tahunan'">{{ t('nav.corporateMenu.annualReport') }}</TabsTrigger>
