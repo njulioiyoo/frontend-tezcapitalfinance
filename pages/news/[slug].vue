@@ -2,6 +2,7 @@
 import { useRoute } from "vue-router";
 import { createError } from "h3";
 import type { NewsItem } from '~/types/api';
+import { useConfigurationCache } from '~/composables/useConfigurationCache';
 
 const { t, locale } = useI18n();
 const apiStore = useApiStore();
@@ -15,6 +16,7 @@ const isLoading = ref(true);
 const error = ref<any>(null);
 const newsItem = ref<NewsItem | null>(null);
 const categories = ref<any>({});
+const bannerData = ref({});
 
 // Helper functions
 const formatDate = (dateString: string) => {
@@ -86,6 +88,47 @@ const fetchNewsDetail = async () => {
   }
 };
 
+// Fetch banner data using cache
+const fetchBannerData = async () => {
+  try {
+    const { getBannerConfig } = useConfigurationCache()
+    bannerData.value = await getBannerConfig()
+  } catch (err) {
+    // Silent error handling for banner data
+  }
+}
+
+// Helper function to extract value from configuration object
+const extractConfigValue = (configObj: any) => {
+  if (!configObj) return ''
+  if (typeof configObj === 'string') return configObj
+  if (configObj.value !== undefined) return configObj.value
+  return ''
+}
+
+// Computed banner properties
+const bannerTitle = computed(() => {
+  const titleField = locale.value === 'id' 
+    ? bannerData.value.banner_news_title_id 
+    : bannerData.value.banner_news_title_en
+  
+  const defaultTitle = t('nav.newsEvent')
+  return extractConfigValue(titleField) || defaultTitle
+})
+
+const bannerDescription = computed(() => {
+  const descField = locale.value === 'id' 
+    ? bannerData.value.banner_news_description_id 
+    : bannerData.value.banner_news_description_en
+  
+  const defaultDesc = t('nav.news.jumbotronDesc')
+  return extractConfigValue(descField) || defaultDesc
+})
+
+const bannerImage = computed(() => {
+  return extractConfigValue(bannerData.value.banner_news_image) || '/img/dummy1.jpg'
+})
+
 // Share functions
 const shareOnFacebook = () => {
   const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
@@ -119,6 +162,7 @@ const retryFetch = () => {
 
 // Lifecycle
 onMounted(() => {
+  fetchBannerData()
   fetchNewsDetail();
 });
 
@@ -133,9 +177,9 @@ watch(() => route.params.slug, (newSlug) => {
 <template>
   <div>
     <Jumbotron
-      :label="t('nav.newsEvent')"
-      img="/img/dummy1.jpg"
-      :desc="t('nav.news.jumbotronDesc')"
+      :label="bannerTitle"
+      :img="bannerImage"
+      :desc="bannerDescription"
     />
     
     <!-- Loading State -->

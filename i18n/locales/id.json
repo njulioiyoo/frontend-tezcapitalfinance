@@ -115,7 +115,19 @@
     "serviceDuration": "Durasi Layanan",
     "perYear": "per tahun",
     "percentage": "persen",
-    "currency": "Rp"
+    "currency": "Rp",
+    "workingCapitalFinancing": {
+      "title": "Pembiayaan Modal Kerja",
+      "description": "Pendanaan Jangka Pendek yang Mendukung Keberlanjutan dan Ekspansi Bisnis"
+    },
+    "investmentFinancing": {
+      "title": "Pembiayaan Investasi",
+      "description": "Pembiayaan Jangka Menengah untuk Mendukung Investasi Peralatan dan Pertumbuhan Bisnis"
+    },
+    "multiPurposeFinancing": {
+      "title": "Pembiayaan Multi Guna",
+      "description": "Mendukung pembiayaan untuk pembelian produk dan jasa"
+    }
   },
   "maintenance": {
     "title": "Situs Sedang Dalam Pemeliharaan",
@@ -191,6 +203,55 @@
     "placeholders": {
       "goodsPrice": "Rp20.000.000",
       "downPayment": "Rp10.000.000"
+    }
+  },
+  "joinUs": {
+    "lowonganKerja": "Lowongan Kerja",
+    "getStarted": "Mengenal Pekerjaan Kami",
+    "goToServices": "LIHAT LAYANAN",
+    "meetOurPeople": "Bertemu dengan Tim Kami",
+    "exploreOurWorkplace": "Jelajahi Lingkungan Kerja Kami",
+    "beAPartOfOurTeam": "Jadilah Bagian dari Tim Kami",
+    "searchPlaceholder": "Cari pekerjaan...",
+    "allDepartments": "Semua Departemen",
+    "allLocations": "Semua Lokasi",
+    "department": "Departemen",
+    "location": "Lokasi",
+    "noJobsFound": "Tidak ada pekerjaan ditemukan",
+    "tryAgain": "Coba Lagi",
+    "seeAllJobs": "Lihat Semua Pekerjaan",
+    "careers": {
+      "title": "Cari Lowongan yang Sesuai Denganmu",
+      "noJobsFound": "Tidak ada lowongan ditemukan",
+      "tryChangingFilters": "Coba ubah filter pencarian Anda"
+    },
+    "detail": {
+      "back": "Kembali",
+      "aboutTheRole": "Tentang Peran",
+      "whatYouWillNeed": "Apa yang Anda Butuhkan",
+      "whatWeOffer": "Apa yang Kami Tawarkan",
+      "aboutTheTeam": "Tentang Tim",
+      "aboutTheTeamDescription": "Bergabunglah dengan tim {department} kami yang berdedikasi dan berkembang pesat. Kami berkomitmen untuk menciptakan lingkungan kerja yang kolaboratif dan inovatif dimana setiap anggota tim dapat berkembang dan memberikan kontribusi terbaik mereka.",
+      "aboutTezCapital": "Tentang TEZ Capital",
+      "aboutTezCapitalDescription": "TEZ Capital & Finance adalah perusahaan pembiayaan terkemuka yang berkomitmen memberikan solusi finansial terbaik bagi mitra bisnis kami. Dengan fokus pada inovasi, integritas, dan layanan unggul, kami terus berkembang dan mencari talenta terbaik untuk bergabung dalam perjalanan pertumbuhan kami.",
+      "emailNotConfigured": "Email untuk lamaran belum dikonfigurasi.",
+      "applyTo": "Kirim lamaran ke",
+      "openingEmail": "Membuka Email...",
+      "applyNow": "Lamar Sekarang",
+      "emailClientOpened": "Email Client Dibuka!",
+      "completeAndSend": "Silakan lengkapi dan kirim lamaran Anda.",
+      "emailClientError": "Gagal membuka email client. Silakan coba lagi."
+    }
+  },
+  "workplace": {
+    "workingEnvironment": {
+      "title": "Lingkungan Kerja"
+    },
+    "employeeBenefits": {
+      "title": "Fasilitas Karyawan"
+    },
+    "lifeAtTez": {
+      "title": "Kehidupan di TEZ Capital"
     }
   }
 }

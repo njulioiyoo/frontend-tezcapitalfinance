@@ -3,6 +3,7 @@ import { useRoute } from "vue-router";
 import { createError } from "h3";
 import type { ServiceItem } from '~/types/api';
 import type { MotorItem } from '~/composables/useMotorApi';
+import { useConfigurationCache } from '~/composables/useConfigurationCache';
 
 const { t, locale } = useI18n();
 const apiStore = useApiStore();
@@ -16,6 +17,7 @@ const slug = route.params.slug as string;
 const isLoading = ref(true);
 const error = ref<any>(null);
 const serviceItem = ref<ServiceItem | null>(null);
+const bannerData = ref({});
 
 // Helper functions
 const formatDate = (dateString: string) => {
@@ -102,8 +104,49 @@ const retryFetch = () => {
   fetchServiceDetail();
 };
 
+// Fetch banner data using cache
+const fetchBannerData = async () => {
+  try {
+    const { getBannerConfig } = useConfigurationCache()
+    bannerData.value = await getBannerConfig()
+  } catch (err) {
+    // Silent error handling for banner data
+  }
+}
+
+// Helper function to extract value from configuration object
+const extractConfigValue = (configObj: any) => {
+  if (!configObj) return ''
+  if (typeof configObj === 'string') return configObj
+  if (configObj.value !== undefined) return configObj.value
+  return ''
+}
+
+// Computed banner properties
+const bannerTitle = computed(() => {
+  const titleField = locale.value === 'id' 
+    ? bannerData.value.banner_services_title_id 
+    : bannerData.value.banner_services_title_en
+  
+  const defaultTitle = locale.value === 'id' ? 'Layanan Kami' : 'Our Services'
+  return extractConfigValue(titleField) || defaultTitle
+})
+
+const bannerDescription = computed(() => {
+  const descField = locale.value === 'id' 
+    ? bannerData.value.banner_services_description_id 
+    : bannerData.value.banner_services_description_en
+  
+  return extractConfigValue(descField) || ''
+})
+
+const bannerImage = computed(() => {
+  return extractConfigValue(bannerData.value.banner_services_image) || '/img/dummy1.jpg'
+})
+
 // Lifecycle
 onMounted(() => {
+  fetchBannerData()
   fetchServiceDetail();
 });
 
@@ -120,100 +163,94 @@ const accordionItems = computed(() => {
   
   const items = [];
   
-  // Special case for pembiayaan-serbaguna/multiguna - no accordion, return empty
-  if (serviceItem.value.slug === 'pembiayaan-serbaguna' || serviceItem.value.slug === 'pembiayaan-multiguna') {
-    return [];
-  } else {
-    // For other services, show Interest section and separate Fees section if data exists
-    // Interest & Fees section (from dynamic tables) - use bilingual data
-    const interestData = locale.value === 'en' ? serviceItem.value.interest_list_en_array : serviceItem.value.interest_list_id_array;
-    if (interestData && interestData.headers && interestData.rows && interestData.rows.length > 0) {
-      let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
-      
-      // Dynamic headers from the CMS
-      content += '<thead><tr class="bg-gray-100">';
-      interestData.headers.forEach(header => {
-        content += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold">${header}</th>`;
-      });
-      content += '</tr></thead>';
-      
-      // Dynamic rows from the CMS
-      content += '<tbody>';
-      interestData.rows.forEach(row => {
-        content += '<tr>';
-        row.forEach(cell => {
-          content += `<td class="border border-gray-300 px-4 py-2">${cell}</td>`;
-        });
-        content += '</tr>';
-      });
-      content += '</tbody></table></div>';
-      
-      items.push({
-        value: "interest",
-        title: t('services.interestAndFees'),
-        content: content
-      });
-    }
+  // Interest & Fees section (from dynamic tables) - use bilingual data
+  const interestData = locale.value === 'en' ? serviceItem.value.interest_list_en_array : serviceItem.value.interest_list_id_array;
+  if (interestData && interestData.headers && interestData.rows && interestData.rows.length > 0) {
+    let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
     
-    // Fees section (from dynamic tables) - use bilingual data
-    const feesData = locale.value === 'en' ? serviceItem.value.fees_list_en_array : serviceItem.value.fees_list_id_array;
-    if (feesData && feesData.headers && feesData.rows && feesData.rows.length > 0) {
-      let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
-      
-      // Dynamic headers from the CMS
-      content += '<thead><tr class="bg-gray-100">';
-      feesData.headers.forEach(header => {
-        content += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold">${header}</th>`;
-      });
-      content += '</tr></thead>';
-      
-      // Dynamic rows from the CMS
-      content += '<tbody>';
-      feesData.rows.forEach(row => {
-        content += '<tr>';
-        row.forEach(cell => {
-          content += `<td class="border border-gray-300 px-4 py-2">${cell}</td>`;
-        });
-        content += '</tr>';
-      });
-      content += '</tbody></table></div>';
-      
-      items.push({
-        value: "fees",
-        title: t('services.fees'),
-        content: content
-      });
-    }
+    // Dynamic headers from the CMS
+    content += '<thead><tr class="bg-gray-100">';
+    interestData.headers.forEach(header => {
+      content += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold">${header}</th>`;
+    });
+    content += '</tr></thead>';
     
-    // Document List section (from dynamic tables) - use bilingual data
-    const documentData = locale.value === 'en' ? serviceItem.value.document_list_en_array : serviceItem.value.document_list_id_array;
-    if (documentData && documentData.headers && documentData.rows && documentData.rows.length > 0) {
-      let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
-      
-      // Dynamic headers from the CMS
-      content += '<thead><tr class="bg-gray-100">';
-      documentData.headers.forEach(header => {
-        content += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold">${header}</th>`;
+    // Dynamic rows from the CMS
+    content += '<tbody>';
+    interestData.rows.forEach(row => {
+      content += '<tr>';
+      row.forEach(cell => {
+        content += `<td class="border border-gray-300 px-4 py-2">${cell}</td>`;
       });
-      content += '</tr></thead>';
-      
-      // Dynamic rows from the CMS
-      content += '<tbody>';
-      documentData.rows.forEach(row => {
-        content += '<tr>';
-        row.forEach(cell => {
-          content += `<td class="border border-gray-300 px-4 py-2">${cell}</td>`;
-        });
-        content += '</tr>';
+      content += '</tr>';
+    });
+    content += '</tbody></table></div>';
+    
+    items.push({
+      value: "interest",
+      title: t('services.interestAndFees'),
+      content: content
+    });
+  }
+  
+  // Fees section (from dynamic tables) - use bilingual data
+  const feesData = locale.value === 'en' ? serviceItem.value.fees_list_en_array : serviceItem.value.fees_list_id_array;
+  if (feesData && feesData.headers && feesData.rows && feesData.rows.length > 0) {
+    let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
+    
+    // Dynamic headers from the CMS
+    content += '<thead><tr class="bg-gray-100">';
+    feesData.headers.forEach(header => {
+      content += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold">${header}</th>`;
+    });
+    content += '</tr></thead>';
+    
+    // Dynamic rows from the CMS
+    content += '<tbody>';
+    feesData.rows.forEach(row => {
+      content += '<tr>';
+      row.forEach(cell => {
+        content += `<td class="border border-gray-300 px-4 py-2">${cell}</td>`;
       });
-      content += '</tbody></table></div>';
-      
-      items.push({
-        value: "document-list",
-        title: t('services.documentList'),
-        content: content
+      content += '</tr>';
+    });
+    content += '</tbody></table></div>';
+    
+    items.push({
+      value: "fees",
+      title: t('services.fees'),
+      content: content
+    });
+  }
+  
+  // Document List section (from dynamic tables) - use bilingual data
+  const documentData = locale.value === 'en' ? serviceItem.value.document_list_en_array : serviceItem.value.document_list_id_array;
+  if (documentData && documentData.headers && documentData.rows && documentData.rows.length > 0) {
+    let content = '<div class="overflow-x-auto"><table class="w-full border-collapse border border-gray-300">';
+    
+    // Dynamic headers from the CMS
+    content += '<thead><tr class="bg-gray-100">';
+    documentData.headers.forEach(header => {
+      content += `<th class="border border-gray-300 px-4 py-2 text-left font-semibold">${header}</th>`;
+    });
+    content += '</tr></thead>';
+    
+    // Dynamic rows from the CMS
+    content += '<tbody>';
+    documentData.rows.forEach(row => {
+      content += '<tr>';
+      row.forEach(cell => {
+        content += `<td class="border border-gray-300 px-4 py-2">${cell}</td>`;
       });
-    }
+      content += '</tr>';
+    });
+    content += '</tbody></table></div>';
+    
+    items.push({
+      value: "document-list",
+      title: t('services.documentList'),
+      content: content
+    });
   }
   
   return items;
@@ -591,9 +628,9 @@ const canCalculate = computed(() => {
 <template>
   <div>
     <Jumbotron
-      label="Services"
-      img="/img/dummy1.jpg"
-      :desc="t('services.jumbotronDesc')"
+      :label="bannerTitle"
+      :img="bannerImage"
+      :desc="bannerDescription"
     />
     
     <!-- Loading State -->

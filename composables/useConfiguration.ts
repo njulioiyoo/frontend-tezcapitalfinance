@@ -106,6 +106,7 @@ export const useConfiguration = () => {
 
   // Join Us Configuration
   const careerApplicationEmail = computed(() => {
+    console.log('careerApplicationEmail computed:', configData.value?.join_us?.career_application_email);
     return configData.value?.join_us?.career_application_email || ''
   })
 
@@ -128,6 +129,8 @@ export const useConfiguration = () => {
         },
         server: false
       })
+
+      console.log('API Response:', response);
 
       // Handle response structure
       let data = response
@@ -196,7 +199,14 @@ export const useConfiguration = () => {
         
         // Parse Join Us configuration data
         const joinUsConfig: JoinUsConfig = {
-          career_application_email: data.join_us?.career_application_email?.value || data.join_us?.career_application_email || ''
+          career_application_email: ''
+        };
+        if (data.join_us?.career_application_email) {
+          if (typeof data.join_us.career_application_email === 'string') {
+            joinUsConfig.career_application_email = data.join_us.career_application_email;
+          } else if (data.join_us.career_application_email.value) {
+            joinUsConfig.career_application_email = data.join_us.career_application_email.value;
+          }
         }
         
         console.log('🏛️ OJK Config loaded:', {

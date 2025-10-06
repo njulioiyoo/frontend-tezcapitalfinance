@@ -11,18 +11,32 @@ useSeoMeta({
 // Use join us data from configuration
 const { joinUsData, loadJoinUsData } = useJoinUs()
 
+// Use homepage data for services
+const { 
+  services,
+  servicesTitle,
+  initHomepage,
+  isLoading: servicesLoading
+} = useHomepage()
+
+// Image fallback handler
+const { handleImageError } = useImageFallback()
+
 // Initialize data on mount
 onMounted(async () => {
   // Small delay to ensure skeleton shows
   await new Promise(resolve => setTimeout(resolve, 100))
-  await loadJoinUsData()
-  // Also fetch featured careers for the job listings section
-  await fetchFeaturedCareers()
+  await Promise.all([
+    loadJoinUsData(),
+    initHomepage(),
+    fetchFeaturedCareers()
+  ])
 })
 
 // Watch for language changes and refetch data
 watch(() => locale.value, () => {
   loadJoinUsData()
+  initHomepage()
   fetchFeaturedCareers()
 }, { immediate: false })
 
@@ -34,26 +48,7 @@ const heroData = computed(() => ({
 
 const ceoMessage = computed(() => joinUsData.value.ceoMessage)
 
-const services = [
-  {
-    id: 1,
-    icon: "/img/services/1.png",
-    title: "Working Capital Financing",
-    description: "Short-Term Funding that Supports Business Sustainability and Expansion"
-  },
-  {
-    id: 2,
-    icon: "/img/services/2.png", 
-    title: "Investment Financing",
-    description: "Mid-Term Financing to Support Equipment Investment and Business Growth"
-  },
-  {
-    id: 3,
-    icon: "/img/services/3.png",
-    title: "Multi-Purpose Financing", 
-    description: "Supports financing for the purchase of products and services"
-  }
-]
+// Services data now comes from useHomepage() composable
 
 // Slider container reference
 const sliderContainer = ref<HTMLElement | null>(null)
@@ -312,10 +307,25 @@ const getDepartmentColor = (department: string) => {
     <div class="px-3 xl:px-15 py-16 xl:py-20">
       <div class="max-w-7xl mx-auto">
         <h2 class="text-black-100 font-bold text-3xl xl:text-5xl mb-12 xl:mb-16 text-center">
-          Get to Know Our Work
+          {{ t('joinUs.getStarted') }}
         </h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-12 px-15">
+        <!-- Loading State -->
+        <div v-if="servicesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-12 px-15">
+          <div v-for="n in 3" :key="n" class="animate-pulse">
+            <div class="w-full max-w-100 mx-auto rounded-2xl p-3 flex flex-col gap-5 bg-white">
+              <div class="w-full h-25 xl:h-43 bg-gray-200 rounded"></div>
+              <div class="p-3 rounded-xl flex flex-col gap-2 items-center justify-center h-auto xl:h-35 bg-white/50">
+                <div class="h-6 w-3/4 bg-gray-200 rounded"></div>
+                <div class="h-4 w-full bg-gray-200 rounded"></div>
+                <div class="h-4 w-2/3 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Services Content -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-12 px-15">
           <div
             v-for="service in services"
             :key="service.id"
@@ -325,9 +335,10 @@ const getDepartmentColor = (department: string) => {
               class="w-full max-w-100 mx-auto rounded-2xl p-3 flex flex-col gap-5 transition-all duration-300 select-none cursor-pointer bg-white hover:bg-red-50"
             >
               <img
-                :src="service.icon"
+                :src="service.featured_image || '/img/services/placeholder.png'"
                 :alt="service.title"
                 class="w-full h-25 xl:h-43 object-contain"
+                @error="handleImageError"
               />
               <div
                 class="p-3 rounded-xl flex flex-col gap-2 items-center justify-center h-auto xl:h-35 bg-white/50"
@@ -335,12 +346,12 @@ const getDepartmentColor = (department: string) => {
                 <p
                   class="text-red-100 text-center font-bold text-lg xl:text-xl"
                 >
-                  {{ service.title }}
+                  {{ locale === 'en' && service.title_en ? service.title_en : service.title }}
                 </p>
                 <p
                   class="text-center text-sm xl:text-base text-red-100"
                 >
-                  {{ service.description }}
+                  {{ locale === 'en' && service.excerpt_en ? service.excerpt_en : service.excerpt }}
                 </p>
               </div>
             </div>
@@ -352,7 +363,7 @@ const getDepartmentColor = (department: string) => {
             to="/service"
             class="rounded-full py-3 px-12 bg-red-100 hover:bg-red-75 transition-all duration-300 cursor-pointer font-bold text-white text-base xl:text-lg uppercase"
           >
-            GO TO SERVICES
+            {{ t('joinUs.goToServices') }}
           </NuxtLink>
         </div>
       </div>
@@ -366,7 +377,7 @@ const getDepartmentColor = (department: string) => {
     <!-- Meet Our People Section -->
     <div class="px-3 xl:px-15 py-8 xl:py-12">
       <h2 class="text-black-100 font-bold text-2xl xl:text-4xl mb-8 xl:mb-12 text-center">
-        Meet Our People
+        {{ t('joinUs.meetOurPeople') }}
       </h2>
       
       <div class="relative">
@@ -406,7 +417,7 @@ const getDepartmentColor = (department: string) => {
     <!-- Explore Our Workplace Section -->
     <div class="bg-grey px-3 xl:px-15 py-8 xl:py-12">
       <h2 class="text-black-100 font-bold text-2xl xl:text-4xl mb-8 xl:mb-12 text-center">
-        Explore Our Workplace
+        {{ t('joinUs.exploreOurWorkplace') }}
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
@@ -423,10 +434,10 @@ const getDepartmentColor = (department: string) => {
           />
           <div class="p-4 xl:p-6 flex-1 flex flex-col">
             <h3 class="text-black-100 font-bold text-lg xl:text-xl mb-3 text-center">
-              {{ highlight.title }}
+              {{ t(highlight.title) }}
             </h3>
             <p class="text-black-100 text-sm xl:text-base text-center leading-relaxed flex-1">
-              {{ highlight.description }}
+              {{ t(highlight.description) }}
             </p>
           </div>
         </div>
@@ -437,7 +448,7 @@ const getDepartmentColor = (department: string) => {
       
       <!-- Be a Part of Our Team Section (in same container) -->
       <h2 class="text-black-100 font-bold text-2xl xl:text-4xl mb-8 xl:mb-12 text-center">
-        Be a Part of Our Team
+        {{ t('joinUs.beAPartOfOurTeam') }}
       </h2>
       
       <!-- Search and Filters -->
@@ -450,7 +461,7 @@ const getDepartmentColor = (department: string) => {
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Cari Pekerjaan..."
+                :placeholder="t('joinUs.searchPlaceholder')"
                 class="w-full pl-10 pr-4 py-3 border border-divider rounded-full focus:outline-none focus:border-red-100 text-base bg-white"
               />
             </div>
@@ -461,7 +472,7 @@ const getDepartmentColor = (department: string) => {
                 v-model="selectedDepartment"
                 class="appearance-none bg-white border border-divider rounded-full px-6 py-3 pr-10 focus:outline-none focus:border-red-100 text-base cursor-pointer w-full"
               >
-                <option value="">Semua Departemen</option>
+                <option value="">{{ t('joinUs.allDepartments') }}</option>
                 <option v-for="dept in departments.slice(1)" :key="dept" :value="dept">
                   {{ dept }}
                 </option>
@@ -475,7 +486,7 @@ const getDepartmentColor = (department: string) => {
                 v-model="selectedLocation"
                 class="appearance-none bg-white border border-divider rounded-full px-6 py-3 pr-10 focus:outline-none focus:border-red-100 text-base cursor-pointer w-full"
               >
-                <option value="">Semua Lokasi</option>
+                <option value="">{{ t('joinUs.allLocations') }}</option>
                 <option v-for="location in locations.slice(1)" :key="location" :value="location">
                   {{ location }}
                 </option>
@@ -538,7 +549,7 @@ const getDepartmentColor = (department: string) => {
                 
                 <!-- Department Column -->
                 <div class="flex flex-col pl-8">
-                  <span class="text-divider text-sm font-medium mb-1">Departemen</span>
+                  <span class="text-divider text-sm font-medium mb-1">{{ t('joinUs.department') }}</span>
                   <span class="text-black-100 text-base xl:text-lg font-semibold">
                     {{ job.department_id || (job.tags && job.tags.length > 0 ? job.tags[0] : '-') }}
                   </span>
@@ -546,7 +557,7 @@ const getDepartmentColor = (department: string) => {
                 
                 <!-- Location Column -->
                 <div class="flex flex-col">
-                  <span class="text-divider text-sm font-medium mb-1">Lokasi</span>
+                  <span class="text-divider text-sm font-medium mb-1">{{ t('joinUs.location') }}</span>
                   <span class="text-black-100 text-base xl:text-lg font-semibold">{{ job.location_id }}</span>
                 </div>
               </div>
@@ -556,7 +567,7 @@ const getDepartmentColor = (department: string) => {
           <!-- No Results -->
           <div v-if="!careersLoading && !careersError && filteredJobs.length === 0" class="text-center py-8">
             <Icon name="mdi:briefcase-search" class="w-12 h-12 text-divider mx-auto mb-3" />
-            <p class="text-divider text-lg">Tidak ada pekerjaan yang ditemukan</p>
+            <p class="text-divider text-lg">{{ t('joinUs.noJobsFound') }}</p>
           </div>
           
           <!-- Error State -->
@@ -567,7 +578,7 @@ const getDepartmentColor = (department: string) => {
               @click="fetchFeaturedCareers()"
               class="px-4 py-2 bg-red-100 text-white rounded-full hover:bg-red-200 transition-colors"
             >
-              Coba Lagi
+              {{ t('joinUs.tryAgain') }}
             </button>
           </div>
         </div>
@@ -578,7 +589,7 @@ const getDepartmentColor = (department: string) => {
             to="/join-us/careers"
             class="py-3 px-8 rounded-full bg-red-100 hover:bg-red-75 transition-all duration-300 font-bold text-white text-lg xl:text-xl"
           >
-            See All Job
+            {{ t('joinUs.seeAllJobs') }}
           </NuxtLink>
         </div>
       </div>

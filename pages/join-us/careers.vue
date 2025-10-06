@@ -14,7 +14,7 @@
         />
         <div class="absolute inset-0 bg-red-100/65 mix-blend-multiply"></div>
         <h1 class="relative z-10 text-white xl:text-5xl text-2xl font-bold text-center">
-          Cari Lowongan yang Sesuai Denganmu
+          {{ t('joinUs.careers.title') }}
         </h1>
       </div>
       
@@ -22,7 +22,7 @@
         <div class="px-3 xl:px-15">
           <div class="text-center mb-6 xl:mb-12">
             <h2 class="xl:text-4xl text-2xl font-bold text-black-100 mb-6 xl:mb-8">
-              Be a Part of Our Team
+              {{ t('joinUs.beAPartOfOurTeam') }}
             </h2>
 
             <div class="max-w-6xl mx-auto">
@@ -34,7 +34,7 @@
                     v-model="searchQuery"
                     @input="debouncedSearch"
                     type="text"
-                    placeholder="Cari Pekerjaan..."
+                    :placeholder="t('joinUs.searchPlaceholder')"
                     class="w-full pl-10 pr-4 py-3 border border-divider rounded-full focus:outline-none focus:border-red-100 text-base bg-white"
                   />
                 </div>
@@ -46,7 +46,7 @@
                     @change="handleFiltersChange"
                     class="appearance-none bg-white border border-divider rounded-full px-6 py-3 pr-10 focus:outline-none focus:border-red-100 text-base cursor-pointer w-full"
                   >
-                    <option value="">Semua Departemen</option>
+                    <option value="">{{ t('joinUs.allDepartments') }}</option>
                     <option 
                       v-for="dept in availableDepartments"
                       :key="dept"
@@ -65,7 +65,7 @@
                     @change="handleFiltersChange"
                     class="appearance-none bg-white border border-divider rounded-full px-6 py-3 pr-10 focus:outline-none focus:border-red-100 text-base cursor-pointer w-full"
                   >
-                    <option value="">Semua Lokasi</option>
+                    <option value="">{{ t('joinUs.allLocations') }}</option>
                     <option 
                       v-for="loc in availableLocations"
                       :key="loc"
@@ -95,7 +95,7 @@
                     <!-- Job Title Column -->
                     <div class="flex flex-col">
                       <span class="text-sm font-medium mb-1 text-red-100">
-                        {{ career.department_id || 'Department' }}
+                        {{ career.department_id || t('joinUs.department') }}
                       </span>
                       <h3 class="text-black-100 font-semibold text-base xl:text-lg">
                         {{ career.title_id }}
@@ -104,7 +104,7 @@
                     
                     <!-- Department Column -->
                     <div class="flex flex-col pl-8">
-                      <span class="text-divider text-sm font-medium mb-1">Departemen</span>
+                      <span class="text-divider text-sm font-medium mb-1">{{ t('joinUs.department') }}</span>
                       <span class="text-black-100 text-base xl:text-lg font-semibold">
                         {{ career.department_id || (career.tags && career.tags.length > 0 ? career.tags[0] : '-') }}
                       </span>
@@ -112,7 +112,7 @@
                     
                     <!-- Location Column -->
                     <div class="flex flex-col">
-                      <span class="text-divider text-sm font-medium mb-1">Lokasi</span>
+                      <span class="text-divider text-sm font-medium mb-1">{{ t('joinUs.location') }}</span>
                       <span class="text-black-100 text-base xl:text-lg font-semibold">{{ career.location_id }}</span>
                     </div>
                   </div>
@@ -123,10 +123,10 @@
             <div v-else-if="!pending" class="py-12 xl:py-20 text-center">
               <Icon name="mdi:briefcase-search" class="w-16 h-16 xl:w-20 xl:h-20 text-divider mx-auto mb-4 xl:mb-6" />
               <h3 class="text-lg xl:text-2xl font-bold text-black-100 mb-2 xl:mb-3">
-                Tidak ada lowongan ditemukan
+                {{ t('joinUs.careers.noJobsFound') }}
               </h3>
               <p class="text-divider text-base xl:text-lg">
-                Coba ubah filter pencarian Anda
+                {{ t('joinUs.careers.tryChangingFilters') }}
               </p>
             </div>
 
@@ -163,6 +163,7 @@
 <script setup lang="ts">
 import type { CareerApiResponse } from '~/composables/useCareers'
 
+const { t } = useI18n()
 const { getCareers } = useCareers()
 
 // State

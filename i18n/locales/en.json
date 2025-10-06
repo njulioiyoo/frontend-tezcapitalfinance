@@ -115,7 +115,19 @@
     "serviceDuration": "Service Duration",
     "perYear": "per year",
     "percentage": "percent",
-    "currency": "IDR"
+    "currency": "IDR",
+    "workingCapitalFinancing": {
+      "title": "Working Capital Financing",
+      "description": "Short-Term Funding that Supports Business Sustainability and Expansion"
+    },
+    "investmentFinancing": {
+      "title": "Investment Financing",
+      "description": "Mid-Term Financing to Support Equipment Investment and Business Growth"
+    },
+    "multiPurposeFinancing": {
+      "title": "Multi-Purpose Financing",
+      "description": "Supports financing for the purchase of products and services"
+    }
   },
   "maintenance": {
     "title": "Site Under Maintenance",
@@ -191,6 +203,55 @@
     "placeholders": {
       "goodsPrice": "Rp20,000,000",
       "downPayment": "Rp10,000,000"
+    }
+  },
+  "joinUs": {
+    "lowonganKerja": "Job Opportunities",
+    "getStarted": "Get to Know Our Work",
+    "goToServices": "GO TO SERVICES",
+    "meetOurPeople": "Meet Our People",
+    "exploreOurWorkplace": "Explore Our Workplace",
+    "beAPartOfOurTeam": "Be a Part of Our Team",
+    "searchPlaceholder": "Search for jobs...",
+    "allDepartments": "All Departments",
+    "allLocations": "All Locations",
+    "department": "Department",
+    "location": "Location",
+    "noJobsFound": "No jobs found",
+    "tryAgain": "Try Again",
+    "seeAllJobs": "See All Jobs",
+    "careers": {
+      "title": "Find a Job that's Right for You",
+      "noJobsFound": "No jobs found",
+      "tryChangingFilters": "Try changing your search filters"
+    },
+    "detail": {
+      "back": "Back",
+      "aboutTheRole": "About the Role",
+      "whatYouWillNeed": "What You Will Need",
+      "whatWeOffer": "What We Offer",
+      "aboutTheTeam": "About the Team",
+      "aboutTheTeamDescription": "Join our dedicated and fast-growing {department} team. We are committed to creating a collaborative and innovative work environment where every team member can grow and contribute their best.",
+      "aboutTezCapital": "About TEZ Capital",
+      "aboutTezCapitalDescription": "TEZ Capital & Finance is a leading financing company committed to providing the best financial solutions for our business partners. With a focus on innovation, integrity, and excellent service, we continue to grow and look for the best talent to join our growth journey.",
+      "emailNotConfigured": "Email for application has not been configured.",
+      "applyTo": "Apply to",
+      "openingEmail": "Opening Email...",
+      "applyNow": "Apply Now",
+      "emailClientOpened": "Email Client Opened!",
+      "completeAndSend": "Please complete and send your application.",
+      "emailClientError": "Failed to open email client. Please try again."
+    }
+  },
+  "workplace": {
+    "workingEnvironment": {
+      "title": "Working Environment"
+    },
+    "employeeBenefits": {
+      "title": "Employee Benefits"
+    },
+    "lifeAtTez": {
+      "title": "Life at TEZ Capital"
     }
   }
 }

@@ -3,17 +3,76 @@ import type { CareerDetailResponse } from '~/composables/useCareers'
 
 const route = useRoute()
 const slug = route.params.id as string
+const { t, locale } = useI18n()
 
 const { getCareerBySlug } = useCareers()
-const { careerApplicationEmail, fetchConfiguration } = useConfiguration()
+const { configData, careerApplicationEmail, fetchConfiguration, isLoading: configLoading } = useConfiguration()
+
+// Banner data
+const bannerData = ref({})
+
+// Fetch banner data using cache
+const fetchBannerData = async () => {
+  try {
+    const { getBannerConfig } = useConfigurationCache()
+    bannerData.value = await getBannerConfig()
+  } catch (err) {
+    // Silent error handling for banner data
+  }
+}
+
+// Helper function to extract value from configuration object
+const extractConfigValue = (configObj: any) => {
+  if (!configObj) return ''
+  if (typeof configObj === 'string') return configObj
+  if (configObj.value !== undefined) return configObj.value
+  return ''
+}
+
+// Computed banner properties
+const bannerTitle = computed(() => {
+  if (!bannerData.value || Object.keys(bannerData.value).length === 0) {
+    return t('joinUs.lowonganKerja')
+  }
+  
+  const titleField = locale.value === 'id' 
+    ? (bannerData.value as any).banner_join_us_title_id 
+    : (bannerData.value as any).banner_join_us_title_en
+  
+  const defaultTitle = t('joinUs.lowonganKerja')
+  return extractConfigValue(titleField) || defaultTitle
+})
+
+const bannerDescription = computed(() => {
+  if (!bannerData.value || Object.keys(bannerData.value).length === 0) {
+    return ''
+  }
+  
+  const descField = locale.value === 'id' 
+    ? (bannerData.value as any).banner_join_us_description_id 
+    : (bannerData.value as any).banner_join_us_description_en
+  
+  return extractConfigValue(descField) || ''
+})
+
+const bannerImage = computed(() => {
+  if (!bannerData.value || Object.keys(bannerData.value).length === 0) {
+    return '/img/dummy1.jpg'
+  }
+  
+  return extractConfigValue((bannerData.value as any).banner_join_us_image) || '/img/dummy1.jpg'
+})
 
 // Use asyncData for proper SSR error handling
 const { data: career, pending, error } = await useLazyAsyncData(
   `career-${slug}`,
   async () => {
     try {
-      // Fetch configuration and career detail in parallel
-      await fetchConfiguration()
+      // Fetch configuration, banner data, and career detail in parallel
+      await Promise.all([
+        fetchConfiguration(),
+        fetchBannerData()
+      ])
       const careerResponse = await getCareerBySlug(slug)
       
       // If no career data, this will automatically throw 404 from API
@@ -75,8 +134,15 @@ Hormat saya,
 
 // Handle apply action with loading state
 const handleApplyClick = async () => {
-  if (!careerApplicationEmail.value) {
-    alert('Email untuk lamaran belum dikonfigurasi. Silakan hubungi administrator.')
+  console.log('handleApplyClick configData:', configData.value)
+  console.log('handleApplyClick careerApplicationEmail:', careerApplicationEmail.value)
+  
+  // Use the computed value instead of accessing configData directly
+  const email = careerApplicationEmail.value
+  console.log('handleApplyClick email:', email)
+  
+  if (!email) {
+    alert(t('joinUs.detail.emailNotConfigured'))
     return
   }
 
@@ -103,7 +169,7 @@ const handleApplyClick = async () => {
     
   } catch (error) {
     console.error('Error opening email client:', error)
-    alert('Gagal membuka email client. Silakan coba lagi.')
+    alert(t('joinUs.detail.emailClientError'))
   } finally {
     // Reset loading state after delay
     setTimeout(() => {
@@ -112,6 +178,16 @@ const handleApplyClick = async () => {
   }
 }
 
+// Debug watcher for configData
+watch(configData, (newValue) => {
+  console.log('🔧 configData changed:', newValue)
+  console.log('🔧 careerApplicationEmail:', careerApplicationEmail.value)
+}, { deep: true })
+
+// Debug watcher for careerApplicationEmail
+watch(careerApplicationEmail, (newValue) => {
+  console.log('📧 careerApplicationEmail changed:', newValue)
+})
 
 // Dynamic head based on career data
 watchEffect(() => {
@@ -132,6 +208,19 @@ watchEffect(() => {
 
 <template>
   <div>
+    <!-- Banner Loading State -->
+    <div v-if="pending" class="relative h-64 bg-gray-200 animate-pulse">
+      <div class="absolute inset-0 flex items-center justify-center">
+        <div class="text-center">
+          <div class="bg-gray-300 h-8 w-64 mx-auto mb-4 rounded"></div>
+          <div class="bg-gray-300 h-4 w-96 mx-auto rounded"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Banner Content -->
+    <Jumbotron v-else :label="bannerTitle" :desc="bannerDescription" :img="bannerImage" />
+    
     <!-- Loading State -->
     <div v-if="pending" class="py-8 xl:py-12 bg-white">
       <div class="px-3 xl:px-15">
@@ -166,7 +255,7 @@ watchEffect(() => {
           class="flex items-center gap-2 text-base text-red-100 mb-6 hover:text-red-50 transition-colors duration-200"
         >
           <Icon name="mdi:chevron-left" class="size-4" />
-          Kembali
+          {{ t('joinUs.detail.back') }}
         </NuxtLink>
         
         <div class="max-w-4xl mx-auto">
@@ -181,35 +270,35 @@ watchEffect(() => {
           <div class="space-y-8">
             <!-- About the Role -->
             <div>
-              <h2 class="text-xl font-bold text-black-100 mb-4">About the Role</h2>
+              <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.aboutTheRole') }}</h2>
               <div class="text-base text-black-100 leading-relaxed" v-html="career.data.content_id"></div>
             </div>
             
             <!-- What You Will Need -->
             <div v-if="career.data.requirements_id">
-              <h2 class="text-xl font-bold text-black-100 mb-4">What You Will Need</h2>
+              <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.whatYouWillNeed') }}</h2>
               <div class="text-base text-black-100 leading-relaxed" v-html="career.data.requirements_id"></div>
             </div>
             
             <!-- What We Offer -->
             <div v-if="career.data.benefits_id">
-              <h2 class="text-xl font-bold text-black-100 mb-4">What We Offer</h2>
+              <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.whatWeOffer') }}</h2>
               <div class="text-base text-black-100 leading-relaxed" v-html="career.data.benefits_id"></div>
             </div>
             
             <!-- About the Team -->
             <div>
-              <h2 class="text-xl font-bold text-black-100 mb-4">About the Team</h2>
+              <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.aboutTheTeam') }}</h2>
               <p class="text-base text-black-100 leading-relaxed">
-                Bergabunglah dengan tim {{ career.data.department_id }} kami yang berdedikasi dan berkembang pesat. Kami berkomitmen untuk menciptakan lingkungan kerja yang kolaboratif dan inovatif dimana setiap anggota tim dapat berkembang dan memberikan kontribusi terbaik mereka.
+                {{ t('joinUs.detail.aboutTheTeamDescription', { department: career.data.department_id }) }}
               </p>
             </div>
             
             <!-- About TEZ Capital -->
             <div>
-              <h2 class="text-xl font-bold text-black-100 mb-4">About TEZ Capital</h2>
+              <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.aboutTezCapital') }}</h2>
               <p class="text-base text-black-100 leading-relaxed">
-                TEZ Capital & Finance adalah perusahaan pembiayaan terkemuka yang berkomitmen memberikan solusi finansial terbaik bagi mitra bisnis kami. Dengan fokus pada inovasi, integritas, dan layanan unggul, kami terus berkembang dan mencari talenta terbaik untuk bergabung dalam perjalanan pertumbuhan kami.
+                {{ t('joinUs.detail.aboutTezCapitalDescription') }}
               </p>
             </div>
           </div>
@@ -218,25 +307,25 @@ watchEffect(() => {
             <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
                 <div>
-                  <span class="text-sm text-divider font-medium">Departemen</span>
+                  <span class="text-sm text-divider font-medium">{{ t('joinUs.department') }}</span>
                   <p class="text-black-100 font-semibold">{{ career.data.department_id }}</p>
                 </div>
                 <div>
-                  <span class="text-sm text-divider font-medium">Lokasi</span>
+                  <span class="text-sm text-divider font-medium">{{ t('joinUs.location') }}</span>
                   <p class="text-black-100 font-semibold">{{ career.data.location_id }}</p>
                 </div>
               </div>
               
               <button
                 @click="handleApplyClick"
-                :disabled="isApplying || !careerApplicationEmail"
-                :title="!careerApplicationEmail ? 'Email untuk lamaran belum dikonfigurasi' : `Kirim lamaran ke ${careerApplicationEmail}`"
+                :disabled="isApplying || !careerApplicationEmail || configLoading"
+                :title="!careerApplicationEmail ? t('joinUs.detail.emailNotConfigured') : `${t('joinUs.detail.applyTo')} ${careerApplicationEmail}`"
                 :class="[
                   'relative overflow-hidden rounded-full py-3 px-8 font-bold text-white text-base w-full xl:w-auto transition-all duration-300 transform group',
                   isApplying 
                     ? 'bg-red-75 cursor-not-allowed scale-95' 
                     : 'bg-red-100 hover:bg-red-75 hover:scale-105 active:scale-95 hover:shadow-lg',
-                  !careerApplicationEmail ? 'opacity-50 cursor-not-allowed' : ''
+                  (!careerApplicationEmail || configLoading) ? 'opacity-50 cursor-not-allowed' : ''
                 ]"
               >
                 <!-- Loading overlay -->
@@ -246,7 +335,7 @@ watchEffect(() => {
                 >
                   <div class="flex items-center gap-2">
                     <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                    <span class="text-sm">Membuka Email...</span>
+                    <span class="text-sm">{{ t('joinUs.detail.openingEmail') }}</span>
                   </div>
                 </div>
                 
@@ -254,7 +343,7 @@ watchEffect(() => {
                 <div :class="{ 'opacity-0': isApplying }">
                   <div class="flex items-center justify-center gap-2">
                     <Icon name="mdi:email-send" class="w-5 h-5" />
-                    <span>Lamar Sekarang</span>
+                    <span>{{ t('joinUs.detail.applyNow') }}</span>
                   </div>
                 </div>
                 
@@ -266,7 +355,7 @@ watchEffect(() => {
                 
                 <!-- Shine effect on hover -->
                 <div 
-                  v-if="!isApplying && careerApplicationEmail"
+                  v-if="!isApplying && careerApplicationEmail && !configLoading"
                   class="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-all duration-1000"
                 ></div>
               </button>
@@ -293,8 +382,8 @@ watchEffect(() => {
           <div class="flex items-center gap-3">
             <Icon name="mdi:check-circle" class="w-6 h-6 text-green-100" />
             <div>
-              <p class="font-semibold">Email Client Dibuka!</p>
-              <p class="text-sm text-green-100">Silakan lengkapi dan kirim lamaran Anda.</p>
+              <p class="font-semibold">{{ t('joinUs.detail.emailClientOpened') }}</p>
+              <p class="text-sm text-green-100">{{ t('joinUs.detail.completeAndSend') }}</p>
             </div>
           </div>
         </div>
