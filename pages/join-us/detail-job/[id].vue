@@ -79,6 +79,7 @@ const { data: career, pending, error } = await useLazyAsyncData(
       return careerResponse
     } catch (err: any) {
       // Log error for debugging
+      console.error('Career fetch error:', err)
       
       // Throw 404 for any error (job not found, network issues, etc.)
       throw createError({
@@ -88,6 +89,11 @@ const { data: career, pending, error } = await useLazyAsyncData(
     }
   }
 )
+
+// Ensure configuration is loaded before showing content
+const isConfigurationReady = computed(() => {
+  return !configLoading.value && configData.value !== null
+})
 
 // If there's still an error after data fetch, throw 404
 if (error.value) {
@@ -133,7 +139,6 @@ Hormat saya,
 
 // Handle apply action with loading state
 const handleApplyClick = async () => {
-  
   // Use the computed value instead of accessing configData directly
   const email = careerApplicationEmail.value
   
@@ -173,13 +178,7 @@ const handleApplyClick = async () => {
   }
 }
 
-// Debug watcher for configData
-watch(configData, (newValue) => {
-}, { deep: true })
-
-// Debug watcher for careerApplicationEmail
-watch(careerApplicationEmail, (newValue) => {
-})
+// Remove debug watchers to prevent infinite loops
 
 // Dynamic head based on career data
 watchEffect(() => {
@@ -310,14 +309,14 @@ watchEffect(() => {
               
               <button
                 @click="handleApplyClick"
-                :disabled="isApplying || !careerApplicationEmail || configLoading"
+                :disabled="isApplying || !careerApplicationEmail"
                 :title="!careerApplicationEmail ? t('joinUs.detail.emailNotConfigured') : `${t('joinUs.detail.applyTo')} ${careerApplicationEmail}`"
                 :class="[
                   'relative overflow-hidden rounded-full py-3 px-8 font-bold text-white text-base w-full xl:w-auto transition-all duration-300 transform group',
                   isApplying 
                     ? 'bg-red-75 cursor-not-allowed scale-95' 
                     : 'bg-red-100 hover:bg-red-75 hover:scale-105 active:scale-95 hover:shadow-lg',
-                  (!careerApplicationEmail || configLoading) ? 'opacity-50 cursor-not-allowed' : ''
+                  (!careerApplicationEmail) ? 'opacity-50 cursor-not-allowed' : ''
                 ]"
               >
                 <!-- Loading overlay -->
@@ -347,7 +346,7 @@ watchEffect(() => {
                 
                 <!-- Shine effect on hover -->
                 <div 
-                  v-if="!isApplying && careerApplicationEmail && !configLoading"
+                  v-if="!isApplying && careerApplicationEmail"
                   class="absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-all duration-1000"
                 ></div>
               </button>
