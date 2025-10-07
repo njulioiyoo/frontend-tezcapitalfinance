@@ -19,6 +19,16 @@ const {
   isLoading: servicesLoading
 } = useHomepage()
 
+// Use team members data
+const { 
+  featuredTeamMembers,
+  getFeaturedTeamMembers,
+  getTeamMemberImageUrl,
+  getTeamMemberName,
+  getDepartmentName,
+  isLoading: teamMembersLoading
+} = useTeamMembers()
+
 // Image fallback handler
 const { handleImageError } = useImageFallback()
 
@@ -29,7 +39,8 @@ onMounted(async () => {
   await Promise.all([
     loadJoinUsData(),
     initHomepage(),
-    fetchFeaturedCareers()
+    fetchFeaturedCareers(),
+    getFeaturedTeamMembers(5)
   ])
 })
 
@@ -38,12 +49,14 @@ watch(() => locale.value, () => {
   loadJoinUsData()
   initHomepage()
   fetchFeaturedCareers()
+  getFeaturedTeamMembers(5)
 }, { immediate: false })
 
 // Computed data for easier template access
 const heroData = computed(() => ({
-  title: joinUsData.value.heroTitle,
-  backgroundImage: "/img/dummy1.jpg"
+  title: joinUsData.value.bannerTitle || joinUsData.value.heroTitle,
+  description: joinUsData.value.bannerDescription,
+  backgroundImage: joinUsData.value.bannerImage || "/img/dummy1.jpg"
 }))
 
 const ceoMessage = computed(() => joinUsData.value.ceoMessage)
@@ -92,38 +105,7 @@ const endDrag = () => {
   sliderContainer.value.style.scrollBehavior = 'smooth'
 }
 
-const teamMembers = [
-  {
-    id: 1,
-    name: "Arwin Rasyid",
-    position: "Chairman & Founder",
-    image: "/img/team/dummy-arwin.jpg"
-  },
-  {
-    id: 2,
-    name: "Tonny Bako",
-    position: "Komisaris Independen",
-    image: "/img/team/dummy-tonny.jpg"
-  },
-  {
-    id: 3,
-    name: "Shiro Sunaga",
-    position: "Direktur Utama",
-    image: "/img/team/dummy-shiro.jpg"
-  },
-  {
-    id: 4,
-    name: "Yusuke Koizumi",
-    position: "Direktur",
-    image: "/img/team/dummy-yusuke.jpg"
-  },
-  {
-    id: 5,
-    name: "Daniel",
-    position: "Direktur",
-    image: "/img/team/dummy-daniel.jpg"
-  }
-]
+// Team members now come from API via useTeamMembers composable
 
 // Disable touchpad/wheel scroll (commented out)
 // const handleWheel = (event: WheelEvent) => {
@@ -199,9 +181,9 @@ const departments = ["Finance", "People & Operation", "Technology", "Marketing"]
 const locations = ["Jakarta", "Surabaya", "Bandung"]
 
 // Careers data
-const featuredCareers = ref([])
+const featuredCareers = ref<any[]>([])
 const careersLoading = ref(false)
-const careersError = ref(null)
+const careersError = ref<string | null>(null)
 
 // Fetch featured careers (limit to 4 for join-us page)
 const fetchFeaturedCareers = async () => {
@@ -213,7 +195,7 @@ const fetchFeaturedCareers = async () => {
     if (response.success) {
       featuredCareers.value = response.data
     }
-  } catch (err) {
+  } catch (err: any) {
     careersError.value = err?.message || 'Failed to fetch careers'
   } finally {
     careersLoading.value = false
@@ -265,15 +247,29 @@ const getDepartmentColor = (department: string) => {
         class="absolute inset-0 w-full h-full object-cover opacity-70 object-center"
       />
       <div class="absolute inset-0 bg-red-100/65 mix-blend-multiply"></div>
-      <h1 class="relative z-10 text-white xl:text-5xl text-2xl font-bold text-center">
-        {{ heroData.title }}
-      </h1>
+      <div class="relative z-10 text-white text-center max-w-4xl mx-auto px-4">
+        <h1 class="xl:text-5xl text-2xl font-bold mb-4">
+          {{ heroData.title }}
+        </h1>
+        <p v-if="heroData.description" class="text-lg xl:text-xl opacity-90 leading-relaxed">
+          {{ heroData.description }}
+        </p>
+      </div>
     </div>
 
     <!-- CEO Message Section -->
     <div class="px-3 xl:px-15 py-12 xl:py-16">
       <div class="max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8 xl:gap-16 items-center">
+        <!-- No Data Alert -->
+        <NoDataAlert 
+          v-if="!ceoMessage.title && !ceoMessage.content"
+          :title="t('joinUs.noCeoMessage')"
+          :message="t('joinUs.noCeoMessageDescription')"
+          :show-button="false"
+        />
+        
+        <!-- CEO Message Content -->
+        <div v-else class="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8 xl:gap-16 items-center">
           <div class="order-2 xl:order-1">
             <h2 class="text-black-100 font-bold text-3xl xl:text-5xl mb-8 xl:mb-10">
               {{ ceoMessage.title }}
@@ -379,9 +375,32 @@ const getDepartmentColor = (department: string) => {
         {{ t('joinUs.meetOurPeople') }}
       </h2>
       
-      <div class="relative">
-        <!-- Slider container with touch support -->
+      <!-- Loading State -->
+      <div v-if="teamMembersLoading" class="relative">
+        <div class="flex gap-6 xl:gap-8 pb-4">
+          <div v-for="n in 5" :key="n" class="flex-shrink-0 w-72 xl:w-80">
+            <div class="animate-pulse">
+              <div class="w-full h-80 xl:h-96 bg-gray-200 rounded-lg mb-4"></div>
+              <div class="h-6 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Content State -->
+      <div v-else class="relative">
+        <!-- No Data Alert -->
+        <NoDataAlert 
+          v-if="!featuredTeamMembers || featuredTeamMembers.length === 0"
+          :title="t('joinUs.noTeamMembers')"
+          :message="t('joinUs.noTeamMembersDescription')"
+          :show-button="false"
+        />
+        
+        <!-- Team Members Slider -->
         <div 
+          v-else
           ref="sliderContainer"
           class="overflow-x-auto focus:outline-none cursor-grab select-none"
           style="scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;"
@@ -389,22 +408,23 @@ const getDepartmentColor = (department: string) => {
         >
           <div class="flex gap-6 xl:gap-8 pb-4">
             <div
-              v-for="member in teamMembers"
+              v-for="member in featuredTeamMembers"
               :key="member.id"
               class="flex-shrink-0 w-72 xl:w-80"
             >
               <div class="flex flex-col items-start text-left">
                 <img
-                  :src="member.image"
-                  :alt="member.name"
+                  :src="getTeamMemberImageUrl(member)"
+                  :alt="getTeamMemberName(member, locale)"
                   class="w-full h-80 xl:h-96 object-cover rounded-lg mb-4 pointer-events-none select-none"
                   draggable="false"
+                  @error="handleImageError"
                 />
                 <h3 class="text-black-100 font-bold text-lg xl:text-xl select-none">
-                  {{ member.name }}
+                  {{ getTeamMemberName(member, locale) }}
                 </h3>
                 <p class="text-divider text-sm xl:text-base select-none">
-                  {{ member.position }}
+                  {{ getDepartmentName(member, locale) }}
                 </p>
               </div>
             </div>

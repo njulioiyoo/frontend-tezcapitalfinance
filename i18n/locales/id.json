@@ -220,6 +220,10 @@
     "noJobsFound": "Tidak ada pekerjaan ditemukan",
     "tryAgain": "Coba Lagi",
     "seeAllJobs": "Lihat Semua Pekerjaan",
+    "noCeoMessage": "Pesan CEO Belum Tersedia",
+    "noCeoMessageDescription": "Pesan dari CEO belum dikonfigurasi. Silakan hubungi administrator untuk mengatur konten ini.",
+    "noTeamMembers": "Tim Belum Tersedia",
+    "noTeamMembersDescription": "Data tim belum tersedia. Silakan hubungi administrator untuk mengatur data tim.",
     "careers": {
       "title": "Cari Lowongan yang Sesuai Denganmu",
       "noJobsFound": "Tidak ada lowongan ditemukan",

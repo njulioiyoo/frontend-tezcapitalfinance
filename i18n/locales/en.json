@@ -220,6 +220,10 @@
     "noJobsFound": "No jobs found",
     "tryAgain": "Try Again",
     "seeAllJobs": "See All Jobs",
+    "noCeoMessage": "CEO Message Not Available",
+    "noCeoMessageDescription": "CEO message has not been configured. Please contact the administrator to set up this content.",
+    "noTeamMembers": "Team Not Available",
+    "noTeamMembersDescription": "Team data is not available. Please contact the administrator to set up team data.",
     "careers": {
       "title": "Find a Job that's Right for You",
       "noJobsFound": "No jobs found",
