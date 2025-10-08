@@ -42,7 +42,6 @@ export interface TeamMemberDetailResponse {
 }
 
 export const useTeamMembers = () => {
-  const { $fetch } = useNuxtApp()
   const config = useRuntimeConfig()
   const apiStore = useApiStore()
 
@@ -73,12 +72,12 @@ export const useTeamMembers = () => {
 
       const url = `${apiStore.baseURL}/api/v1/team-members${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
       
-      const response = await $fetch<TeamMemberResponse>(url, {
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         },
-      })
+      }).then(res => res.json()) as TeamMemberResponse
 
       if (response.success) {
         teamMembers.value = response.data
@@ -101,21 +100,30 @@ export const useTeamMembers = () => {
 
       const url = `${apiStore.baseURL}/api/v1/team-members/featured?limit=${limit}`
       
-      const response = await $fetch<TeamMemberResponse>(url, {
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         },
-      })
+      }).then(res => res.json()) as TeamMemberResponse
 
-      if (response.success) {
+      if (response.success && response.data) {
         featuredTeamMembers.value = response.data
+      } else {
+        featuredTeamMembers.value = []
       }
 
       return response
     } catch (err: any) {
       error.value = err?.message || 'Failed to fetch featured team members'
-      throw err
+      featuredTeamMembers.value = []
+      
+      // Return empty response instead of throwing
+      return {
+        success: false,
+        message: error.value,
+        data: []
+      }
     } finally {
       isLoading.value = false
     }
@@ -129,12 +137,12 @@ export const useTeamMembers = () => {
 
       const url = `${apiStore.baseURL}/api/v1/team-members/${slug}`
       
-      const response = await $fetch<TeamMemberDetailResponse>(url, {
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         },
-      })
+      }).then(res => res.json()) as TeamMemberDetailResponse
 
       return response
     } catch (err: any) {
@@ -166,12 +174,12 @@ export const useTeamMembers = () => {
 
       const url = `${apiStore.baseURL}/api/v1/team-members/search${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
       
-      const response = await $fetch<TeamMemberResponse>(url, {
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         },
-      })
+      }).then(res => res.json()) as TeamMemberResponse
 
       if (response.success) {
         teamMembers.value = response.data
@@ -194,7 +202,7 @@ export const useTeamMembers = () => {
 
       const url = `${apiStore.baseURL}/api/v1/team-members/stats`
       
-      const response = await $fetch(url, {
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
