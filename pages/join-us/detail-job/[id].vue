@@ -63,14 +63,16 @@ const bannerImage = computed(() => {
   return extractConfigValue((bannerData.value as any).banner_join_us_image) || '/img/dummy1.jpg'
 })
 
+// Fetch configuration first to ensure it's available
+await fetchConfiguration()
+
 // Use asyncData for proper SSR error handling
 const { data: career, pending, error } = await useLazyAsyncData(
   `career-${slug}`,
   async () => {
     try {
-      // Fetch configuration, banner data, and career detail in parallel
+      // Fetch banner data and career detail in parallel
       await Promise.all([
-        fetchConfiguration(),
         fetchBannerData()
       ])
       const careerResponse = await getCareerBySlug(slug)
