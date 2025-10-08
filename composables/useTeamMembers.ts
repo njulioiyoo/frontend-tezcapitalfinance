@@ -220,15 +220,9 @@ export const useTeamMembers = () => {
 
   // Helper function to get image URL
   const getTeamMemberImageUrl = (teamMember: TeamMember): string => {
-    if (teamMember.featured_image_url) {
-      return teamMember.featured_image_url
-    }
-    
     if (teamMember.featured_image) {
-      if (teamMember.featured_image.startsWith('http')) {
-        return teamMember.featured_image
-      }
-      return `${apiStore.baseURL}/storage/${teamMember.featured_image}`
+      // API now returns full URL, so we can use it directly
+      return teamMember.featured_image
     }
     
     return '/img/team/placeholder.jpg'
