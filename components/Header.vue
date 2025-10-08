@@ -298,7 +298,7 @@ const scrollToSection = (id) => {
           >
           <NuxtLink
             to="/join-us"
-            class="py-1 px-6 rounded-full bg-white hover:bg-red-100 transition-all duration-300 font-medium text-xl text-red-100 hover:text-white flex items-center justify-center cursor-pointer border border-red-100"
+            class="hidden py-1 px-6 rounded-full bg-white hover:bg-red-100 transition-all duration-300 font-medium text-xl text-red-100 hover:text-white flex items-center justify-center cursor-pointer border border-red-100"
             >{{ t('nav.joinUs') }}</NuxtLink
           >
         </div>
