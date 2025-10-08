@@ -80,9 +80,6 @@ const { data: career, pending, error } = await useLazyAsyncData(
       // If no career data, this will automatically throw 404 from API
       return careerResponse
     } catch (err: any) {
-      // Log error for debugging
-      console.error('Career fetch error:', err)
-      
       // Throw 404 for any error (job not found, network issues, etc.)
       throw createError({
         statusCode: 404,
