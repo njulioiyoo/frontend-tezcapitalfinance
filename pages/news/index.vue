@@ -317,28 +317,25 @@ const bannerDescription = computed(() => {
 
 const bannerImage = computed(() => {
   const rawPath = extractConfigValue(bannerData.value.banner_news_image)
-  console.log('🔍 Banner image debug:', {
-    bannerData: bannerData.value,
-    banner_news_image: bannerData.value.banner_news_image,
-    rawPath: rawPath
-  })
   
   if (!rawPath) {
     return '/img/dummy1.jpg'
   }
   
   // If it's already a full URL, return as is
-  if (rawPath.startsWith('http://') || rawPath.startsWith('https://') || rawPath.startsWith('/')) {
+  if (rawPath.startsWith('http://') || rawPath.startsWith('https://')) {
+    return rawPath
+  }
+  
+  // If it's already a local path starting with /, return as is
+  if (rawPath.startsWith('/')) {
     return rawPath
   }
   
   // Convert relative path to full backend URL
   const config = useRuntimeConfig()
   const baseURL = config.public.apiBaseUrl || 'http://cms.tez-capital.web.local'
-  const fullUrl = `${baseURL}/storage/${rawPath}`
-  
-  console.log('🔍 Final banner image URL:', fullUrl)
-  return fullUrl
+  return `${baseURL}/storage/${rawPath}`
 })
 
 // Watch for language changes
@@ -349,10 +346,12 @@ watch(() => locale.value, () => {
 }, { immediate: false })
 
 // Watch search query with debounce
-const debouncedSearch = ref('')
+let searchTimeout: NodeJS.Timeout | null = null
 watch(() => searchQuery.value, (newValue) => {
-  clearTimeout(debouncedSearch.value)
-  debouncedSearch.value = setTimeout(() => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout)
+  }
+  searchTimeout = setTimeout(() => {
     handleSearch()
   }, 500)
 })

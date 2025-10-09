@@ -40,41 +40,113 @@
                 </div>
                 
                 <!-- Department Filter -->
-                <div class="relative">
-                  <select
-                    v-model="selectedDepartment"
-                    @change="handleFiltersChange"
-                    class="appearance-none bg-white border border-divider rounded-full px-6 py-3 pr-10 focus:outline-none focus:border-red-100 text-base cursor-pointer w-full"
+                <div class="relative" @click.away="closeDropdowns">
+                  <button
+                    @click="toggleDepartmentDropdown($event)"
+                    class="flex items-center justify-between w-full bg-white border border-divider rounded-full px-6 py-3 focus:outline-none focus:border-red-100 text-base cursor-pointer"
                   >
-                    <option value="">{{ t('joinUs.allDepartments') }}</option>
-                    <option 
-                      v-for="dept in availableDepartments"
-                      :key="dept"
-                      :value="dept"
-                    >
-                      {{ dept }}
-                    </option>
-                  </select>
-                  <Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-divider size-5 pointer-events-none" />
+                    <span class="text-left">
+                      {{ selectedDepartment || t('joinUs.allDepartments') }}
+                    </span>
+                    <Icon 
+                      name="mdi:chevron-up" 
+                      v-if="isDepartmentDropdownOpen"
+                      class="text-divider size-5 transition-transform duration-200" 
+                    />
+                    <Icon 
+                      name="mdi:chevron-down" 
+                      v-else
+                      class="text-divider size-5 transition-transform duration-200" 
+                    />
+                  </button>
+                  
+                  <!-- Dropdown Menu -->
+                  <div 
+                    v-if="isDepartmentDropdownOpen"
+                    class="absolute top-full left-0 right-0 mt-2 bg-white border border-divider rounded-2xl shadow-lg z-50 max-h-60 overflow-y-auto"
+                  >
+                    <div class="p-2">
+                      <div
+                        @click="selectDepartment('', $event)"
+                        class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors"
+                      >
+                        <span>{{ t('joinUs.allDepartments') }}</span>
+                        <Icon 
+                          v-if="!selectedDepartment"
+                          name="mdi:check" 
+                          class="text-red-100 size-5" 
+                        />
+                      </div>
+                      <div
+                        v-for="dept in availableDepartments"
+                        :key="dept"
+                        @click="selectDepartment(dept, $event)"
+                        class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors"
+                      >
+                        <span>{{ dept }}</span>
+                        <Icon 
+                          v-if="selectedDepartment === dept"
+                          name="mdi:check" 
+                          class="text-red-100 size-5" 
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Location Filter -->
-                <div class="relative">
-                  <select
-                    v-model="selectedLocation"
-                    @change="handleFiltersChange"
-                    class="appearance-none bg-white border border-divider rounded-full px-6 py-3 pr-10 focus:outline-none focus:border-red-100 text-base cursor-pointer w-full"
+                <div class="relative" @click.away="closeDropdowns">
+                  <button
+                    @click="toggleLocationDropdown($event)"
+                    class="flex items-center justify-between w-full bg-white border border-divider rounded-full px-6 py-3 focus:outline-none focus:border-red-100 text-base cursor-pointer"
                   >
-                    <option value="">{{ t('joinUs.allLocations') }}</option>
-                    <option 
-                      v-for="loc in availableLocations"
-                      :key="loc"
-                      :value="loc"
-                    >
-                      {{ loc }}
-                    </option>
-                  </select>
-                  <Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-divider size-5 pointer-events-none" />
+                    <span class="text-left">
+                      {{ selectedLocation || t('joinUs.allLocations') }}
+                    </span>
+                    <Icon 
+                      name="mdi:chevron-up" 
+                      v-if="isLocationDropdownOpen"
+                      class="text-divider size-5 transition-transform duration-200" 
+                    />
+                    <Icon 
+                      name="mdi:chevron-down" 
+                      v-else
+                      class="text-divider size-5 transition-transform duration-200" 
+                    />
+                  </button>
+                  
+                  <!-- Dropdown Menu -->
+                  <div 
+                    v-if="isLocationDropdownOpen"
+                    class="absolute top-full left-0 right-0 mt-2 bg-white border border-divider rounded-2xl shadow-lg z-50 max-h-60 overflow-y-auto"
+                  >
+                    <div class="p-2">
+                      <div
+                        @click="selectLocation('', $event)"
+                        class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors"
+                      >
+                        <span>{{ t('joinUs.allLocations') }}</span>
+                        <Icon 
+                          v-if="!selectedLocation"
+                          name="mdi:check" 
+                          class="text-red-100 size-5" 
+                        />
+                      </div>
+                      <div
+                        v-for="loc in availableLocations"
+                        :key="loc"
+                        @click="selectLocation(loc, $event)"
+                        class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors"
+                      >
+                        <span>{{ loc }}</span>
+                        <Icon 
+                          v-if="selectedLocation === loc"
+                          name="mdi:check" 
+                          class="text-red-100 size-5" 
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -191,7 +263,13 @@
 </template>
 
 <script setup lang="ts">
+// Protect this page with middleware
+definePageMeta({
+  middleware: 'join-us-guard'
+})
+
 import type { CareerApiResponse } from '~/composables/useCareers'
+import { onMounted, onUnmounted } from 'vue'
 
 const { t } = useI18n()
 const { getCareers } = useCareers()
@@ -204,6 +282,10 @@ const selectedLocation = ref('')
 const itemsPerPage = ref(5)
 const availableDepartments = ref<string[]>([])
 const availableLocations = ref<string[]>([])
+
+// Dropdown state
+const isDepartmentDropdownOpen = ref(false)
+const isLocationDropdownOpen = ref(false)
 
 // Reactive state for careers data
 const careers = ref<CareerApiResponse | null>(null)
@@ -259,6 +341,39 @@ const debouncedSearch = () => {
 const handleFiltersChange = () => {
   currentPage.value = 1
   refresh()
+}
+
+// Dropdown handlers
+const toggleDepartmentDropdown = (event: Event) => {
+  event.stopPropagation()
+  isDepartmentDropdownOpen.value = !isDepartmentDropdownOpen.value
+  isLocationDropdownOpen.value = false
+}
+
+const toggleLocationDropdown = (event: Event) => {
+  event.stopPropagation()
+  isLocationDropdownOpen.value = !isLocationDropdownOpen.value
+  isDepartmentDropdownOpen.value = false
+}
+
+const selectDepartment = (dept: string, event: Event) => {
+  event.stopPropagation()
+  selectedDepartment.value = dept
+  isDepartmentDropdownOpen.value = false
+  handleFiltersChange()
+}
+
+const selectLocation = (loc: string, event: Event) => {
+  event.stopPropagation()
+  selectedLocation.value = loc
+  isLocationDropdownOpen.value = false
+  handleFiltersChange()
+}
+
+// Close dropdowns when clicking outside
+const closeDropdowns = () => {
+  isDepartmentDropdownOpen.value = false
+  isLocationDropdownOpen.value = false
 }
 
 // Pagination
@@ -321,6 +436,15 @@ const shouldShowPagination = computed(() => {
 watch([selectedDepartment, selectedLocation], () => {
   currentPage.value = 1
   refresh()
+})
+
+// Handle click outside to close dropdowns
+onMounted(() => {
+  document.addEventListener('click', closeDropdowns)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeDropdowns)
 })
 
 useHead({

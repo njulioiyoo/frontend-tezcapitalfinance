@@ -26,6 +26,7 @@ export interface OjkConfig {
 
 export interface JoinUsConfig {
   career_application_email: string
+  button_join_us_enabled: boolean
 }
 
 export interface ConfigurationData {
@@ -106,6 +107,10 @@ export const useConfiguration = () => {
   // Join Us Configuration
   const careerApplicationEmail = computed(() => {
     return configData.value?.join_us?.career_application_email || ''
+  })
+
+  const buttonJoinUsEnabled = computed(() => {
+    return configData.value?.join_us?.button_join_us_enabled ?? true
   })
 
   // Fetch configuration data directly from API (real-time)
@@ -196,13 +201,21 @@ export const useConfiguration = () => {
         
         // Parse Join Us configuration data
         const joinUsConfig: JoinUsConfig = {
-          career_application_email: ''
+          career_application_email: '',
+          button_join_us_enabled: true
         };
         if (data.join_us?.career_application_email) {
           if (typeof data.join_us.career_application_email === 'string') {
             joinUsConfig.career_application_email = data.join_us.career_application_email;
           } else if (data.join_us.career_application_email.value) {
             joinUsConfig.career_application_email = data.join_us.career_application_email.value;
+          }
+        }
+        if (data.join_us?.button_join_us_enabled !== undefined) {
+          if (typeof data.join_us.button_join_us_enabled === 'boolean') {
+            joinUsConfig.button_join_us_enabled = data.join_us.button_join_us_enabled;
+          } else if (data.join_us.button_join_us_enabled?.value !== undefined) {
+            joinUsConfig.button_join_us_enabled = Boolean(data.join_us.button_join_us_enabled.value);
           }
         }
         
@@ -234,7 +247,8 @@ export const useConfiguration = () => {
             ojk_images: []
           },
           join_us: {
-            career_application_email: ''
+            career_application_email: '',
+            button_join_us_enabled: true
           }
         }
       }
@@ -261,7 +275,8 @@ export const useConfiguration = () => {
           ojk_images: []
         },
         join_us: {
-          career_application_email: ''
+          career_application_email: '',
+          button_join_us_enabled: true
         }
       }
     } finally {
@@ -288,6 +303,7 @@ export const useConfiguration = () => {
     ojkDescription,
     ojkImages,
     careerApplicationEmail,
+    buttonJoinUsEnabled,
     isLoading: readonly(isLoading),
     error: readonly(error),
     fetchConfiguration,

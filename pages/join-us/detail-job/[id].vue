@@ -1,4 +1,9 @@
 <script setup lang="ts">
+// Protect this page with middleware
+definePageMeta({
+  middleware: 'join-us-guard'
+})
+
 import type { CareerDetailResponse } from '~/composables/useCareers'
 
 const route = useRoute()

@@ -43,6 +43,15 @@ export const useJoinUs = () => {
         
         joinUsData.value.bannerImage = configs.banners?.banner_join_us_image?.value || ''
         
+        // Process CEO image URL
+        let ceoImageUrl = configs.join_us?.ceo_image?.value || ''
+        if (ceoImageUrl && !ceoImageUrl.startsWith('http') && !ceoImageUrl.startsWith('/')) {
+          // If it's a relative path from storage, convert to full URL
+          const config = useRuntimeConfig()
+          const baseURL = config.public.apiBaseUrl || 'http://cms.tez-capital.web.local'
+          ceoImageUrl = `${baseURL}/storage/${ceoImageUrl}`
+        }
+
         joinUsData.value.ceoMessage = {
           title: currentLocale === 'en'
             ? (configs.join_us?.ceo_message_title_en?.value || '')
@@ -50,7 +59,7 @@ export const useJoinUs = () => {
           content: currentLocale === 'en'
             ? (configs.join_us?.ceo_message_content_en?.value || '')
             : (configs.join_us?.ceo_message_content_id?.value || ''),
-          image: configs.join_us?.ceo_image?.value || ''
+          image: ceoImageUrl
         }
       }
     } catch (error) {

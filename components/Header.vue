@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick, watch } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -12,7 +12,7 @@ const {
   canSwitchLanguage, 
   availableLanguages 
 } = useLanguageConfig();
-const { applyNowLink, contactPhone, initConfiguration } = useConfiguration();
+const { applyNowLink, contactPhone, buttonJoinUsEnabled, initConfiguration } = useConfiguration();
 const apiStore = useApiStore();
 
 const isMobileMenuOpen = ref(false);
@@ -41,6 +41,7 @@ onMounted(async () => {
   if (process.client) {
     // Initialize configuration
     await initConfiguration();
+    
     
     // Fetch services for menu
     await fetchServices();
@@ -225,6 +226,7 @@ const scrollToSection = (id) => {
     window.scrollTo({ top: y, behavior: "smooth" });
   }
 };
+
 </script>
 
 <template>
@@ -297,8 +299,9 @@ const scrollToSection = (id) => {
             >{{ t('nav.applyNow') }}</a
           >
           <NuxtLink
+            v-if="buttonJoinUsEnabled"
             to="/join-us"
-            class="hidden py-1 px-6 rounded-full bg-white hover:bg-red-100 transition-all duration-300 font-medium text-xl text-red-100 hover:text-white flex items-center justify-center cursor-pointer border border-red-100"
+            class="py-1 px-6 rounded-full bg-white hover:bg-red-100 transition-all duration-300 font-medium text-xl text-red-100 hover:text-white flex items-center justify-center cursor-pointer border border-red-100"
             >{{ t('nav.joinUs') }}</NuxtLink
           >
         </div>
@@ -502,6 +505,15 @@ const scrollToSection = (id) => {
             class="block px-4 py-3 hover:bg-gray-100"
             @click="isMobileMenuOpen = false"
             >{{ t('nav.contactUs') }}</NuxtLink
+          >
+        </li>
+        
+        <li v-if="buttonJoinUsEnabled">
+          <NuxtLink
+            to="/join-us"
+            class="block px-4 py-3 hover:bg-gray-100 text-red-100 font-medium"
+            @click="isMobileMenuOpen = false"
+            >{{ t('nav.joinUs') }}</NuxtLink
           >
         </li>
       </ul>

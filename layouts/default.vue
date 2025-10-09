@@ -3,7 +3,7 @@ import { ref, onMounted, onUnmounted } from "vue";
 import Footer from "../components/Footer.vue";
 import Header from "../components/Header.vue";
 
-const { applyNowLink, contactPhone, initConfiguration } = useConfiguration();
+const { applyNowLink, contactPhone, buttonJoinUsEnabled, initConfiguration } = useConfiguration();
 const showBackToTop = ref(false);
 
 const scrollToTop = () => {
@@ -57,6 +57,7 @@ onUnmounted(() => {
           Apply Now
         </a>
         <NuxtLink
+          v-if="buttonJoinUsEnabled"
           to="/join-us"
           class="py-1 px-6 rounded-full bg-white hover:bg-red-100 transition-all duration-300 font-medium text-sm xl:text-xl text-red-100 hover:text-white flex items-center justify-center cursor-pointer border border-red-100"
         >

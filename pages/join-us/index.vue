@@ -1,4 +1,9 @@
 <script setup lang="ts">
+// Protect this page with middleware
+definePageMeta({
+  middleware: 'join-us-guard'
+})
+
 const { t, locale } = useI18n()
 import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
 
@@ -40,8 +45,17 @@ onMounted(async () => {
     loadJoinUsData(),
     initHomepage(),
     fetchFeaturedCareers(),
-    getFeaturedTeamMembers(5)
+    getFeaturedTeamMembers(5),
+    fetchWorkplace()
   ])
+  
+  // Add click listener for dropdown close
+  document.addEventListener('click', closeDropdowns)
+})
+
+// Cleanup on unmount
+onUnmounted(() => {
+  document.removeEventListener('click', closeDropdowns)
 })
 
 // Watch for language changes and refetch data
@@ -50,6 +64,7 @@ watch(() => locale.value, () => {
   initHomepage()
   fetchFeaturedCareers()
   getFeaturedTeamMembers(5)
+  fetchWorkplace()
 }, { immediate: false })
 
 // Computed data for easier template access
@@ -148,26 +163,30 @@ onUnmounted(() => {
   }
 })
 
-const workplaceHighlights = [
-  {
-    id: 1,
-    title: "Working Environment",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ornare, tellus at laoreet faucibus, dolor massa dignissim justo, facilisis pretium dolor augue non diam.",
-    image: "/img/dummy1.jpg"
-  },
-  {
-    id: 2,
-    title: "Employee Benefits", 
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ornare, tellus at laoreet faucibus, dolor massa dignissim justo, facilisis pretium dolor augue non diam.",
-    image: "/img/dummy2.jpg"
-  },
-  {
-    id: 3,
-    title: "Life at TEZ Capital",
-    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ornare, tellus at laoreet faucibus, dolor massa dignissim justo, facilisis pretium dolor augue non diam.",
-    image: "/img/dummy3.jpg"
+// Workplace API integration
+const { getFeaturedWorkplaces } = useWorkplace()
+
+// Workplace data
+const workplaceHighlights = ref([])
+const workplaceLoading = ref(false)
+const workplaceError = ref(null)
+
+// Fetch workplace data
+const fetchWorkplace = async () => {
+  try {
+    workplaceLoading.value = true
+    workplaceError.value = null
+    
+    const response = await getFeaturedWorkplaces(3)
+    if (response.success) {
+      workplaceHighlights.value = response.data.data || []
+    }
+  } catch (err) {
+    workplaceError.value = err?.message || 'Failed to fetch workplace data'
+  } finally {
+    workplaceLoading.value = false
   }
-]
+}
 
 // Careers API integration
 const { getFeaturedCareers } = useCareers()
@@ -179,6 +198,10 @@ const selectedLocation = ref("")
 
 const departments = ["Finance", "People & Operation", "Technology", "Marketing"]
 const locations = ["Jakarta", "Surabaya", "Bandung"]
+
+// Dropdown state
+const isDepartmentDropdownOpen = ref(false)
+const isLocationDropdownOpen = ref(false)
 
 // Careers data
 const featuredCareers = ref<any[]>([])
@@ -228,6 +251,37 @@ const getDepartmentColor = (department: string) => {
   }
   return colors[department] || 'text-red-100'
 }
+
+// Dropdown handlers
+const toggleDepartmentDropdown = (event: Event) => {
+  event.stopPropagation()
+  isDepartmentDropdownOpen.value = !isDepartmentDropdownOpen.value
+  isLocationDropdownOpen.value = false
+}
+
+const toggleLocationDropdown = (event: Event) => {
+  event.stopPropagation()
+  isLocationDropdownOpen.value = !isLocationDropdownOpen.value
+  isDepartmentDropdownOpen.value = false
+}
+
+const selectDepartment = (dept: string, event: Event) => {
+  event.stopPropagation()
+  selectedDepartment.value = dept
+  isDepartmentDropdownOpen.value = false
+}
+
+const selectLocation = (loc: string, event: Event) => {
+  event.stopPropagation()
+  selectedLocation.value = loc
+  isLocationDropdownOpen.value = false
+}
+
+// Close dropdowns when clicking outside
+const closeDropdowns = () => {
+  isDepartmentDropdownOpen.value = false
+  isLocationDropdownOpen.value = false
+}
 </script>
 
 <template>
@@ -262,7 +316,7 @@ const getDepartmentColor = (department: string) => {
       <div class="max-w-7xl mx-auto">
         <!-- No Data Alert -->
         <NoDataAlert 
-          v-if="!ceoMessage.title && !ceoMessage.content"
+          v-if="!ceoMessage.content || ceoMessage.content.trim() === ''"
           :title="t('joinUs.noCeoMessage')"
           :message="t('joinUs.noCeoMessageDescription')"
           :show-button="false"
@@ -283,9 +337,10 @@ const getDepartmentColor = (department: string) => {
           <div class="order-1 xl:order-2 flex justify-center">
             <div class="relative">
               <img
-                :src="ceoMessage.image"
+                :src="ceoMessage.image || '/img/placeholder-ceo.jpg'"
                 alt="CEO"
                 class="w-80 xl:w-96 h-auto object-cover rounded-2xl shadow-lg"
+                @error="handleImageError"
               />
             </div>
           </div>
@@ -439,24 +494,59 @@ const getDepartmentColor = (department: string) => {
         {{ t('joinUs.exploreOurWorkplace') }}
       </h2>
       
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
+      <!-- Loading State -->
+      <div v-if="workplaceLoading" class="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
+        <div v-for="n in 3" :key="n" class="animate-pulse">
+          <div class="flex flex-col overflow-hidden bg-white rounded-lg shadow-sm">
+            <div class="w-full h-48 xl:h-56 bg-gray-200"></div>
+            <div class="p-4 xl:p-6 flex-1 flex flex-col">
+              <div class="h-6 bg-gray-200 rounded mb-3"></div>
+              <div class="h-4 bg-gray-200 rounded mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Error State -->
+      <div v-else-if="workplaceError" class="text-center py-8">
+        <p class="text-red-500 mb-4">{{ workplaceError }}</p>
+        <button 
+          @click="fetchWorkplace()"
+          class="px-4 py-2 bg-red-100 text-white rounded-full hover:bg-red-200 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+      
+      <!-- No Data Alert -->
+      <NoDataAlert 
+        v-else-if="!workplaceHighlights || workplaceHighlights.length === 0"
+        :title="t('joinUs.noWorkplaceData')"
+        :message="t('joinUs.noWorkplaceDataDescription')"
+        :show-button="false"
+      />
+      
+      <!-- Content State -->
+      <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
         <div
-          v-for="(highlight, index) in workplaceHighlights"
+          v-for="highlight in workplaceHighlights"
           :key="highlight.id"
           class="flex flex-col overflow-hidden bg-white rounded-lg shadow-sm"
           style="border: none !important;"
         >
           <img
-            :src="highlight.image"
-            :alt="highlight.title"
+            :src="highlight.featured_image_url || highlight.featured_image || '/img/placeholder.jpg'"
+            :alt="locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id"
             class="w-full h-48 xl:h-56 object-cover"
+            @error="handleImageError"
           />
           <div class="p-4 xl:p-6 flex-1 flex flex-col">
             <h3 class="text-black-100 font-bold text-lg xl:text-xl mb-3 text-center">
-              {{ t(highlight.title) }}
+              {{ locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id }}
             </h3>
             <p class="text-black-100 text-sm xl:text-base text-center leading-relaxed flex-1">
-              {{ t(highlight.description) }}
+              {{ locale === 'en' && highlight.excerpt_en ? highlight.excerpt_en : highlight.excerpt_id }}
             </p>
           </div>
         </div>
@@ -486,31 +576,113 @@ const getDepartmentColor = (department: string) => {
             </div>
             
             <!-- Department Filter - matches Department column -->
-            <div class="relative">
-              <select
-                v-model="selectedDepartment"
-                class="appearance-none bg-white border border-divider rounded-full px-6 py-3 pr-10 focus:outline-none focus:border-red-100 text-base cursor-pointer w-full"
+            <div class="relative" @click.away="closeDropdowns">
+              <button
+                @click="toggleDepartmentDropdown($event)"
+                class="flex items-center justify-between w-full bg-white border border-divider rounded-full px-6 py-3 focus:outline-none focus:border-red-100 text-base cursor-pointer"
               >
-                <option value="">{{ t('joinUs.allDepartments') }}</option>
-                <option v-for="dept in departments.slice(1)" :key="dept" :value="dept">
-                  {{ dept }}
-                </option>
-              </select>
-              <Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-divider size-5 pointer-events-none" />
+                <span class="text-left">
+                  {{ selectedDepartment || t('joinUs.allDepartments') }}
+                </span>
+                <Icon 
+                  name="mdi:chevron-up" 
+                  v-if="isDepartmentDropdownOpen"
+                  class="text-divider size-5 transition-transform duration-200" 
+                />
+                <Icon 
+                  name="mdi:chevron-down" 
+                  v-else
+                  class="text-divider size-5 transition-transform duration-200" 
+                />
+              </button>
+              
+              <!-- Dropdown Menu -->
+              <div 
+                v-if="isDepartmentDropdownOpen"
+                class="absolute top-full left-0 right-0 mt-2 bg-white border border-divider rounded-2xl shadow-lg z-50 max-h-60 overflow-y-auto"
+              >
+                <div class="p-2">
+                  <div
+                    @click="selectDepartment('', $event)"
+                    class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    <span>{{ t('joinUs.allDepartments') }}</span>
+                    <Icon 
+                      v-if="!selectedDepartment"
+                      name="mdi:check" 
+                      class="text-red-100 size-5" 
+                    />
+                  </div>
+                  <div
+                    v-for="dept in departments"
+                    :key="dept"
+                    @click="selectDepartment(dept, $event)"
+                    class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    <span>{{ dept }}</span>
+                    <Icon 
+                      v-if="selectedDepartment === dept"
+                      name="mdi:check" 
+                      class="text-red-100 size-5" 
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
             
             <!-- Location Filter - matches Location column -->
-            <div class="relative">
-              <select
-                v-model="selectedLocation"
-                class="appearance-none bg-white border border-divider rounded-full px-6 py-3 pr-10 focus:outline-none focus:border-red-100 text-base cursor-pointer w-full"
+            <div class="relative" @click.away="closeDropdowns">
+              <button
+                @click="toggleLocationDropdown($event)"
+                class="flex items-center justify-between w-full bg-white border border-divider rounded-full px-6 py-3 focus:outline-none focus:border-red-100 text-base cursor-pointer"
               >
-                <option value="">{{ t('joinUs.allLocations') }}</option>
-                <option v-for="location in locations.slice(1)" :key="location" :value="location">
-                  {{ location }}
-                </option>
-              </select>
-              <Icon name="mdi:chevron-down" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-divider size-5 pointer-events-none" />
+                <span class="text-left">
+                  {{ selectedLocation || t('joinUs.allLocations') }}
+                </span>
+                <Icon 
+                  name="mdi:chevron-up" 
+                  v-if="isLocationDropdownOpen"
+                  class="text-divider size-5 transition-transform duration-200" 
+                />
+                <Icon 
+                  name="mdi:chevron-down" 
+                  v-else
+                  class="text-divider size-5 transition-transform duration-200" 
+                />
+              </button>
+              
+              <!-- Dropdown Menu -->
+              <div 
+                v-if="isLocationDropdownOpen"
+                class="absolute top-full left-0 right-0 mt-2 bg-white border border-divider rounded-2xl shadow-lg z-50 max-h-60 overflow-y-auto"
+              >
+                <div class="p-2">
+                  <div
+                    @click="selectLocation('', $event)"
+                    class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    <span>{{ t('joinUs.allLocations') }}</span>
+                    <Icon 
+                      v-if="!selectedLocation"
+                      name="mdi:check" 
+                      class="text-red-100 size-5" 
+                    />
+                  </div>
+                  <div
+                    v-for="location in locations"
+                    :key="location"
+                    @click="selectLocation(location, $event)"
+                    class="flex items-center justify-between px-4 py-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    <span>{{ location }}</span>
+                    <Icon 
+                      v-if="selectedLocation === location"
+                      name="mdi:check" 
+                      class="text-red-100 size-5" 
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
