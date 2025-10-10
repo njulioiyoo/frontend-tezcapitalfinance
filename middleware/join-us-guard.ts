@@ -4,18 +4,21 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     // Make direct API call to check configuration
     const config = useRuntimeConfig()
     const baseURL = config.public.apiBaseUrl || 'http://cms.tez-capital.web.local'
-    const url = `${baseURL}/api/v1/configurations?group=join_us`
+    const url = `${baseURL}/api/v1/configurations?group=join_us&_t=${Date.now()}`
     
     const response = await $fetch(url, {
       headers: {
         'Accept': 'application/json',
         'Cache-Control': 'no-cache'
-      }
+      },
+      // Disable all caching
+      server: false,
+      key: `join-us-config-${Date.now()}` // Force fresh request every time
     })
     
-    // Extract button_join_us_enabled value
-    const joinUsConfig = response?.data?.join_us || response?.join_us
-    const buttonEnabled = joinUsConfig?.button_join_us_enabled?.value ?? true
+    // Extract button_join_us_enabled value from correct structure
+    const configValue = response?.data?.button_join_us_enabled?.value
+    const buttonEnabled = configValue !== undefined && configValue !== null ? configValue : true
     
     // Block access if disabled
     if (!buttonEnabled) {

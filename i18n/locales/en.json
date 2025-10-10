@@ -40,7 +40,11 @@
       "jumbotronDesc": "Find the latest news about TEZ Capital here",
       "author": "Author",
       "source": "Source",
-      "backToNews": "Back to News"
+      "backToNews": "Back to News",
+      "copyLink": "Copy Link",
+      "shareOnFacebook": "Share on Facebook",
+      "shareOnTwitter": "Share on Twitter",
+      "shareOnWhatsApp": "Share on WhatsApp"
     },
     "corporateMenu": {
       "financialReport": "Financial Report",
@@ -224,6 +228,8 @@
     "noCeoMessageDescription": "CEO message has not been configured. Please contact the administrator to set up this content.",
     "noTeamMembers": "Team Not Available",
     "noTeamMembersDescription": "Team data is not available. Please contact the administrator to set up team data.",
+    "noWorkplaceData": "Workplace Data Not Available",
+    "noWorkplaceDataDescription": "Workplace data is not available. Please contact the administrator to set up workplace data.",
     "careers": {
       "title": "Find a Job that's Right for You",
       "noJobsFound": "No jobs found",
@@ -245,6 +251,20 @@
       "emailClientOpened": "Email Client Opened!",
       "completeAndSend": "Please complete and send your application.",
       "emailClientError": "Failed to open email client. Please try again."
+    },
+    "emailTemplate": {
+      "subject": "Job Application - {position}",
+      "greeting": "Dear HRD TEZ Capital Finance,",
+      "introduction": "I am interested in applying for the position of {position} in the {department} department.",
+      "briefInfo": "Here is brief information about myself:",
+      "name": "- Name: [Full Name]",
+      "email": "- Email: [Email]",
+      "phone": "- Phone: [Phone Number]",
+      "experience": "- Experience: [Work Experience]",
+      "attachment": "I have attached my CV and other supporting documents for your consideration.",
+      "thanks": "Thank you for your time and consideration.",
+      "regards": "Best regards,",
+      "signature": "[Full Name]"
     }
   },
   "workplace": {

@@ -40,7 +40,11 @@
       "jumbotronDesc": "Temukan berita terbaru mengenai TEZ Capital di sini",
       "author": "Penulis",
       "source": "Sumber",
-      "backToNews": "Kembali ke Berita"
+      "backToNews": "Kembali ke Berita",
+      "copyLink": "Salin Link",
+      "shareOnFacebook": "Bagikan di Facebook",
+      "shareOnTwitter": "Bagikan di Twitter",
+      "shareOnWhatsApp": "Bagikan di WhatsApp"
     },
     "corporateMenu": {
       "financialReport": "Laporan Keuangan",
@@ -224,6 +228,8 @@
     "noCeoMessageDescription": "Pesan dari CEO belum dikonfigurasi. Silakan hubungi administrator untuk mengatur konten ini.",
     "noTeamMembers": "Tim Belum Tersedia",
     "noTeamMembersDescription": "Data tim belum tersedia. Silakan hubungi administrator untuk mengatur data tim.",
+    "noWorkplaceData": "Data Lingkungan Kerja Belum Tersedia",
+    "noWorkplaceDataDescription": "Data lingkungan kerja belum tersedia. Silakan hubungi administrator untuk mengatur data lingkungan kerja.",
     "careers": {
       "title": "Cari Lowongan yang Sesuai Denganmu",
       "noJobsFound": "Tidak ada lowongan ditemukan",
@@ -245,6 +251,20 @@
       "emailClientOpened": "Email Client Dibuka!",
       "completeAndSend": "Silakan lengkapi dan kirim lamaran Anda.",
       "emailClientError": "Gagal membuka email client. Silakan coba lagi."
+    },
+    "emailTemplate": {
+      "subject": "Lamaran Kerja - {position}",
+      "greeting": "Yth. HRD TEZ Capital Finance,",
+      "introduction": "Saya tertarik untuk melamar posisi {position} di departemen {department}.",
+      "briefInfo": "Berikut adalah informasi singkat mengenai diri saya:",
+      "name": "- Nama: [Nama Lengkap]",
+      "email": "- Email: [Email]",
+      "phone": "- Telepon: [Nomor Telepon]",
+      "experience": "- Pengalaman: [Pengalaman Kerja]",
+      "attachment": "Saya telah melampirkan CV dan dokumen pendukung lainnya untuk pertimbangan Bapak/Ibu.",
+      "thanks": "Terima kasih atas waktu dan perhatiannya.",
+      "regards": "Hormat saya,",
+      "signature": "[Nama Lengkap]"
     }
   },
   "workplace": {

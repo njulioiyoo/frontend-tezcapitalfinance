@@ -119,24 +119,27 @@ const generateMailtoLink = computed(() => {
   if (!career.value?.data || !careerApplicationEmail.value) {
     return '#'
   }
+  
+  const subject = t('joinUs.emailTemplate.subject', { position: career.value.data.title_id })
+  const body = `${t('joinUs.emailTemplate.greeting')}
 
-  const subject = `Lamaran Kerja - ${career.value.data.title_id}`
-  const body = `Yth. HRD TEZ Capital Finance,
+${t('joinUs.emailTemplate.introduction', { 
+  position: career.value.data.title_id, 
+  department: career.value.data.department_id 
+})}.
 
-Saya tertarik untuk melamar posisi ${career.value.data.title_id} di departemen ${career.value.data.department_id}.
+${t('joinUs.emailTemplate.briefInfo')}
+${t('joinUs.emailTemplate.name')}
+${t('joinUs.emailTemplate.email')}
+${t('joinUs.emailTemplate.phone')}
+${t('joinUs.emailTemplate.experience')}
 
-Berikut adalah informasi singkat mengenai diri saya:
-- Nama: [Nama Lengkap]
-- Email: [Email]
-- Telepon: [Nomor Telepon]
-- Pengalaman: [Pengalaman Kerja]
+${t('joinUs.emailTemplate.attachment')}
 
-Saya telah melampirkan CV dan dokumen pendukung lainnya untuk pertimbangan Bapak/Ibu.
+${t('joinUs.emailTemplate.thanks')}
 
-Terima kasih atas waktu dan perhatiannya.
-
-Hormat saya,
-[Nama Lengkap]`
+${t('joinUs.emailTemplate.regards')}
+${t('joinUs.emailTemplate.signature')}`
 
   return `mailto:${careerApplicationEmail.value}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 })

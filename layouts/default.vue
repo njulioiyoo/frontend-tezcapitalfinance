@@ -54,14 +54,14 @@ onUnmounted(() => {
           rel="noopener noreferrer"
           class="py-1 px-6 rounded-full bg-red-100 hover:bg-red-50 transition-all duration-300 font-bold text-sm xl:text-xl text-white hover:text-red-100 flex items-center justify-center cursor-pointer"
         >
-          Apply Now
+          {{ $t('nav.applyNow') }}
         </a>
         <NuxtLink
           v-if="buttonJoinUsEnabled"
           to="/join-us"
           class="py-1 px-6 rounded-full bg-white hover:bg-red-100 transition-all duration-300 font-medium text-sm xl:text-xl text-red-100 hover:text-white flex items-center justify-center cursor-pointer border border-red-100"
         >
-          Join Us
+          {{ $t('nav.joinUs') }}
         </NuxtLink>
       </div>
     </div>
