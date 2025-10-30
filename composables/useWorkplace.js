@@ -21,9 +21,9 @@ export const useWorkplace = () => {
         queryParams.append('limit', params.limit)
       }
 
-      const url = `api/v1/workplace${queryParams.toString() ? '?' + queryParams.toString() : ''}`
+      const endpoint = `api/v1/workplace${queryParams.toString() ? '?' + queryParams.toString() : ''}`
       
-      const response = await apiStore.apiCall(url)
+      const response = await apiStore.apiCall(endpoint)
       
       return {
         success: response?.success || false,
@@ -43,7 +43,7 @@ export const useWorkplace = () => {
   }
 
   const getFeaturedWorkplaces = async (limit = 6) => {
-    return await getWorkplaces({ featured: true, limit })
+    return await getWorkplaces({ limit })
   }
 
   return {

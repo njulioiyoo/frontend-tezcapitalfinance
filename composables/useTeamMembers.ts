@@ -9,6 +9,12 @@ export interface TeamMember {
   title_en?: string
   department_id: string
   department_en?: string
+  testimonial_id?: string
+  testimonial_en?: string
+  position_id?: string
+  position_en?: string
+  testimonial?: string
+  position?: string
   featured_image?: string
   featured_image_url?: string
   is_published: boolean
@@ -48,7 +54,7 @@ export const useTeamMembers = () => {
   // State
   const teamMembers = ref<TeamMember[]>([])
   const featuredTeamMembers = ref<TeamMember[]>([])
-  const isLoading = ref(false)
+  const isLoading = ref(true)
   const error = ref<string | null>(null)
 
   // Get all team members
@@ -244,6 +250,22 @@ export const useTeamMembers = () => {
     return teamMember.department_id
   }
 
+  // Helper function to get testimonial based on locale
+  const getTestimonial = (teamMember: TeamMember, locale: string = 'id'): string => {
+    if (locale === 'en' && teamMember.testimonial_en) {
+      return teamMember.testimonial_en
+    }
+    return teamMember.testimonial_id || teamMember.testimonial || ''
+  }
+
+  // Helper function to get position based on locale
+  const getPosition = (teamMember: TeamMember, locale: string = 'id'): string => {
+    if (locale === 'en' && teamMember.position_en) {
+      return teamMember.position_en
+    }
+    return teamMember.position_id || teamMember.position || teamMember.department_id
+  }
+
   return {
     // State
     teamMembers: readonly(teamMembers),
@@ -262,5 +284,7 @@ export const useTeamMembers = () => {
     getTeamMemberImageUrl,
     getTeamMemberName,
     getDepartmentName,
+    getTestimonial,
+    getPosition,
   }
 }

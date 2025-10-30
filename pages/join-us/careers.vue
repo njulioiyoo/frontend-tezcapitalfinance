@@ -273,6 +273,8 @@ import { onMounted, onUnmounted } from 'vue'
 
 const { t } = useI18n()
 const { getCareers } = useCareers()
+const { getActiveDepartments } = useDepartments()
+const { getActiveLocations } = useLocations()
 
 // State
 const currentPage = ref(1)
@@ -291,6 +293,26 @@ const isLocationDropdownOpen = ref(false)
 const careers = ref<CareerApiResponse | null>(null)
 const pending = ref(false)
 const error = ref<string | null>(null)
+
+// Fetch departments and locations from master data
+const fetchMasterData = async () => {
+  try {
+    const [departmentsResponse, locationsResponse] = await Promise.all([
+      getActiveDepartments(),
+      getActiveLocations()
+    ])
+    
+    if (departmentsResponse.success && departmentsResponse.data) {
+      availableDepartments.value = departmentsResponse.data.map(dept => dept.name_id)
+    }
+    
+    if (locationsResponse.success && locationsResponse.data) {
+      availableLocations.value = locationsResponse.data.map(loc => loc.name_id)
+    }
+  } catch (err) {
+    console.error('Failed to fetch master data:', err)
+  }
+}
 
 // Fetch careers function
 const fetchCareers = async () => {
@@ -318,13 +340,17 @@ const fetchCareers = async () => {
 // Refresh function
 const refresh = () => fetchCareers()
 
-// Initialize departments and locations
-availableDepartments.value = ['Finance', 'People & Operation', 'Technology', 'Marketing']
-availableLocations.value = ['Jakarta', 'Surabaya', 'Bandung']
+// Initialize departments and locations from API
+// These will be populated when master data is fetched
+availableDepartments.value = []
+availableLocations.value = []
 
 // Initial fetch
-onMounted(() => {
-  fetchCareers()
+onMounted(async () => {
+  // Fetch master data first
+  await fetchMasterData()
+  // Then fetch careers
+  await fetchCareers()
 })
 
 // Debounced search

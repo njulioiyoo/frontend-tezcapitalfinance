@@ -43,6 +43,7 @@ export interface CareerApiResponse {
     prev_page_url: string | null
   }
   departments: string[]
+  locations: string[]
   response_time_ms: number
 }
 
@@ -51,6 +52,7 @@ export interface CareerDetailResponse {
   message: string
   data: Career
   departments: string[]
+  locations: string[]
   response_time_ms: number
 }
 

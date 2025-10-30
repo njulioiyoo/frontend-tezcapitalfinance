@@ -16,6 +16,78 @@ useSeoMeta({
 // Use join us data from configuration
 const { joinUsData, loadJoinUsData } = useJoinUs()
 
+// Use configuration composable
+const { configData, fetchConfiguration, isLoading: configLoading } = useConfiguration()
+
+// Workplace configurations state
+const workplaceConfigs = ref<any>({})
+
+// Extract workplace configurations from configData
+const extractWorkplaceConfigs = () => {
+  if (configData.value) {
+    // Access workplace data directly from join_us.workplace
+    const workplaceData = configData.value.join_us?.workplace || {}
+    
+    // Assign workplace configurations directly
+    workplaceConfigs.value = workplaceData
+  }
+}
+
+// Watch for changes in configData to extract workplace configs
+watch(configData, (newData) => {
+  if (newData) {
+    extractWorkplaceConfigs()
+  }
+}, { immediate: true })
+
+// Fetch workplace configurations (using existing configuration composable)
+const fetchWorkplaceConfigs = async () => {
+  await fetchConfiguration()
+  extractWorkplaceConfigs()
+}
+
+// Helper functions to get workplace data
+const getWorkplaceTitle = (type: 'working_environment' | 'employee_benefits') => {
+  const key = `workplace_${type}_title_${locale.value}`
+  return workplaceConfigs.value[key] || ''
+}
+
+const getWorkplaceDescription = (type: 'working_environment' | 'employee_benefits') => {
+  const key = `workplace_${type}_description_${locale.value}`
+  return workplaceConfigs.value[key] || ''
+}
+
+const getWorkplaceImage = (type: 'working_environment' | 'employee_benefits') => {
+  const key = `workplace_${type}_image`
+  return workplaceConfigs.value[key] || ''
+}
+
+const getWorkplaceSlug = (type: 'working_environment' | 'employee_benefits') => {
+  const key = `workplace_${type}_slug`
+  return workplaceConfigs.value[key] || ''
+}
+
+// Handle workplace card clicks
+const handleWorkplaceCardClick = (type: 'working_environment' | 'employee_benefits') => {
+  if (type === 'working_environment') {
+    // Auto scroll to Working Environment slider section with offset
+    const workingEnvironmentSection = document.querySelector('#working-environment-section')
+    if (workingEnvironmentSection) {
+      const elementPosition = workingEnvironmentSection.offsetTop
+      const offsetPosition = elementPosition - 100 // 100px offset from top
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+    }
+  } else if (type === 'employee_benefits') {
+    // Navigate to Employee Benefits detail page
+    const router = useRouter()
+    router.push('/employee-benefits')
+  }
+}
+
 // Use homepage data for services
 const { 
   services,
@@ -31,8 +103,14 @@ const {
   getTeamMemberImageUrl,
   getTeamMemberName,
   getDepartmentName,
+  getTestimonial,
+  getPosition,
   isLoading: teamMembersLoading
 } = useTeamMembers()
+
+// Use master data for departments and locations
+const { getActiveDepartments } = useDepartments()
+const { getActiveLocations } = useLocations()
 
 // Image fallback handler
 const { handleImageError } = useImageFallback()
@@ -44,9 +122,11 @@ onMounted(async () => {
   await Promise.all([
     loadJoinUsData(),
     initHomepage(),
+    fetchMasterData(),
     fetchFeaturedCareers(),
-    getFeaturedTeamMembers(5),
-    fetchWorkplace()
+    // getFeaturedTeamMembers(3),
+    fetchWorkplace(),
+    fetchWorkplaceConfigs()
   ])
   
   // Add click listener for dropdown close
@@ -62,8 +142,9 @@ onUnmounted(() => {
 watch(() => locale.value, () => {
   loadJoinUsData()
   initHomepage()
+  fetchMasterData()
   fetchFeaturedCareers()
-  getFeaturedTeamMembers(5)
+  getFeaturedTeamMembers(3)
   fetchWorkplace()
 }, { immediate: false })
 
@@ -177,7 +258,7 @@ const fetchWorkplace = async () => {
     workplaceLoading.value = true
     workplaceError.value = null
     
-    const response = await getFeaturedWorkplaces(3)
+    const response = await getFeaturedWorkplaces(6) // Fetch up to 6 items to allow scrolling
     if (response.success) {
       workplaceHighlights.value = response.data.data || []
     }
@@ -196,8 +277,38 @@ const searchQuery = ref("")
 const selectedDepartment = ref("")
 const selectedLocation = ref("")
 
-const departments = ["Finance", "People & Operation", "Technology", "Marketing"]
-const locations = ["Jakarta", "Surabaya", "Bandung"]
+// Dynamic departments and locations from API
+const departments = ref<string[]>([])
+const locations = ref<string[]>([])
+
+// Fetch master data for departments and locations
+const fetchMasterData = async () => {
+  try {
+    const [departmentsResponse, locationsResponse] = await Promise.all([
+      getActiveDepartments(),
+      getActiveLocations()
+    ])
+    
+    console.log('Departments response:', departmentsResponse)
+    console.log('Locations response:', locationsResponse)
+    
+    if (departmentsResponse.success && departmentsResponse.data) {
+      departments.value = departmentsResponse.data.map(dept => dept.name_id)
+      console.log('Departments loaded:', departments.value)
+    } else {
+      console.error('Departments failed:', departmentsResponse)
+    }
+    
+    if (locationsResponse.success && locationsResponse.data) {
+      locations.value = locationsResponse.data.map(loc => loc.name_id)
+      console.log('Locations loaded:', locations.value)
+    } else {
+      console.error('Locations failed:', locationsResponse)
+    }
+  } catch (err) {
+    console.error('Failed to fetch master data:', err)
+  }
+}
 
 // Dropdown state
 const isDepartmentDropdownOpen = ref(false)
@@ -282,6 +393,59 @@ const closeDropdowns = () => {
   isDepartmentDropdownOpen.value = false
   isLocationDropdownOpen.value = false
 }
+
+// Testimonial modal state
+const showTestimonialModal = ref(false)
+const selectedMember = ref(null)
+const selectedMemberIndex = ref(0)
+
+// Modal methods
+const openTestimonialModal = (member) => {
+  selectedMember.value = member
+  selectedMemberIndex.value = featuredTeamMembers.value.findIndex(m => m.id === member.id)
+  showTestimonialModal.value = true
+  document.body.style.overflow = 'hidden' // Prevent background scroll
+}
+
+const closeTestimonialModal = () => {
+  showTestimonialModal.value = false
+  selectedMember.value = null
+  selectedMemberIndex.value = 0
+  document.body.style.overflow = 'auto' // Restore scroll
+}
+
+const selectMemberByIndex = (index) => {
+  selectedMemberIndex.value = index
+  selectedMember.value = featuredTeamMembers.value[index]
+}
+
+// Helper function to get full content for modal
+const getFullContent = (member, locale = 'id') => {
+  if (locale === 'en' && member.content_en) {
+    return member.content_en
+  }
+  return member.content_id || ''
+}
+
+// Helper function to format content with line breaks
+const formatContent = (content) => {
+  if (!content) return ''
+  return content.replace(/\n/g, '<br>')
+}
+
+// Close modal on escape key
+onMounted(() => {
+  const handleEscape = (e) => {
+    if (e.key === 'Escape' && showTestimonialModal.value) {
+      closeTestimonialModal()
+    }
+  }
+  document.addEventListener('keydown', handleEscape)
+  
+  return () => {
+    document.removeEventListener('keydown', handleEscape)
+  }
+})
 </script>
 
 <template>
@@ -407,15 +571,6 @@ const closeDropdowns = () => {
             </div>
           </div>
         </div>
-
-        <div class="flex justify-center mt-12 xl:mt-16">
-          <NuxtLink
-            to="/service"
-            class="rounded-full py-3 px-12 bg-red-100 hover:bg-red-75 transition-all duration-300 cursor-pointer font-bold text-white text-base xl:text-lg uppercase"
-          >
-            {{ t('joinUs.goToServices') }}
-          </NuxtLink>
-        </div>
       </div>
     </div>
 
@@ -424,66 +579,161 @@ const closeDropdowns = () => {
       <hr class="border-t border-gray-300 my-8 xl:my-12">
     </div>
 
-    <!-- Meet Our People Section -->
+    <!-- What They Say Section -->
     <div class="px-3 xl:px-15 py-8 xl:py-12">
-      <h2 class="text-black-100 font-bold text-2xl xl:text-4xl mb-8 xl:mb-12 text-center">
-        {{ t('joinUs.meetOurPeople') }}
-      </h2>
-      
       <!-- Loading State -->
       <div v-if="teamMembersLoading" class="relative">
-        <div class="flex gap-6 xl:gap-8 pb-4">
-          <div v-for="n in 5" :key="n" class="flex-shrink-0 w-72 xl:w-80">
-            <div class="animate-pulse">
-              <div class="w-full h-80 xl:h-96 bg-gray-200 rounded-lg mb-4"></div>
-              <div class="h-6 bg-gray-200 rounded mb-2"></div>
-              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+        <div 
+          class="overflow-x-auto focus:outline-none"
+          style="scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;"
+        >
+          <div class="flex gap-6 xl:gap-8 pb-4 max-w-7xl mx-auto">
+            <div v-for="n in 3" :key="n" class="flex-shrink-0 w-[28rem] xl:w-[32rem] bg-white rounded-xl overflow-hidden shadow-md">
+              <div class="flex h-56 xl:h-64">
+                <!-- Left Side - Image Skeleton -->
+                <div class="w-1/2 relative bg-gray-200 animate-pulse"></div>
+                <!-- Right Side - Text Skeleton -->
+                <div class="w-1/2 p-4 flex flex-col justify-center bg-white">
+                  <div class="mb-4">
+                    <div class="h-4 bg-gray-200 rounded mb-2 w-3/4 animate-pulse"></div>
+                    <div class="h-3 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+                  </div>
+                  <div class="space-y-2">
+                    <div class="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                    <div class="h-3 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+                    <div class="h-3 bg-gray-200 rounded w-4/5 animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
       
-      <!-- Content State -->
-      <div v-else class="relative">
-        <!-- No Data Alert -->
-        <NoDataAlert 
-          v-if="!featuredTeamMembers || featuredTeamMembers.length === 0"
-          :title="t('joinUs.noTeamMembers')"
-          :message="t('joinUs.noTeamMembersDescription')"
-          :show-button="false"
-        />
-        
-        <!-- Team Members Slider -->
+      <!-- Testimonials Slider -->
+      <div v-else-if="!teamMembersLoading && featuredTeamMembers && featuredTeamMembers.length > 0" class="relative">
+        <h2 class="text-black-100 font-bold text-2xl xl:text-4xl mb-8 xl:mb-12 text-center">
+          {{ t('joinUs.whatTheySay') }}
+        </h2>
         <div 
-          v-else
-          ref="sliderContainer"
           class="overflow-x-auto focus:outline-none cursor-grab select-none"
           style="scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;"
           tabindex="0"
         >
-          <div class="flex gap-6 xl:gap-8 pb-4">
+          <div class="flex gap-6 xl:gap-8 pb-4 max-w-7xl mx-auto">
+            <!-- Dynamic Testimonials from API -->
             <div
               v-for="member in featuredTeamMembers"
               :key="member.id"
-              class="flex-shrink-0 w-72 xl:w-80"
+              class="flex-shrink-0 w-[28rem] xl:w-[32rem] bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300"
+              @click="openTestimonialModal(member)"
             >
-              <div class="flex flex-col items-start text-left">
-                <img
-                  :src="getTeamMemberImageUrl(member)"
-                  :alt="getTeamMemberName(member, locale)"
-                  class="w-full h-80 xl:h-96 object-cover rounded-lg mb-4 pointer-events-none select-none"
-                  draggable="false"
-                  @error="handleImageError"
-                />
-                <h3 class="text-black-100 font-bold text-lg xl:text-xl select-none">
-                  {{ getTeamMemberName(member, locale) }}
-                </h3>
-                <p class="text-divider text-sm xl:text-base select-none">
-                  {{ getDepartmentName(member, locale) }}
-                </p>
+              <div class="flex h-56 xl:h-64">
+                <!-- Left Side - Image (50%) -->
+                <div class="w-1/2 relative">
+                  <img
+                    :src="getTeamMemberImageUrl(member)"
+                    :alt="getTeamMemberName(member, locale)"
+                    class="w-full h-full object-cover pointer-events-none select-none"
+                    draggable="false"
+                    @error="handleImageError"
+                  />
+                </div>
+                <!-- Right Side - Text Content (50%) -->
+                <div class="w-1/2 p-4 flex flex-col justify-center bg-white">
+                  <div class="mb-4">
+                    <h3 class="text-black-100 font-bold text-sm xl:text-base mb-2">
+                      {{ getTeamMemberName(member, locale) }}
+                    </h3>
+                    <p class="text-gray-600 text-xs xl:text-sm">
+                      {{ getPosition(member, locale) }}
+                    </p>
+                  </div>
+                  <p v-if="getTestimonial(member, locale)" class="text-black-100 text-sm xl:text-base leading-relaxed">
+                    "{{ getTestimonial(member, locale) }}"
+                  </p>
+                  <p v-else class="text-gray-400 text-sm xl:text-base leading-relaxed italic">
+                    {{ t('joinUs.noTestimonialAvailable') }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      
+      <!-- Empty State -->
+      <div v-else class="text-center py-8">
+        <h2 class="text-black-100 font-bold text-2xl xl:text-4xl mb-8 xl:mb-12 text-center">
+          {{ t('joinUs.whatTheySay') }}
+        </h2>
+        <div class="max-w-md mx-auto">
+          <p class="text-gray-500 text-lg mb-4">{{ t('joinUs.noTeamMembers') }}</p>
+          <p class="text-gray-400 text-sm">{{ t('joinUs.noTeamMembersDescription') }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Testimonial Bottom Sheet Modal -->
+    <div
+      v-if="showTestimonialModal"
+      class="fixed inset-0 z-50 flex items-end"
+      style="background-color: rgba(0, 0, 0, 0.3);"
+      @click="closeTestimonialModal"
+    >
+      <!-- Bottom Sheet Content -->
+      <div
+        class="w-full bg-white rounded-t-3xl transform transition-transform duration-300 ease-out max-h-[85vh] overflow-y-auto"
+        :class="showTestimonialModal ? 'translate-y-0' : 'translate-y-full'"
+        @click.stop
+      >
+        <!-- Close Button -->
+        <div class="absolute top-6 right-6 z-10">
+          <button
+            @click="closeTestimonialModal"
+            class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-8 pt-16">
+          <div v-if="selectedMember" class="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
+            <!-- Left Side - Image -->
+            <div class="flex-shrink-0 mx-auto md:mx-0">
+              <img
+                :src="getTeamMemberImageUrl(selectedMember)"
+                :alt="getTeamMemberName(selectedMember, locale)"
+                class="w-64 h-80 md:w-80 md:h-96 object-cover rounded-2xl shadow-lg"
+              />
+            </div>
+
+            <!-- Right Side - Content -->
+            <div class="flex-1">
+              <!-- Name and Position -->
+              <div class="mb-6">
+                <h2 class="text-3xl font-bold text-black leading-tight">
+                  {{ getTeamMemberName(selectedMember, locale) }}<span class="text-lg text-gray-600 font-normal ml-3">{{ getPosition(selectedMember, locale) }}</span>
+                </h2>
+              </div>
+
+              <!-- Biography/Content -->
+              <div class="text-gray-700 leading-relaxed text-base space-y-4">
+                <div v-if="getFullContent(selectedMember, locale)" v-html="formatContent(getFullContent(selectedMember, locale))">
+                </div>
+                <div v-else-if="getTestimonial(selectedMember, locale)">
+                  {{ getTestimonial(selectedMember, locale) }}
+                </div>
+                <div v-else class="text-gray-400 italic">
+                  {{ t('joinUs.noDetailedInformation') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -494,60 +744,125 @@ const closeDropdowns = () => {
         {{ t('joinUs.exploreOurWorkplace') }}
       </h2>
       
-      <!-- Loading State -->
-      <div v-if="workplaceLoading" class="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
-        <div v-for="n in 3" :key="n" class="animate-pulse">
-          <div class="flex flex-col overflow-hidden bg-white rounded-lg shadow-sm">
-            <div class="w-full h-48 xl:h-56 bg-gray-200"></div>
-            <div class="p-4 xl:p-6 flex-1 flex flex-col">
-              <div class="h-6 bg-gray-200 rounded mb-3"></div>
-              <div class="h-4 bg-gray-200 rounded mb-2"></div>
-              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+      <!-- Content State -->
+      <div class="space-y-16">
+        <!-- Loading State for Static Cards -->
+        <div v-if="configLoading" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div v-for="n in 2" :key="n" class="bg-white rounded-2xl overflow-hidden shadow-lg">
+            <div class="h-64 bg-gray-200 animate-pulse"></div>
+            <div class="p-6 space-y-4">
+              <div class="h-6 bg-gray-200 rounded animate-pulse mx-auto w-3/4"></div>
+              <div class="space-y-2">
+                <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div class="h-4 bg-gray-200 rounded animate-pulse w-5/6 mx-auto"></div>
+                <div class="h-4 bg-gray-200 rounded animate-pulse w-4/5 mx-auto"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <!-- Error State -->
-      <div v-else-if="workplaceError" class="text-center py-8">
-        <p class="text-red-500 mb-4">{{ workplaceError }}</p>
-        <button 
-          @click="fetchWorkplace()"
-          class="px-4 py-2 bg-red-100 text-white rounded-full hover:bg-red-200 transition-colors"
-        >
-          Try Again
-        </button>
-      </div>
-      
-      <!-- No Data Alert -->
-      <NoDataAlert 
-        v-else-if="!workplaceHighlights || workplaceHighlights.length === 0"
-        :title="t('joinUs.noWorkplaceData')"
-        :message="t('joinUs.noWorkplaceDataDescription')"
-        :show-button="false"
-      />
-      
-      <!-- Content State -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
-        <div
-          v-for="highlight in workplaceHighlights"
-          :key="highlight.id"
-          class="flex flex-col overflow-hidden bg-white rounded-lg shadow-sm"
-          style="border: none !important;"
-        >
-          <img
-            :src="highlight.featured_image_url || highlight.featured_image || '/img/placeholder.jpg'"
-            :alt="locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id"
-            class="w-full h-48 xl:h-56 object-cover"
-            @error="handleImageError"
-          />
-          <div class="p-4 xl:p-6 flex-1 flex flex-col">
-            <h3 class="text-black-100 font-bold text-lg xl:text-xl mb-3 text-center">
-              {{ locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id }}
-            </h3>
-            <p class="text-black-100 text-sm xl:text-base text-center leading-relaxed flex-1">
-              {{ locale === 'en' && highlight.excerpt_en ? highlight.excerpt_en : highlight.excerpt_id }}
-            </p>
+
+        <!-- Static 2 Cards from CMS -->
+        <div v-else-if="!configLoading" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <!-- Working Environment Card -->
+          <div 
+            class="bg-white rounded-2xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            @click="handleWorkplaceCardClick('working_environment')"
+          >
+            <div class="h-64 overflow-hidden">
+              <img
+                :src="getWorkplaceImage('working_environment')"
+                :alt="getWorkplaceTitle('working_environment')"
+                class="w-full h-full object-cover"
+                @error="handleImageError"
+              />
+            </div>
+            <div class="p-6">
+              <h3 class="text-black font-bold text-xl text-center mb-4">
+                {{ getWorkplaceTitle('working_environment') }}
+              </h3>
+              <p class="text-gray-600 text-sm text-center leading-relaxed">
+                {{ getWorkplaceDescription('working_environment') }}
+              </p>
+            </div>
+          </div>
+          
+          <!-- Employee Benefits Card -->
+          <div 
+            class="bg-white rounded-2xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            @click="handleWorkplaceCardClick('employee_benefits')"
+          >
+            <div class="h-64 overflow-hidden">
+              <img
+                :src="getWorkplaceImage('employee_benefits')"
+                :alt="getWorkplaceTitle('employee_benefits')"
+                class="w-full h-full object-cover"
+                @error="handleImageError"
+              />
+            </div>
+            <div class="p-6">
+              <h3 class="text-black font-bold text-xl text-center mb-4">
+                {{ getWorkplaceTitle('employee_benefits') }}
+              </h3>
+              <p class="text-gray-600 text-sm text-center leading-relaxed">
+                {{ getWorkplaceDescription('employee_benefits') }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Dynamic Working Environment Section -->
+        <div id="working-environment-section" v-if="workplaceHighlights && workplaceHighlights.length > 0" class="mt-16">
+          <h3 class="text-black font-bold text-3xl text-center mb-12">
+            {{ t('workplace.workingEnvironment.title') }}
+          </h3>
+          
+          <!-- Mobile: Show exactly 3 cards in scroll container -->
+          <div class="overflow-x-auto md:hidden scrollbar-hide mx-auto" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch; width: 896px; max-width: 100%;">
+            <div class="flex gap-4 px-4 pb-2" style="width: max-content;">
+              <div
+                v-for="highlight in workplaceHighlights"
+                :key="highlight.id"
+                class="flex-shrink-0 w-72 text-center"
+              >
+                <div class="h-44 rounded-2xl overflow-hidden shadow-lg mb-4">
+                  <img
+                    :src="highlight.featured_image_url || highlight.featured_image || '/img/placeholder-workplace.jpg'"
+                    :alt="locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id"
+                    class="w-full h-full object-cover"
+                    @error="handleImageError"
+                  />
+                </div>
+                <h4 class="text-black font-normal text-base">
+                  {{ locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id }}
+                </h4>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Desktop: Show exactly 3 cards with scroll if more -->
+          <div class="hidden md:block">
+            <div class="overflow-x-auto scrollbar-hide mx-auto" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch; width: 1248px; max-width: 100%;">
+              <div class="flex gap-8 px-4 pb-2" style="width: max-content;">
+                <div
+                  v-for="highlight in workplaceHighlights"
+                  :key="highlight.id"
+                  class="flex-shrink-0 w-96 text-center"
+                >
+                  <div class="h-52 rounded-2xl overflow-hidden shadow-lg mb-4">
+                    <img
+                      :src="highlight.featured_image_url || highlight.featured_image || '/img/placeholder-workplace.jpg'"
+                      :alt="locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id"
+                      class="w-full h-full object-cover"
+                      @error="handleImageError"
+                    />
+                  </div>
+                  <h4 class="text-black font-normal text-base">
+                    {{ locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id }}
+                  </h4>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -842,3 +1157,16 @@ const closeDropdowns = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Hide scrollbar for webkit browsers */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+</style>

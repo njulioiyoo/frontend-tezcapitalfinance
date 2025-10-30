@@ -86,14 +86,39 @@
     <div class="bg-grey px-3 xl:px-15 py-8 xl:py-12">
       <SkeletonLoader width="50%" height="32px" customClass="mb-8 xl:mb-12 mx-auto" />
       
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 xl:gap-8">
-        <div v-for="n in 3" :key="n" class="flex flex-col overflow-hidden bg-white rounded-lg">
-          <SkeletonLoader width="100%" height="192px" />
-          <div class="p-4 xl:p-6 flex-1 flex flex-col">
-            <SkeletonLoader width="70%" height="24px" customClass="mb-3 mx-auto" />
+      <!-- Static 2 Cards Skeleton -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-16">
+        <div v-for="n in 2" :key="n" class="bg-white rounded-2xl overflow-hidden shadow-lg">
+          <SkeletonLoader width="100%" height="256px" />
+          <div class="p-6">
+            <SkeletonLoader width="75%" height="24px" customClass="mb-4 mx-auto" />
             <SkeletonLoader width="100%" height="16px" customClass="mb-2" />
-            <SkeletonLoader width="90%" height="16px" customClass="mb-2" />
-            <SkeletonLoader width="85%" height="16px" />
+            <SkeletonLoader width="90%" height="16px" customClass="mx-auto" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Working Environment Cards Skeleton -->
+      <div class="mt-16">
+        <SkeletonLoader width="25%" height="32px" customClass="mb-12 mx-auto" />
+        <!-- Mobile: Horizontal Scroll -->
+        <div class="overflow-x-auto md:hidden scrollbar-hide mx-auto" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch; width: 896px; max-width: 100%;">
+          <div class="flex gap-4 px-4 pb-2" style="width: max-content;">
+            <div v-for="n in 6" :key="n" class="flex-shrink-0 w-72 text-center">
+              <SkeletonLoader width="100%" height="176px" customClass="rounded-2xl mb-4" />
+              <SkeletonLoader width="75%" height="16px" customClass="mx-auto" />
+            </div>
+          </div>
+        </div>
+        <!-- Desktop: Horizontal Slider -->
+        <div class="hidden md:block">
+          <div class="overflow-x-auto scrollbar-hide mx-auto" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch; width: 1248px; max-width: 100%;">
+            <div class="flex gap-8 px-4 pb-2" style="width: max-content;">
+              <div v-for="n in 6" :key="n" class="flex-shrink-0 w-96 text-center">
+                <SkeletonLoader width="100%" height="208px" customClass="rounded-2xl mb-4" />
+                <SkeletonLoader width="75%" height="16px" customClass="mx-auto" />
+              </div>
+            </div>
           </div>
         </div>
       </div>

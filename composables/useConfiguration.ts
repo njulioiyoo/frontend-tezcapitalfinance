@@ -24,9 +24,25 @@ export interface OjkConfig {
   ojk_images: any[]
 }
 
+export interface WorkplaceConfig {
+  workplace_working_environment_title_id: string
+  workplace_working_environment_title_en: string
+  workplace_working_environment_description_id: string
+  workplace_working_environment_description_en: string
+  workplace_working_environment_image: string
+  workplace_working_environment_slug: string
+  workplace_employee_benefits_title_id: string
+  workplace_employee_benefits_title_en: string
+  workplace_employee_benefits_description_id: string
+  workplace_employee_benefits_description_en: string
+  workplace_employee_benefits_image: string
+  workplace_employee_benefits_slug: string
+}
+
 export interface JoinUsConfig {
   career_application_email: string
   button_join_us_enabled: boolean
+  workplace: WorkplaceConfig
 }
 
 export interface ConfigurationData {
@@ -200,10 +216,36 @@ export const useConfiguration = () => {
         }
         
         // Parse Join Us configuration data
+        const workplaceConfig: WorkplaceConfig = {
+          workplace_working_environment_title_id: '',
+          workplace_working_environment_title_en: '',
+          workplace_working_environment_description_id: '',
+          workplace_working_environment_description_en: '',
+          workplace_working_environment_image: '',
+          workplace_working_environment_slug: '',
+          workplace_employee_benefits_title_id: '',
+          workplace_employee_benefits_title_en: '',
+          workplace_employee_benefits_description_id: '',
+          workplace_employee_benefits_description_en: '',
+          workplace_employee_benefits_image: '',
+          workplace_employee_benefits_slug: ''
+        };
+
+        // Extract workplace configurations from join_us data
+        const workplaceKeys = Object.keys(workplaceConfig) as (keyof WorkplaceConfig)[];
+        workplaceKeys.forEach(key => {
+          if (data.join_us?.[key]) {
+            const value = data.join_us[key].value || data.join_us[key];
+            (workplaceConfig as any)[key] = value;
+          }
+        });
+
         const joinUsConfig: JoinUsConfig = {
           career_application_email: '',
-          button_join_us_enabled: true
+          button_join_us_enabled: true,
+          workplace: workplaceConfig
         };
+        
         if (data.join_us?.career_application_email) {
           if (typeof data.join_us.career_application_email === 'string') {
             joinUsConfig.career_application_email = data.join_us.career_application_email;
@@ -248,7 +290,21 @@ export const useConfiguration = () => {
           },
           join_us: {
             career_application_email: '',
-            button_join_us_enabled: true
+            button_join_us_enabled: true,
+            workplace: {
+              workplace_working_environment_title_id: '',
+              workplace_working_environment_title_en: '',
+              workplace_working_environment_description_id: '',
+              workplace_working_environment_description_en: '',
+              workplace_working_environment_image: '',
+              workplace_working_environment_slug: '',
+              workplace_employee_benefits_title_id: '',
+              workplace_employee_benefits_title_en: '',
+              workplace_employee_benefits_description_id: '',
+              workplace_employee_benefits_description_en: '',
+              workplace_employee_benefits_image: '',
+              workplace_employee_benefits_slug: ''
+            }
           }
         }
       }
@@ -276,7 +332,21 @@ export const useConfiguration = () => {
         },
         join_us: {
           career_application_email: '',
-          button_join_us_enabled: true
+          button_join_us_enabled: true,
+          workplace: {
+            workplace_working_environment_title_id: '',
+            workplace_working_environment_title_en: '',
+            workplace_working_environment_description_id: '',
+            workplace_working_environment_description_en: '',
+            workplace_working_environment_image: '',
+            workplace_working_environment_slug: '',
+            workplace_employee_benefits_title_id: '',
+            workplace_employee_benefits_title_en: '',
+            workplace_employee_benefits_description_id: '',
+            workplace_employee_benefits_description_en: '',
+            workplace_employee_benefits_image: '',
+            workplace_employee_benefits_slug: ''
+          }
         }
       }
     } finally {
