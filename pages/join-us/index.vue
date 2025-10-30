@@ -102,7 +102,6 @@ const {
   getFeaturedTeamMembers,
   getTeamMemberImageUrl,
   getTeamMemberName,
-  getDepartmentName,
   getTestimonial,
   getPosition,
   isLoading: teamMembersLoading
@@ -124,7 +123,7 @@ onMounted(async () => {
     initHomepage(),
     fetchMasterData(),
     fetchFeaturedCareers(),
-    // getFeaturedTeamMembers(3),
+    getFeaturedTeamMembers(3),
     fetchWorkplace(),
     fetchWorkplaceConfigs()
   ])
@@ -289,24 +288,17 @@ const fetchMasterData = async () => {
       getActiveLocations()
     ])
     
-    console.log('Departments response:', departmentsResponse)
-    console.log('Locations response:', locationsResponse)
     
     if (departmentsResponse.success && departmentsResponse.data) {
       departments.value = departmentsResponse.data.map(dept => dept.name_id)
-      console.log('Departments loaded:', departments.value)
     } else {
-      console.error('Departments failed:', departmentsResponse)
     }
     
     if (locationsResponse.success && locationsResponse.data) {
       locations.value = locationsResponse.data.map(loc => loc.name_id)
-      console.log('Locations loaded:', locations.value)
     } else {
-      console.error('Locations failed:', locationsResponse)
     }
   } catch (err) {
-    console.error('Failed to fetch master data:', err)
   }
 }
 
@@ -589,7 +581,7 @@ onMounted(() => {
         >
           <div class="flex gap-6 xl:gap-8 pb-4 max-w-7xl mx-auto">
             <div v-for="n in 3" :key="n" class="flex-shrink-0 w-[28rem] xl:w-[32rem] bg-white rounded-xl overflow-hidden shadow-md">
-              <div class="flex h-56 xl:h-64">
+              <div class="flex h-64 xl:h-80">
                 <!-- Left Side - Image Skeleton -->
                 <div class="w-1/2 relative bg-gray-200 animate-pulse"></div>
                 <!-- Right Side - Text Skeleton -->
@@ -628,7 +620,7 @@ onMounted(() => {
               class="flex-shrink-0 w-[28rem] xl:w-[32rem] bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300"
               @click="openTestimonialModal(member)"
             >
-              <div class="flex h-56 xl:h-64">
+              <div class="flex h-64 xl:h-80">
                 <!-- Left Side - Image (50%) -->
                 <div class="w-1/2 relative">
                   <img

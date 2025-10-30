@@ -7,12 +7,10 @@ export interface TeamMember {
   slug: string
   title_id: string
   title_en?: string
-  department_id: string
-  department_en?: string
+  position_id: string
+  position_en?: string
   testimonial_id?: string
   testimonial_en?: string
-  position_id?: string
-  position_en?: string
   testimonial?: string
   position?: string
   featured_image?: string
@@ -242,13 +240,6 @@ export const useTeamMembers = () => {
     return teamMember.title_id
   }
 
-  // Helper function to get department name based on locale
-  const getDepartmentName = (teamMember: TeamMember, locale: string = 'id'): string => {
-    if (locale === 'en' && teamMember.department_en) {
-      return teamMember.department_en
-    }
-    return teamMember.department_id
-  }
 
   // Helper function to get testimonial based on locale
   const getTestimonial = (teamMember: TeamMember, locale: string = 'id'): string => {
@@ -263,7 +254,7 @@ export const useTeamMembers = () => {
     if (locale === 'en' && teamMember.position_en) {
       return teamMember.position_en
     }
-    return teamMember.position_id || teamMember.position || teamMember.department_id
+    return teamMember.position_id || teamMember.position || ''
   }
 
   return {
@@ -283,7 +274,6 @@ export const useTeamMembers = () => {
     // Helper functions
     getTeamMemberImageUrl,
     getTeamMemberName,
-    getDepartmentName,
     getTestimonial,
     getPosition,
   }

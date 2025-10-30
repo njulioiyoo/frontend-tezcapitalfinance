@@ -310,7 +310,7 @@ const fetchMasterData = async () => {
       availableLocations.value = locationsResponse.data.map(loc => loc.name_id)
     }
   } catch (err) {
-    console.error('Failed to fetch master data:', err)
+    // Handle error silently
   }
 }
 
