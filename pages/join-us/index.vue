@@ -458,17 +458,17 @@ onMounted(() => {
       />
       <div class="absolute inset-0 bg-red-100/65 mix-blend-multiply"></div>
       <div class="relative z-10 text-white text-center max-w-4xl mx-auto px-4">
-        <h1 class="xl:text-5xl text-2xl font-bold mb-4">
+        <h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-5xl font-bold mb-4">
           {{ heroData.title }}
         </h1>
-        <p v-if="heroData.description" class="text-lg xl:text-xl opacity-90 leading-relaxed">
+        <p v-if="heroData.description" class="text-sm sm:text-base md:text-lg xl:text-xl opacity-90 leading-relaxed">
           {{ heroData.description }}
         </p>
       </div>
     </div>
 
     <!-- CEO Message Section -->
-    <div class="px-3 xl:px-15 py-12 xl:py-16">
+    <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-12 xl:py-16">
       <div class="max-w-7xl mx-auto">
         <!-- No Data Alert -->
         <NoDataAlert 
@@ -481,7 +481,7 @@ onMounted(() => {
         <!-- CEO Message Content -->
         <div v-else class="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8 xl:gap-16 items-center">
           <div class="order-2 xl:order-1">
-            <h2 class="text-black-100 font-bold text-3xl xl:text-5xl mb-8 xl:mb-10">
+            <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-5xl mb-6 sm:mb-8 xl:mb-10">
               {{ ceoMessage.title }}
             </h2>
             <div class="text-black-100 text-base xl:text-xl leading-relaxed xl:leading-loose space-y-6 text-justify">
@@ -510,9 +510,9 @@ onMounted(() => {
     </div>
 
     <!-- Get to Know Our Work Section -->
-    <div class="px-3 xl:px-15 py-16 xl:py-20">
+    <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-16 xl:py-20">
       <div class="max-w-7xl mx-auto">
-        <h2 class="text-black-100 font-bold text-3xl xl:text-5xl mb-12 xl:mb-16 text-center">
+        <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-5xl mb-8 sm:mb-12 xl:mb-16 text-center">
           {{ t('joinUs.getStarted') }}
         </h2>
         
@@ -572,7 +572,7 @@ onMounted(() => {
     </div>
 
     <!-- What They Say Section -->
-    <div class="px-3 xl:px-15 py-8 xl:py-12">
+    <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-8 xl:py-12">
       <!-- Loading State -->
       <div v-if="teamMembersLoading" class="relative">
         <div 
@@ -585,7 +585,7 @@ onMounted(() => {
                 <!-- Left Side - Image Skeleton -->
                 <div class="w-1/2 relative bg-gray-200 animate-pulse"></div>
                 <!-- Right Side - Text Skeleton -->
-                <div class="w-1/2 p-4 flex flex-col justify-center bg-white">
+                <div class="w-1/2 p-2 sm:p-3 md:p-4 flex flex-col justify-center bg-white">
                   <div class="mb-4">
                     <div class="h-4 bg-gray-200 rounded mb-2 w-3/4 animate-pulse"></div>
                     <div class="h-3 bg-gray-200 rounded w-1/2 animate-pulse"></div>
@@ -604,7 +604,7 @@ onMounted(() => {
       
       <!-- Testimonials Slider -->
       <div v-else-if="!teamMembersLoading && featuredTeamMembers && featuredTeamMembers.length > 0" class="relative">
-        <h2 class="text-black-100 font-bold text-2xl xl:text-4xl mb-8 xl:mb-12 text-center">
+        <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-6 sm:mb-8 xl:mb-12 text-center">
           {{ t('joinUs.whatTheySay') }}
         </h2>
         <div 
@@ -617,7 +617,7 @@ onMounted(() => {
             <div
               v-for="member in featuredTeamMembers"
               :key="member.id"
-              class="flex-shrink-0 w-[28rem] xl:w-[32rem] bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300"
+              class="flex-shrink-0 w-[24rem] sm:w-[26rem] md:w-[28rem] xl:w-[32rem] bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300"
               @click="openTestimonialModal(member)"
             >
               <div class="flex h-64 xl:h-80">
@@ -632,19 +632,19 @@ onMounted(() => {
                   />
                 </div>
                 <!-- Right Side - Text Content (50%) -->
-                <div class="w-1/2 p-4 flex flex-col justify-center bg-white">
-                  <div class="mb-4">
-                    <h3 class="text-black-100 font-bold text-sm xl:text-base mb-2">
+                <div class="w-1/2 p-2 sm:p-3 md:p-4 flex flex-col justify-center bg-white">
+                  <div class="mb-2 sm:mb-3 md:mb-4">
+                    <h3 class="text-black-100 font-bold text-xs sm:text-sm xl:text-base mb-1 sm:mb-2">
                       {{ getTeamMemberName(member, locale) }}
                     </h3>
-                    <p class="text-gray-600 text-xs xl:text-sm">
+                    <p class="text-gray-600 text-xs">
                       {{ getPosition(member, locale) }}
                     </p>
                   </div>
-                  <p v-if="getTestimonial(member, locale)" class="text-black-100 text-sm xl:text-base leading-relaxed">
+                  <p v-if="getTestimonial(member, locale)" class="text-black-100 text-xs sm:text-sm xl:text-base leading-tight sm:leading-relaxed">
                     "{{ getTestimonial(member, locale) }}"
                   </p>
-                  <p v-else class="text-gray-400 text-sm xl:text-base leading-relaxed italic">
+                  <p v-else class="text-gray-400 text-xs sm:text-sm xl:text-base leading-tight sm:leading-relaxed italic">
                     {{ t('joinUs.noTestimonialAvailable') }}
                   </p>
                 </div>
@@ -656,7 +656,7 @@ onMounted(() => {
       
       <!-- Empty State -->
       <div v-else class="text-center py-8">
-        <h2 class="text-black-100 font-bold text-2xl xl:text-4xl mb-8 xl:mb-12 text-center">
+        <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-6 sm:mb-8 xl:mb-12 text-center">
           {{ t('joinUs.whatTheySay') }}
         </h2>
         <div class="max-w-md mx-auto">
@@ -675,24 +675,27 @@ onMounted(() => {
     >
       <!-- Bottom Sheet Content -->
       <div
-        class="w-full bg-white rounded-t-3xl transform transition-transform duration-300 ease-out max-h-[85vh] overflow-y-auto"
+        class="w-full bg-white rounded-t-3xl transform transition-transform duration-300 ease-out max-h-[85vh] flex flex-col"
         :class="showTestimonialModal ? 'translate-y-0' : 'translate-y-full'"
         @click.stop
       >
-        <!-- Close Button -->
-        <div class="absolute top-6 right-6 z-10">
-          <button
-            @click="closeTestimonialModal"
-            class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
+        <!-- Sticky Header with Close Button -->
+        <div class="sticky top-0 z-10 bg-white/95 backdrop-blur-sm rounded-t-3xl">
+          <div class="flex justify-end p-4">
+            <button
+              @click="closeTestimonialModal"
+              class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <!-- Modal Content -->
-        <div class="p-8 pt-16">
+        <!-- Scrollable Modal Content -->
+        <div class="flex-1 overflow-y-auto">
+          <div class="p-8 pt-4">
           <div v-if="selectedMember" class="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
             <!-- Left Side - Image -->
             <div class="flex-shrink-0 mx-auto md:mx-0">
@@ -725,14 +728,14 @@ onMounted(() => {
               </div>
             </div>
           </div>
-
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Explore Our Workplace Section -->
-    <div class="bg-grey px-3 xl:px-15 py-8 xl:py-12">
-      <h2 class="text-black-100 font-bold text-2xl xl:text-4xl mb-8 xl:mb-12 text-center">
+    <div class="bg-grey px-4 sm:px-6 md:px-8 xl:px-15 py-8 xl:py-12">
+      <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-6 sm:mb-8 xl:mb-12 text-center">
         {{ t('joinUs.exploreOurWorkplace') }}
       </h2>
       
@@ -805,7 +808,7 @@ onMounted(() => {
 
         <!-- Dynamic Working Environment Section -->
         <div id="working-environment-section" v-if="workplaceHighlights && workplaceHighlights.length > 0" class="mt-16">
-          <h3 class="text-black font-bold text-3xl text-center mb-12">
+          <h3 class="text-black font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl text-center mb-8 sm:mb-12">
             {{ t('workplace.workingEnvironment.title') }}
           </h3>
           
@@ -863,7 +866,7 @@ onMounted(() => {
       <hr class="border-t border-gray-300 my-8 xl:my-12">
       
       <!-- Be a Part of Our Team Section (in same container) -->
-      <h2 class="text-black-100 font-bold text-2xl xl:text-4xl mb-8 xl:mb-12 text-center">
+      <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-6 sm:mb-8 xl:mb-12 text-center">
         {{ t('joinUs.beAPartOfOurTeam') }}
       </h2>
       
@@ -997,7 +1000,7 @@ onMounted(() => {
     </div>
 
     <!-- Job Listings Section -->
-    <div class="px-3 xl:px-15 py-8 xl:py-12">
+    <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-8 xl:py-12">
       <div class="max-w-6xl mx-auto">
         <!-- Job Listings Table -->
         <div class="mb-8 xl:mb-12">
