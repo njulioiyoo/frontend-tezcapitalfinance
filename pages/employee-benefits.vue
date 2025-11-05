@@ -12,14 +12,6 @@ const { configData, fetchConfiguration, isLoading: configLoading } = useConfigur
 // Get runtime config for API base URL
 const config = useRuntimeConfig()
 
-// Helper function to get full image URL
-const getImageUrl = (imagePath: string) => {
-  if (!imagePath) return ''
-  if (imagePath.startsWith('http')) return imagePath
-  const baseURL = config.public.apiBaseUrl || 'http://cms.tez-capital.web.local'
-  return `${baseURL}/storage/${imagePath}`
-}
-
 // Banner data
 const bannerData = ref({})
 
@@ -273,7 +265,7 @@ useSeoMeta({
                         <!-- Icon -->
                         <div v-if="item.icon" class="w-16 h-16 flex items-center justify-center employee-benefits-icon">
                           <img 
-                            :src="getImageUrl(item.icon)" 
+                            :src="item.icon" 
                             :alt="locale === 'id' ? item.title_id : item.title_en"
                             class="w-full h-full object-contain"
                             style="filter: hue-rotate(330deg) saturate(2) brightness(0.8);"
