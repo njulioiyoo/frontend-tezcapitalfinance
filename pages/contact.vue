@@ -81,6 +81,14 @@ watch(() => locale.value, () => {
 
 
 // Services and FAQ data will come from API via composables
+
+// Page metadata with language reactivity
+watchEffect(() => {
+  useSeoMeta({
+    title: computed(() => `${bannerTitle.value} - ${appName.value || 'TEZ Capital & Finance'}`),
+    description: computed(() => bannerDescription.value || appDescription.value || 'Get in touch with our team. Find our contact information, office locations, and reach out for any inquiries.'),
+  })
+})
 </script>
 
 <template>

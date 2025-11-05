@@ -473,10 +473,12 @@ onUnmounted(() => {
   document.removeEventListener('click', closeDropdowns)
 })
 
-useHead({
-  title: 'Careers - TEZ Capital Finance',
-  meta: [
-    { name: 'description', content: 'Temukan peluang karir terbaik di TEZ Capital Finance. Bergabunglah dengan tim profesional kami dan kembangkan karir Anda.' }
-  ]
+// Get app configuration for meta data
+const { appName, appDescription } = useConfiguration()
+
+// Page metadata
+useSeoMeta({
+  title: computed(() => `Careers - ${appName.value || 'TEZ Capital & Finance'}`),
+  description: computed(() => appDescription.value || 'Discover career opportunities at TEZ Capital & Finance. Join our professional team and develop your career with us.'),
 })
 </script>

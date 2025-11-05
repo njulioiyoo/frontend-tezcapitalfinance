@@ -116,6 +116,17 @@ watch(() => locale.value, () => {
   fetchBannerData()
   fetchServices()
 }, { immediate: false })
+
+// Get app configuration for meta data
+const { appName, appDescription } = useConfiguration()
+
+// Page metadata with language reactivity
+watchEffect(() => {
+  useSeoMeta({
+    title: computed(() => `${bannerTitle.value} - ${appName.value || 'TEZ Capital & Finance'}`),
+    description: computed(() => bannerDescription.value || appDescription.value || 'Explore our comprehensive range of financing solutions including working capital, investment financing, and multi-purpose financing services.'),
+  })
+})
 </script>
 
 <template>

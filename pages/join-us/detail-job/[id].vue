@@ -187,18 +187,13 @@ const handleApplyClick = async () => {
 
 // Remove debug watchers to prevent infinite loops
 
-// Dynamic head based on career data
+// Dynamic page metadata based on career data
 watchEffect(() => {
   if (career.value?.data) {
     const careerData = career.value.data
-    useHead({
-      title: `${careerData.title_id} - TEZ Capital Finance`,
-      meta: [
-        { 
-          name: 'description', 
-          content: `Detail lowongan pekerjaan ${careerData.title_id} di TEZ Capital Finance. Bergabunglah dengan tim profesional kami di departemen ${careerData.department_id}.` 
-        }
-      ]
+    useSeoMeta({
+      title: `${careerData.title_id} - TEZ Capital & Finance`,
+      description: `Join our team as ${careerData.title_id} at TEZ Capital & Finance. Explore this career opportunity in ${careerData.department_id} department.`,
     })
   }
 })

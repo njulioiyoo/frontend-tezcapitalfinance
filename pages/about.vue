@@ -133,6 +133,16 @@ watch(() => route.hash, (newHash) => {
   }
 }, { immediate: true })
 
+// Get app configuration for meta data
+const { appName, appDescription } = useConfiguration()
+
+// Page metadata with language reactivity
+watchEffect(() => {
+  useSeoMeta({
+    title: computed(() => `${bannerTitle.value} - ${appName.value || 'TEZ Capital & Finance'}`),
+    description: computed(() => bannerDescription.value || appDescription.value || 'Learn about our mission, vision, values, and the team behind our trusted financing solutions.'),
+  })
+})
 </script>
 
 <template>

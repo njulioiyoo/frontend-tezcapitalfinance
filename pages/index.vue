@@ -124,6 +124,15 @@ const scrollToSection = (id) => {
     window.scrollTo({ top: y, behavior: "smooth" });
   }
 };
+
+// Get app configuration for meta data
+const { appName, appDescription } = useConfiguration()
+
+// Page metadata
+useSeoMeta({
+  title: computed(() => appName.value || 'TEZ Capital & Finance - Trusted Financing Solutions'),
+  description: computed(() => appDescription.value || 'TEZ Capital & Finance provides comprehensive financing solutions including working capital, investment financing, and multi-purpose financing for your business growth.'),
+})
 </script>
 <template>
   <div>

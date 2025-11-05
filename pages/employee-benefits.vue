@@ -7,7 +7,7 @@ definePageMeta({
 const { t, locale } = useI18n()
 
 // Use configuration composable to get workplace data
-const { configData, fetchConfiguration, isLoading: configLoading } = useConfiguration()
+const { configData, fetchConfiguration, isLoading: configLoading, appName, appDescription } = useConfiguration()
 
 // Get runtime config for API base URL
 const config = useRuntimeConfig()
@@ -163,10 +163,12 @@ onMounted(async () => {
   pending.value = false
 })
 
-// Page metadata
-useSeoMeta({
-  title: 'Employee Benefits - TEZ Capital & Finance',
-  description: 'Discover the comprehensive benefits and facilities provided to TEZ Capital & Finance employees.',
+// Page metadata with language reactivity
+watchEffect(() => {
+  useSeoMeta({
+    title: computed(() => `${getEmployeeBenefitsTitle()} - ${appName.value || 'TEZ Capital & Finance'}`),
+    description: computed(() => getEmployeeBenefitsDescription() || appDescription.value || 'Discover the comprehensive benefits and facilities provided to employees.'),
+  })
 })
 </script>
 

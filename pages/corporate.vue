@@ -408,6 +408,17 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('hashchange', handleHashNavigation)
 })
+
+// Get app configuration for meta data
+const { appName, appDescription } = useConfiguration()
+
+// Page metadata with language reactivity
+watchEffect(() => {
+  useSeoMeta({
+    title: computed(() => `${bannerTitle.value} - ${appName.value || 'TEZ Capital & Finance'}`),
+    description: computed(() => bannerDescription.value || appDescription.value || 'Access corporate information, financial reports, annual reports, and company announcements.'),
+  })
+})
 </script>
 
 <template>
