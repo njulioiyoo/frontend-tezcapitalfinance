@@ -14,13 +14,13 @@ export interface JobListing {
   experience_level: 'entry' | 'mid' | 'senior'
 }
 
-export interface Department {
+export interface JobDepartment {
   id: string
   name: string
   description?: string
 }
 
-export interface Location {
+export interface JobLocation {
   id: string
   name: string
   city: string
@@ -28,7 +28,7 @@ export interface Location {
 
 export const useJobsStore = defineStore('jobs', () => {
   // Static data for job listings
-  const departments: Department[] = [
+  const departments: JobDepartment[] = [
     { id: 'finance', name: 'Finance', description: 'Financial planning and analysis' },
     { id: 'people-operation', name: 'People & Operation', description: 'Human resources and operations' },
     { id: 'technology', name: 'Technology', description: 'IT and software development' },
@@ -39,7 +39,7 @@ export const useJobsStore = defineStore('jobs', () => {
     { id: 'tax', name: 'Tax', description: 'Tax compliance and planning' }
   ]
 
-  const locations: Location[] = [
+  const locations: JobLocation[] = [
     { id: 'jakarta', name: 'Jakarta', city: 'Jakarta' },
     { id: 'surabaya', name: 'Surabaya', city: 'Surabaya' },
     { id: 'bandung', name: 'Bandung', city: 'Bandung' },
