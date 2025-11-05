@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Get configuration data and homepage data
 const { t, locale } = useI18n()
-const { initConfiguration, contactPhone, contactEmail, contactAddress, contactWhatsapp, appName } = useConfiguration()
+const { initConfiguration, contactPhone, contactEmail, contactAddress, contactWhatsapp, appName, appDescription } = useConfiguration()
 const { initHomepage, services, faqItems, faqTitle } = useHomepage()
 
 // Banner data
