@@ -43,6 +43,7 @@ export interface JoinUsConfig {
   career_application_email: string
   button_join_us_enabled: boolean
   workplace: WorkplaceConfig
+  employee_benefits_items?: any[]
 }
 
 export interface ConfigurationData {
@@ -243,7 +244,8 @@ export const useConfiguration = () => {
         const joinUsConfig: JoinUsConfig = {
           career_application_email: '',
           button_join_us_enabled: true,
-          workplace: workplaceConfig
+          workplace: workplaceConfig,
+          employee_benefits_items: []
         };
         
         if (data.join_us?.career_application_email) {
@@ -258,6 +260,21 @@ export const useConfiguration = () => {
             joinUsConfig.button_join_us_enabled = data.join_us.button_join_us_enabled;
           } else if (data.join_us.button_join_us_enabled?.value !== undefined) {
             joinUsConfig.button_join_us_enabled = Boolean(data.join_us.button_join_us_enabled.value);
+          }
+        }
+        
+        // Extract employee benefits items
+        if (data.join_us?.employee_benefits_items) {
+          try {
+            let benefitsData = data.join_us.employee_benefits_items.value || data.join_us.employee_benefits_items;
+            if (typeof benefitsData === 'string') {
+              joinUsConfig.employee_benefits_items = JSON.parse(benefitsData);
+            } else if (Array.isArray(benefitsData)) {
+              joinUsConfig.employee_benefits_items = benefitsData;
+            }
+          } catch (e) {
+            console.error('Error parsing employee benefits items:', e);
+            joinUsConfig.employee_benefits_items = [];
           }
         }
         
@@ -304,7 +321,8 @@ export const useConfiguration = () => {
               workplace_employee_benefits_description_en: '',
               workplace_employee_benefits_image: '',
               workplace_employee_benefits_slug: ''
-            }
+            },
+            employee_benefits_items: []
           }
         }
       }
@@ -346,7 +364,8 @@ export const useConfiguration = () => {
             workplace_employee_benefits_description_en: '',
             workplace_employee_benefits_image: '',
             workplace_employee_benefits_slug: ''
-          }
+          },
+          employee_benefits_items: []
         }
       }
     } finally {

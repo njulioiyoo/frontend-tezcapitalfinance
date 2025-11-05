@@ -141,4 +141,51 @@
   .certification-logo:hover {
     filter: grayscale(0%);
   }
+
+  /* Employee Benefits Icon Styling */
+  .employee-benefits-icon {
+    color: #a6192e;
+  }
+
+  .employee-benefits-icon svg,
+  .employee-benefits-icon path {
+    fill: #a6192e !important;
+    color: #a6192e !important;
+  }
+
+  /* Employee Benefits Card Styling */
+  .employee-benefits-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .employee-benefits-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .employee-benefits-value {
+    color: #a6192e !important;
+    font-size: 3rem !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+  }
+  
+  .employee-benefits-type {
+    color: #000000 !important;
+    font-size: 1.5rem !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    margin-left: 0.25rem !important;
+  }
+  
+  .employee-benefits-percentage {
+    color: #a6192e !important;
+    font-size: 3rem !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+  }
 }
