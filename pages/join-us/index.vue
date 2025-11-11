@@ -123,7 +123,7 @@ onMounted(async () => {
     initHomepage(),
     fetchMasterData(),
     fetchFeaturedCareers(),
-    getFeaturedTeamMembers(3),
+    getFeaturedTeamMembers(),
     fetchWorkplace(),
     fetchWorkplaceConfigs()
   ])
@@ -143,7 +143,7 @@ watch(() => locale.value, () => {
   initHomepage()
   fetchMasterData()
   fetchFeaturedCareers()
-  getFeaturedTeamMembers(3)
+  getFeaturedTeamMembers()
   fetchWorkplace()
 }, { immediate: false })
 

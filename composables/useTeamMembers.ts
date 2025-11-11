@@ -97,12 +97,12 @@ export const useTeamMembers = () => {
   }
 
   // Get featured team members
-  const getFeaturedTeamMembers = async (limit: number = 5): Promise<TeamMemberResponse> => {
+  const getFeaturedTeamMembers = async (limit?: number): Promise<TeamMemberResponse> => {
     try {
       isLoading.value = true
       error.value = null
 
-      const url = `${apiStore.baseURL}/api/v1/team-members/featured?limit=${limit}`
+      const url = `${apiStore.baseURL}/api/v1/team-members/featured${limit ? `?limit=${limit}` : ''}`
       
       const response = await fetch(url, {
         method: 'GET',
