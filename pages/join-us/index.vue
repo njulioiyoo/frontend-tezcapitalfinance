@@ -104,6 +104,7 @@ const {
   getTeamMemberName,
   getTestimonial,
   getPosition,
+  getDepartment,
   isLoading: teamMembersLoading
 } = useTeamMembers()
 
@@ -665,7 +666,10 @@ onMounted(() => {
                       {{ getTeamMemberName(member, locale) }}
                     </h3>
                     <p class="text-gray-600 text-xs">
-                      {{ getPosition(member, locale) }}
+                      <span v-if="getDepartment(member)" class="mr-1">
+                        #{{ getDepartment(member).toLowerCase().replace(/\s+/g, '') }}
+                      </span>
+                      #{{ getPosition(member, locale).toLowerCase().replace(/\s+/g, '') }}
                     </p>
                   </div>
                   <p v-if="getTestimonial(member, locale)" class="text-black-100 text-xs sm:text-sm xl:text-base leading-tight sm:leading-relaxed">

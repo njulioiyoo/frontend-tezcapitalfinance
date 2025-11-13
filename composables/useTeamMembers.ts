@@ -257,6 +257,11 @@ export const useTeamMembers = () => {
     return teamMember.position_id || teamMember.position || ''
   }
 
+  // Helper function to get department/category
+  const getDepartment = (teamMember: TeamMember): string => {
+    return teamMember.category || ''
+  }
+
   return {
     // State
     teamMembers: readonly(teamMembers),
@@ -276,5 +281,6 @@ export const useTeamMembers = () => {
     getTeamMemberName,
     getTestimonial,
     getPosition,
+    getDepartment,
   }
 }
