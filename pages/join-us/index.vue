@@ -391,6 +391,14 @@ const showTestimonialModal = ref(false)
 const selectedMember = ref(null)
 const selectedMemberIndex = ref(0)
 
+// Image zoom modal state
+const showImageZoom = ref(false)
+const selectedImage = ref({
+  url: '',
+  alt: '',
+  title: ''
+})
+
 // Modal methods
 const openTestimonialModal = (member) => {
   selectedMember.value = member
@@ -404,6 +412,25 @@ const closeTestimonialModal = () => {
   selectedMember.value = null
   selectedMemberIndex.value = 0
   document.body.style.overflow = 'auto' // Restore scroll
+}
+
+// Image zoom modal methods
+const openImageZoom = (imageUrl: string, imageAlt: string, imageTitle: string) => {
+  selectedImage.value = {
+    url: imageUrl,
+    alt: imageAlt,
+    title: imageTitle
+  }
+  showImageZoom.value = true
+}
+
+const closeImageZoom = () => {
+  showImageZoom.value = false
+  selectedImage.value = {
+    url: '',
+    alt: '',
+    title: ''
+  }
 }
 
 const selectMemberByIndex = (index) => {
@@ -759,20 +786,32 @@ onMounted(() => {
         <!-- Static 2 Cards from CMS -->
         <div v-else-if="!configLoading" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           <!-- Working Environment Card -->
-          <div 
-            class="bg-white rounded-2xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-            @click="handleWorkplaceCardClick('working_environment')"
-          >
-            <div class="h-64 overflow-hidden">
+          <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div 
+              class="h-64 overflow-hidden relative group cursor-pointer"
+              @click="openImageZoom(getWorkplaceImage('working_environment'), getWorkplaceTitle('working_environment'), getWorkplaceTitle('working_environment'))"
+            >
               <img
                 :src="getWorkplaceImage('working_environment')"
                 :alt="getWorkplaceTitle('working_environment')"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 @error="handleImageError"
               />
+              <!-- Image Zoom Overlay -->
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div class="text-white text-center">
+                  <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                  </svg>
+                  <p class="text-sm font-medium">Click to view larger</p>
+                </div>
+              </div>
             </div>
             <div class="p-6">
-              <h3 class="text-black font-bold text-xl text-center mb-4">
+              <h3 
+                class="text-black font-bold text-xl text-center mb-4 cursor-pointer hover:text-red-100 transition-colors"
+                @click="handleWorkplaceCardClick('working_environment')"
+              >
                 {{ getWorkplaceTitle('working_environment') }}
               </h3>
               <p class="text-gray-600 text-sm text-center leading-relaxed">
@@ -782,20 +821,32 @@ onMounted(() => {
           </div>
           
           <!-- Employee Benefits Card -->
-          <div 
-            class="bg-white rounded-2xl overflow-hidden shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-            @click="handleWorkplaceCardClick('employee_benefits')"
-          >
-            <div class="h-64 overflow-hidden">
+          <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div 
+              class="h-64 overflow-hidden relative group cursor-pointer"
+              @click="openImageZoom(getWorkplaceImage('employee_benefits'), getWorkplaceTitle('employee_benefits'), getWorkplaceTitle('employee_benefits'))"
+            >
               <img
                 :src="getWorkplaceImage('employee_benefits')"
                 :alt="getWorkplaceTitle('employee_benefits')"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 @error="handleImageError"
               />
+              <!-- Image Zoom Overlay -->
+              <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div class="text-white text-center">
+                  <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                  </svg>
+                  <p class="text-sm font-medium">Click to view larger</p>
+                </div>
+              </div>
             </div>
             <div class="p-6">
-              <h3 class="text-black font-bold text-xl text-center mb-4">
+              <h3 
+                class="text-black font-bold text-xl text-center mb-4 cursor-pointer hover:text-red-100 transition-colors"
+                @click="handleWorkplaceCardClick('employee_benefits')"
+              >
                 {{ getWorkplaceTitle('employee_benefits') }}
               </h3>
               <p class="text-gray-600 text-sm text-center leading-relaxed">
@@ -808,57 +859,10 @@ onMounted(() => {
 
         <!-- Dynamic Working Environment Section -->
         <div id="working-environment-section" v-if="workplaceHighlights && workplaceHighlights.length > 0" class="mt-16">
-          <h3 class="text-black font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl text-center mb-8 sm:mb-12">
-            {{ t('workplace.workingEnvironment.title') }}
-          </h3>
-          
-          <!-- Mobile: Show exactly 3 cards in scroll container -->
-          <div class="overflow-x-auto md:hidden scrollbar-hide mx-auto" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch; width: 896px; max-width: 100%;">
-            <div class="flex gap-4 px-4 pb-2" style="width: max-content;">
-              <div
-                v-for="highlight in workplaceHighlights"
-                :key="highlight.id"
-                class="flex-shrink-0 w-72 text-center"
-              >
-                <div class="h-44 rounded-2xl overflow-hidden shadow-lg mb-4">
-                  <img
-                    :src="highlight.featured_image_url || highlight.featured_image || '/img/placeholder-workplace.jpg'"
-                    :alt="locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id"
-                    class="w-full h-full object-cover"
-                    @error="handleImageError"
-                  />
-                </div>
-                <h4 class="text-black font-normal text-base">
-                  {{ locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id }}
-                </h4>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Desktop: Show exactly 3 cards with scroll if more -->
-          <div class="hidden md:block">
-            <div class="overflow-x-auto scrollbar-hide mx-auto" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch; width: 1248px; max-width: 100%;">
-              <div class="flex gap-8 px-4 pb-2" style="width: max-content;">
-                <div
-                  v-for="highlight in workplaceHighlights"
-                  :key="highlight.id"
-                  class="flex-shrink-0 w-96 text-center"
-                >
-                  <div class="h-52 rounded-2xl overflow-hidden shadow-lg mb-4">
-                    <img
-                      :src="highlight.featured_image_url || highlight.featured_image || '/img/placeholder-workplace.jpg'"
-                      :alt="locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id"
-                      class="w-full h-full object-cover"
-                      @error="handleImageError"
-                    />
-                  </div>
-                  <h4 class="text-black font-normal text-base">
-                    {{ locale === 'en' && highlight.title_en ? highlight.title_en : highlight.title_id }}
-                  </h4>
-                </div>
-              </div>
-            </div>
-          </div>
+          <WorkplaceSlider
+            :items="workplaceHighlights"
+            :title="t('workplace.workingEnvironment.title') || 'Working Environment'"
+          />
         </div>
       </div>
       
@@ -1150,6 +1154,15 @@ onMounted(() => {
       </div>
     </div>
     </div>
+
+    <!-- Image Zoom Modal -->
+    <ImageZoomModal
+      :is-open="showImageZoom"
+      :image-url="selectedImage.url"
+      :image-alt="selectedImage.alt"
+      :image-title="selectedImage.title"
+      @close="closeImageZoom"
+    />
   </div>
 </template>
 

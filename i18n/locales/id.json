@@ -44,7 +44,12 @@
       "copyLink": "Salin Link",
       "shareOnFacebook": "Bagikan di Facebook",
       "shareOnTwitter": "Bagikan di Twitter",
-      "shareOnWhatsApp": "Bagikan di WhatsApp"
+      "shareOnWhatsApp": "Bagikan di WhatsApp",
+      "engageWithContent": "Interaksi dengan Konten",
+      "eventDetails": "Detail Event",
+      "startDate": "Tanggal Mulai",
+      "endDate": "Tanggal Selesai",
+      "location": "Lokasi"
     },
     "corporateMenu": {
       "financialReport": "Laporan Keuangan",

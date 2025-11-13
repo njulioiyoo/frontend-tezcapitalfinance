@@ -266,6 +266,22 @@ watch(() => route.params.slug, (newSlug) => {
           <div v-html="getLocalizedContent(newsItem)"></div>
         </div>
         
+        <!-- Engagement Actions -->
+        <div class="mt-8 pt-6 border-t border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-700 mb-4">{{ t('nav.news.engageWithContent') || 'Engage with this content' }}</h3>
+          </div>
+          <EngagementActions
+            :content-id="newsItem.id"
+            :content-title="getLocalizedTitle(newsItem)"
+            :initial-like-count="newsItem.like_count || 0"
+            :initial-share-count="newsItem.share_count || 0"
+            :initial-view-count="newsItem.view_count || 0"
+            :show-counts="true"
+            size="md"
+          />
+        </div>
+        
         <!-- Event specific information -->
         <div v-if="newsItem.type === 'event'" class="mt-8 p-6 bg-gray-50 rounded-lg">
           <h3 class="text-xl font-bold mb-4">{{ t('nav.news.eventDetails') }}</h3>

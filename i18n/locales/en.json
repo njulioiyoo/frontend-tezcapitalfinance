@@ -44,7 +44,12 @@
       "copyLink": "Copy Link",
       "shareOnFacebook": "Share on Facebook",
       "shareOnTwitter": "Share on Twitter",
-      "shareOnWhatsApp": "Share on WhatsApp"
+      "shareOnWhatsApp": "Share on WhatsApp",
+      "engageWithContent": "Engage with Content",
+      "eventDetails": "Event Details",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "location": "Location"
     },
     "corporateMenu": {
       "financialReport": "Financial Report",
