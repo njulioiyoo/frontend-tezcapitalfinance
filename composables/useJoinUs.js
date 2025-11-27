@@ -12,6 +12,9 @@ export const useJoinUs = () => {
       content: '',
       image: ''
     },
+    ourBusinessTitle: '',
+    ourBusinessContent: '',
+    ourBusinessImage: '',
     isLoading: true,
     error: null
   })
@@ -61,6 +64,26 @@ export const useJoinUs = () => {
             : (configs.join_us?.ceo_message_content_id?.value || ''),
           image: ceoImageUrl
         }
+        
+        // Our Business data
+        joinUsData.value.ourBusinessTitle = currentLocale === 'en'
+          ? (configs.join_us?.our_business_title_en?.value || '')
+          : (configs.join_us?.our_business_title_id?.value || '')
+        
+        joinUsData.value.ourBusinessContent = currentLocale === 'en'
+          ? (configs.join_us?.our_business_content_en?.value || '')
+          : (configs.join_us?.our_business_content_id?.value || '')
+        
+        // Process Our Business image URL
+        let ourBusinessImageUrl = configs.join_us?.our_business_image?.value || '/img/Sorotan.svg'
+        if (ourBusinessImageUrl && ourBusinessImageUrl !== '/img/Sorotan.svg' && !ourBusinessImageUrl.startsWith('http') && !ourBusinessImageUrl.startsWith('/')) {
+          // If it's a relative path from storage, convert to full URL
+          const config = useRuntimeConfig()
+          const baseURL = config.public.apiBaseUrl || 'http://cms.tez-capital.web.local'
+          ourBusinessImageUrl = `${baseURL}/storage/${ourBusinessImageUrl}`
+        }
+        
+        joinUsData.value.ourBusinessImage = ourBusinessImageUrl
       }
     } catch (error) {
       joinUsData.value.error = error
@@ -75,6 +98,9 @@ export const useJoinUs = () => {
         content: '',
         image: ''
       }
+      joinUsData.value.ourBusinessTitle = ''
+      joinUsData.value.ourBusinessContent = ''
+      joinUsData.value.ourBusinessImage = '/img/Sorotan.svg'
     } finally {
       joinUsData.value.isLoading = false
     }

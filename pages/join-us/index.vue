@@ -126,7 +126,8 @@ onMounted(async () => {
     fetchFeaturedCareers(),
     getFeaturedTeamMembers(),
     fetchWorkplace(),
-    fetchWorkplaceConfigs()
+    fetchWorkplaceConfigs(),
+    fetchWorkDivisions()
   ])
   
   // Add click listener for dropdown close
@@ -146,6 +147,7 @@ watch(() => locale.value, () => {
   fetchFeaturedCareers()
   getFeaturedTeamMembers()
   fetchWorkplace()
+  fetchWorkDivisions()
 }, { immediate: false })
 
 // Computed data for easier template access
@@ -276,6 +278,74 @@ const { getFeaturedCareers } = useCareers()
 const searchQuery = ref("")
 const selectedDepartment = ref("")
 const selectedLocation = ref("")
+
+// Use work divisions composable for API data
+const { getWorkDivisionsPaginated } = useWorkDivisions()
+
+// Pagination for Get to Know Our Work
+const currentPage = ref(1)
+const itemsPerPage = 3
+const totalPages = ref(1)
+
+// Work divisions data from API
+const workDivisions = ref([])
+const workDivisionsLoading = ref(false)
+const workDivisionsError = ref(null)
+
+// Fetch work divisions data
+const fetchWorkDivisions = async (page = 1) => {
+  try {
+    workDivisionsLoading.value = true
+    workDivisionsError.value = null
+    
+    const response = await getWorkDivisionsPaginated(page, itemsPerPage)
+    
+    if (response.success) {
+      workDivisions.value = response.data?.data || []
+      totalPages.value = response.data?.last_page || 1
+      currentPage.value = response.data?.current_page || 1
+    } else {
+      workDivisionsError.value = response.message || 'Failed to fetch work divisions'
+    }
+  } catch (err) {
+    workDivisionsError.value = err?.message || 'Failed to fetch work divisions'
+  } finally {
+    workDivisionsLoading.value = false
+  }
+}
+
+// Helper function to get localized work division data
+const getWorkDivisionData = (division, field) => {
+  const currentLocale = locale.value
+  if (currentLocale === 'en' && division[`${field}_en`]) {
+    return division[`${field}_en`]
+  }
+  return division[`${field}_id`] || ''
+}
+
+// Get work division image URL
+const getWorkDivisionImageUrl = (division) => {
+  return division.featured_image_url || '/img/Sorotan.svg'
+}
+
+// Pagination methods
+const goToPage = async (page: number) => {
+  if (page >= 1 && page <= totalPages.value) {
+    await fetchWorkDivisions(page)
+  }
+}
+
+const nextPage = async () => {
+  if (currentPage.value < totalPages.value) {
+    await fetchWorkDivisions(currentPage.value + 1)
+  }
+}
+
+const prevPage = async () => {
+  if (currentPage.value > 1) {
+    await fetchWorkDivisions(currentPage.value - 1)
+  }
+}
 
 // Dynamic departments and locations from API
 const departments = ref<string[]>([])
@@ -496,7 +566,7 @@ onMounted(() => {
     </div>
 
     <!-- CEO Message Section -->
-    <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-12 xl:py-16">
+    <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-6 xl:py-8">
       <div class="max-w-7xl mx-auto">
         <!-- No Data Alert -->
         <NoDataAlert 
@@ -507,7 +577,7 @@ onMounted(() => {
         />
         
         <!-- CEO Message Content -->
-        <div v-else class="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8 xl:gap-16 items-center">
+        <div v-else class="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8 xl:gap-16 items-center max-w-6xl mx-auto">
           <div class="order-2 xl:order-1">
             <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-5xl mb-6 sm:mb-8 xl:mb-10">
               {{ ceoMessage.title }}
@@ -523,239 +593,310 @@ onMounted(() => {
               <img
                 :src="ceoMessage.image || '/img/placeholder-ceo.jpg'"
                 alt="CEO"
-                class="w-80 xl:w-96 h-auto object-cover rounded-2xl shadow-lg"
+                class="w-80 xl:w-96 h-96 xl:h-[500px] object-cover shadow-lg"
                 @error="handleImageError"
               />
             </div>
           </div>
         </div>
+        
+        <!-- Extra spacing to match pagination area in Get to Know Our Works -->
+        <div class="mt-12"></div>
       </div>
     </div>
 
     <!-- Separator Line -->
     <div class="px-3 xl:px-15">
-      <hr class="border-t border-gray-300 my-8 xl:my-12">
+      <hr class="border-t border-gray-300 my-2 xl:my-4">
+    </div>
+
+    <!-- Our Business Section -->
+    <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-6 xl:py-8">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-8 sm:mb-12 xl:mb-16 text-center">
+          {{ t('joinUs.ourBusiness') }}
+        </h2>
+        
+        <!-- No Data Alert -->
+        <NoDataAlert 
+          v-if="!joinUsData.ourBusinessContent || joinUsData.ourBusinessContent.trim() === ''"
+          :title="t('joinUs.noOurBusinessData')"
+          :message="t('joinUs.noOurBusinessDataDescription')"
+          :show-button="false"
+        />
+        
+        <!-- Our Business Content -->
+        <div v-else class="grid grid-cols-1 xl:grid-cols-[1fr_400px] gap-8 xl:gap-16 items-start max-w-6xl mx-auto">
+          <!-- Left Side - Content -->
+          <div class="order-2 xl:order-1">
+            <!-- API Title as Subtitle -->
+            <h3 v-if="joinUsData.ourBusinessTitle" class="text-black-100 font-semibold text-lg xl:text-xl mb-6">
+              {{ joinUsData.ourBusinessTitle }}
+            </h3>
+            
+            <div class="text-black-100 text-base xl:text-lg leading-relaxed xl:leading-loose space-y-6 text-justify">
+              <p v-for="paragraph in joinUsData.ourBusinessContent.split('\n\n')" :key="paragraph" class="mb-6">
+                {{ paragraph }}
+              </p>
+            </div>
+          </div>
+          
+          <!-- Right Side - Image -->
+          <div class="order-1 xl:order-2 flex justify-center">
+            <div class="relative w-full max-w-md xl:max-w-lg bg-gray-200 overflow-hidden">
+              <img
+                :src="joinUsData.ourBusinessImage || '/img/Sorotan.svg'"
+                alt="Our Business"
+                class="w-full h-96 xl:h-[500px] object-cover mix-blend-multiply opacity-80"
+                @error="(e) => e.target.src = '/img/Sorotan.svg'"
+              />
+              <!-- Short white gradient fade from left -->
+              <div class="absolute inset-0 bg-gradient-to-r from-white via-white/60 to-transparent" style="background: linear-gradient(to right, white 0%, rgba(255,255,255,0.6) 25%, transparent 40%);"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Extra spacing to match pagination area in Get to Know Our Works -->
+        <div class="mt-12"></div>
+      </div>
     </div>
 
     <!-- Get to Know Our Work Section -->
-    <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-16 xl:py-20">
+    <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-6 xl:py-8">
       <div class="max-w-7xl mx-auto">
-        <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-5xl mb-8 sm:mb-12 xl:mb-16 text-center">
-          {{ t('joinUs.getStarted') }}
+        <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-8 sm:mb-12 xl:mb-16 text-center">
+          Get to Know Our Works
         </h2>
         
         <!-- Loading State -->
-        <div v-if="servicesLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-12 px-15">
-          <div v-for="n in 3" :key="n" class="animate-pulse">
-            <div class="w-full max-w-100 mx-auto rounded-2xl p-3 flex flex-col gap-5 bg-white">
-              <div class="w-full h-25 xl:h-43 bg-gray-200 rounded"></div>
-              <div class="p-3 rounded-xl flex flex-col gap-2 items-center justify-center h-auto xl:h-35 bg-white/50">
-                <div class="h-6 w-3/4 bg-gray-200 rounded"></div>
-                <div class="h-4 w-full bg-gray-200 rounded"></div>
-                <div class="h-4 w-2/3 bg-gray-200 rounded"></div>
+        <div v-if="workDivisionsLoading" class="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-12 max-w-6xl mx-auto">
+          <div v-for="n in itemsPerPage" :key="n" class="border border-gray-200 rounded-xl overflow-hidden bg-white">
+            <div class="w-full h-64 xl:h-72 bg-gray-200 animate-pulse"></div>
+            <div class="text-center p-8">
+              <div class="h-6 bg-gray-200 rounded mb-4 animate-pulse"></div>
+              <div class="space-y-2">
+                <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div class="h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div class="h-4 bg-gray-200 rounded animate-pulse w-3/4 mx-auto"></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Services Content -->
-        <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-12 px-15">
-          <div
-            v-for="service in services"
-            :key="service.id"
-            class="transition-all duration-300"
+        <!-- Error State -->
+        <div v-else-if="workDivisionsError" class="text-center py-8 max-w-6xl mx-auto">
+          <Icon name="mdi:alert-circle" class="w-12 h-12 text-red-500 mx-auto mb-3" />
+          <p class="text-red-500 text-lg mb-3">{{ workDivisionsError }}</p>
+          <button 
+            @click="fetchWorkDivisions()"
+            class="px-4 py-2 bg-red-100 text-white rounded-full hover:bg-red-200 transition-colors"
           >
-            <div
-              class="w-full max-w-100 mx-auto rounded-2xl p-3 flex flex-col gap-5 transition-all duration-300 select-none cursor-pointer bg-white hover:bg-red-50"
-            >
-              <img
-                :src="service.featured_image || '/img/services/placeholder.png'"
-                :alt="service.title"
-                class="w-full h-25 xl:h-43 object-contain"
-                @error="handleImageError"
-              />
-              <div
-                class="p-3 rounded-xl flex flex-col gap-2 items-center justify-center h-auto xl:h-35 bg-white/50"
-              >
-                <p
-                  class="text-red-100 text-center font-bold text-lg xl:text-xl"
-                >
-                  {{ locale === 'en' && service.title_en ? service.title_en : service.title }}
-                </p>
-                <p
-                  class="text-center text-sm xl:text-base text-red-100"
-                >
-                  {{ locale === 'en' && service.excerpt_en ? service.excerpt_en : service.excerpt }}
-                </p>
-              </div>
+            Try Again
+          </button>
+        </div>
+
+        <!-- No Data Alert -->
+        <NoDataAlert 
+          v-else-if="!workDivisions || workDivisions.length === 0"
+          :title="t('joinUs.noWorkDivisions')"
+          :message="t('joinUs.noWorkDivisionsDescription')"
+          :show-button="false"
+        />
+
+        <!-- Work Cards -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-12 max-w-6xl mx-auto">
+          <div
+            v-for="division in workDivisions"
+            :key="division.id"
+            class="border border-gray-200 rounded-xl overflow-hidden bg-white"
+            style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);"
+          >
+            <img
+              :src="getWorkDivisionImageUrl(division)"
+              :alt="getWorkDivisionData(division, 'title')"
+              class="w-full h-64 xl:h-72 object-cover"
+              @error="(e) => e.target.src = '/img/Sorotan.svg'"
+            />
+            <div class="text-center p-8">
+              <h3 class="text-black-100 font-bold text-lg xl:text-xl mb-4">
+                {{ getWorkDivisionData(division, 'title') }}
+              </h3>
+              <p class="text-gray-600 text-sm xl:text-base leading-relaxed">
+                {{ getWorkDivisionData(division, 'excerpt') || getWorkDivisionData(division, 'content') }}
+              </p>
             </div>
           </div>
+        </div>
+
+        <!-- Pagination - Right Aligned (only show if there's data and multiple pages) -->
+        <div 
+          v-if="!workDivisionsLoading && !workDivisionsError && workDivisions && workDivisions.length > 0 && totalPages > 1" 
+          class="flex justify-end items-center mt-12 space-x-4 max-w-6xl mx-auto"
+        >
+          <!-- Previous Button -->
+          <button
+            v-if="currentPage > 1"
+            @click="prevPage"
+            class="mr-4 text-red-100 hover:text-red-200 text-base xl:text-lg font-semibold transition-colors duration-200"
+          >
+            Sebelumnya
+          </button>
+          
+          <!-- Page Numbers -->
+          <button
+            v-for="page in Math.min(5, totalPages)"
+            :key="page"
+            @click="goToPage(page)"
+            class="text-base xl:text-lg font-semibold transition-colors duration-200 px-2 py-1"
+            :class="currentPage === page 
+              ? 'text-red-100 font-bold' 
+              : 'text-gray-600 hover:text-red-100'"
+          >
+            {{ page }}
+          </button>
+          
+          <!-- Ellipsis -->
+          <span v-if="totalPages > 5" class="text-gray-600 text-base xl:text-lg font-semibold">...</span>
+          
+          <!-- Last Page -->
+          <button
+            v-if="totalPages > 5"
+            @click="goToPage(totalPages)"
+            class="text-base xl:text-lg font-semibold transition-colors duration-200 px-2 py-1"
+            :class="currentPage === totalPages 
+              ? 'text-red-100 font-bold' 
+              : 'text-gray-600 hover:text-red-100'"
+          >
+            {{ totalPages }}
+          </button>
+          
+          <!-- Next Button -->
+          <button
+            v-if="currentPage < totalPages"
+            @click="nextPage"
+            class="ml-4 text-red-100 hover:text-red-200 text-base xl:text-lg font-semibold transition-colors duration-200"
+          >
+            Selanjutnya
+          </button>
         </div>
       </div>
-    </div>
-
-    <!-- Separator Line -->
-    <div class="px-3 xl:px-15">
-      <hr class="border-t border-gray-300 my-8 xl:my-12">
     </div>
 
     <!-- What They Say Section -->
-    <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-8 xl:py-12">
-      <!-- Loading State -->
-      <div v-if="teamMembersLoading" class="relative">
-        <div 
-          class="overflow-x-auto focus:outline-none"
-          style="scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;"
-        >
-          <div class="flex gap-6 xl:gap-8 pb-4 max-w-7xl mx-auto">
-            <div v-for="n in 3" :key="n" class="flex-shrink-0 w-[28rem] xl:w-[32rem] bg-white rounded-xl overflow-hidden shadow-md">
-              <div class="flex h-64 xl:h-80">
-                <!-- Left Side - Image Skeleton -->
-                <div class="w-1/2 relative bg-gray-200 animate-pulse"></div>
-                <!-- Right Side - Text Skeleton -->
-                <div class="w-1/2 p-2 sm:p-3 md:p-4 flex flex-col justify-center bg-white">
-                  <div class="mb-4">
-                    <div class="h-4 bg-gray-200 rounded mb-2 w-3/4 animate-pulse"></div>
-                    <div class="h-3 bg-gray-200 rounded w-1/2 animate-pulse"></div>
-                  </div>
-                  <div class="space-y-2">
-                    <div class="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
-                    <div class="h-3 bg-gray-200 rounded w-5/6 animate-pulse"></div>
-                    <div class="h-3 bg-gray-200 rounded w-4/5 animate-pulse"></div>
-                  </div>
-                </div>
-              </div>
+    <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-16 xl:py-20">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-8 sm:mb-12 xl:mb-16 text-center">
+          What They Say
+        </h2>
+        
+        <!-- Team Members Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
+          <div
+            v-for="member in featuredTeamMembers.slice(0, 4)"
+            :key="member.id"
+            class="border border-gray-200 rounded-xl overflow-hidden bg-white cursor-pointer hover:shadow-lg transition-shadow duration-300"
+            style="box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);"
+            @click="openTestimonialModal(member)"
+          >
+            <img
+              :src="getTeamMemberImageUrl(member)"
+              :alt="getTeamMemberName(member, locale)"
+              class="w-full h-76 xl:h-88 object-cover object-top"
+              @error="handleImageError"
+            />
+            <div class="text-left p-6">
+              <h3 class="text-black-100 font-bold text-base xl:text-lg mb-1">
+                {{ getTeamMemberName(member, locale) }}
+              </h3>
+              <p class="text-gray-600 text-sm xl:text-base">
+                Officer
+              </p>
             </div>
           </div>
         </div>
-      </div>
-      
-      <!-- Testimonials Slider -->
-      <div v-else-if="!teamMembersLoading && featuredTeamMembers && featuredTeamMembers.length > 0" class="relative">
-        <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-6 sm:mb-8 xl:mb-12 text-center">
-          {{ t('joinUs.whatTheySay') }}
-        </h2>
-        <div 
-          class="overflow-x-auto focus:outline-none cursor-grab select-none"
-          style="scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;"
-          tabindex="0"
-        >
-          <div class="flex gap-6 xl:gap-8 pb-4 max-w-7xl mx-auto">
-            <!-- Dynamic Testimonials from API -->
-            <div
-              v-for="member in featuredTeamMembers"
-              :key="member.id"
-              class="flex-shrink-0 w-[24rem] sm:w-[26rem] md:w-[28rem] xl:w-[32rem] bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer hover:shadow-lg transition-shadow duration-300"
-              @click="openTestimonialModal(member)"
-            >
-              <div class="flex h-64 xl:h-80">
-                <!-- Left Side - Image (50%) -->
-                <div class="w-1/2 relative">
-                  <img
-                    :src="getTeamMemberImageUrl(member)"
-                    :alt="getTeamMemberName(member, locale)"
-                    class="w-full h-full object-cover pointer-events-none select-none"
-                    draggable="false"
-                    @error="handleImageError"
-                  />
-                </div>
-                <!-- Right Side - Text Content (50%) -->
-                <div class="w-1/2 p-2 sm:p-3 md:p-4 flex flex-col justify-center bg-white">
-                  <div class="mb-2 sm:mb-3 md:mb-4">
-                    <h3 class="text-black-100 font-bold text-xs sm:text-sm xl:text-base mb-1 sm:mb-2">
-                      {{ getTeamMemberName(member, locale) }}
-                    </h3>
-                    <p class="text-gray-600 text-xs">
-                      {{ getPosition(member, locale) }}
-                    </p>
-                  </div>
-                  <p v-if="getTestimonial(member, locale)" class="text-black-100 text-xs sm:text-sm xl:text-base leading-tight sm:leading-relaxed">
-                    "{{ getTestimonial(member, locale) }}"
-                  </p>
-                  <p v-else class="text-gray-400 text-xs sm:text-sm xl:text-base leading-tight sm:leading-relaxed italic">
-                    {{ t('joinUs.noTestimonialAvailable') }}
-                  </p>
-                </div>
-              </div>
+        
+        <!-- Loading State -->
+        <div v-if="teamMembersLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
+          <div v-for="n in 4" :key="n" class="text-center">
+            <div class="mb-4">
+              <div class="w-full h-48 xl:h-56 bg-gray-200 animate-pulse"></div>
             </div>
+            <div class="h-4 bg-gray-200 rounded mb-2 w-3/4 mx-auto animate-pulse"></div>
+            <div class="h-3 bg-gray-200 rounded w-1/2 mx-auto animate-pulse"></div>
           </div>
         </div>
-      </div>
-      
-      <!-- Empty State -->
-      <div v-else class="text-center py-8">
-        <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-6 sm:mb-8 xl:mb-12 text-center">
-          {{ t('joinUs.whatTheySay') }}
-        </h2>
-        <div class="max-w-md mx-auto">
-          <p class="text-gray-500 text-lg mb-4">{{ t('joinUs.noTeamMembers') }}</p>
-          <p class="text-gray-400 text-sm">{{ t('joinUs.noTeamMembersDescription') }}</p>
+        
+        <!-- Empty State -->
+        <div v-if="!teamMembersLoading && (!featuredTeamMembers || featuredTeamMembers.length === 0)" class="text-center py-8">
+          <div class="max-w-md mx-auto">
+            <p class="text-gray-500 text-lg mb-4">{{ t('joinUs.noTeamMembers') }}</p>
+            <p class="text-gray-400 text-sm">{{ t('joinUs.noTeamMembersDescription') }}</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Testimonial Bottom Sheet Modal -->
+    <!-- Testimonial Modal -->
     <div
       v-if="showTestimonialModal"
-      class="fixed inset-0 z-50 flex items-end"
-      style="background-color: rgba(0, 0, 0, 0.3);"
+      class="fixed inset-0 z-50 flex items-center justify-center"
+      style="background-color: rgba(0, 0, 0, 0.5);"
       @click="closeTestimonialModal"
     >
-      <!-- Bottom Sheet Content -->
+      <!-- Modal Content -->
       <div
-        class="w-full bg-white rounded-t-3xl transform transition-transform duration-300 ease-out max-h-[85vh] flex flex-col"
-        :class="showTestimonialModal ? 'translate-y-0' : 'translate-y-full'"
+        class="bg-white rounded-2xl transform transition-all duration-300 ease-out max-w-4xl w-full mx-4 max-h-[85vh] overflow-auto relative"
         @click.stop
       >
-        <!-- Sticky Header with Close Button -->
-        <div class="sticky top-0 z-10 bg-white/95 backdrop-blur-sm rounded-t-3xl">
-          <div class="flex justify-end p-4">
-            <button
-              @click="closeTestimonialModal"
-              class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 hover:text-gray-800 transition-all duration-200"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
+        <!-- Close Button -->
+        <div class="absolute top-4 right-4 z-10">
+          <button
+            @click="closeTestimonialModal"
+            class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
         </div>
 
-        <!-- Scrollable Modal Content -->
-        <div class="flex-1 overflow-y-auto">
-          <div class="p-8 pt-4">
-          <div v-if="selectedMember" class="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
-            <!-- Left Side - Image -->
-            <div class="flex-shrink-0 mx-auto md:mx-0">
+        <!-- Modal Body -->
+        <div v-if="selectedMember" class="flex flex-col md:flex-row gap-0">
+          <!-- Top/Left Side - Image -->
+          <div class="flex-shrink-0 md:w-80">
+            <div class="w-full h-80 md:h-96 bg-gray-100 rounded-t-2xl md:rounded-l-2xl md:rounded-tr-none overflow-hidden">
               <img
                 :src="getTeamMemberImageUrl(selectedMember)"
                 :alt="getTeamMemberName(selectedMember, locale)"
-                class="w-64 h-80 md:w-80 md:h-96 object-cover rounded-2xl shadow-lg"
+                class="w-full h-full object-cover object-top"
               />
             </div>
+          </div>
 
-            <!-- Right Side - Content -->
-            <div class="flex-1">
-              <!-- Name and Position -->
-              <div class="mb-6">
-                <h2 class="text-3xl font-bold text-black leading-tight">
-                  {{ getTeamMemberName(selectedMember, locale) }}<span class="text-lg text-gray-600 font-normal ml-3">{{ getPosition(selectedMember, locale) }}</span>
-                </h2>
-              </div>
+          <!-- Bottom/Right Side - Content -->
+          <div class="flex-1 p-6 md:pl-8 md:pr-8 md:py-8">
+            <!-- Name and Position -->
+            <div class="mb-4 md:mb-6">
+              <h2 class="text-xl md:text-2xl font-bold text-black mb-1">
+                {{ getTeamMemberName(selectedMember, locale) }}
+              </h2>
+              <p class="text-gray-600 text-sm md:text-base">
+                {{ getPosition(selectedMember, locale) }}
+              </p>
+            </div>
 
-              <!-- Biography/Content -->
-              <div class="text-gray-700 leading-relaxed text-base space-y-4">
-                <div v-if="getFullContent(selectedMember, locale)" v-html="formatContent(getFullContent(selectedMember, locale))">
-                </div>
-                <div v-else-if="getTestimonial(selectedMember, locale)">
-                  {{ getTestimonial(selectedMember, locale) }}
-                </div>
-                <div v-else class="text-gray-400 italic">
-                  {{ t('joinUs.noDetailedInformation') }}
-                </div>
+            <!-- Quote -->
+            <div class="mb-4 md:mb-6">
+              <p class="text-base md:text-lg text-gray-800 italic leading-relaxed">
+                "{{ getTestimonial(selectedMember, locale) }}"
+              </p>
+            </div>
+
+            <!-- Description -->
+            <div class="text-gray-700 leading-relaxed text-sm md:text-base">
+              <div v-html="formatContent(getFullContent(selectedMember, locale))">
               </div>
             </div>
-          </div>
           </div>
         </div>
       </div>
@@ -868,7 +1009,7 @@ onMounted(() => {
       </div>
       
       <!-- Separator Line within same background -->
-      <hr class="border-t border-gray-300 my-8 xl:my-12">
+      <hr class="border-t border-gray-300 my-2 xl:my-4">
       
       <!-- Be a Part of Our Team Section (in same container) -->
       <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-6 sm:mb-8 xl:mb-12 text-center">
