@@ -248,6 +248,10 @@
     "noWorkplaceDataDescription": "Workplace data is not available. Please contact the administrator to set up workplace data.",
     "noWorkDivisions": "Work Divisions Not Available",
     "noWorkDivisionsDescription": "Work divisions data is not available. Please contact the administrator to set up work divisions information.",
+    "pagination": {
+      "previous": "Previous", 
+      "next": "Next"
+    },
     "careers": {
       "title": "Find a Job that's Right for You",
       "noJobsFound": "No jobs found",

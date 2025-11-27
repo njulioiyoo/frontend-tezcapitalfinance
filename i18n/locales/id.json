@@ -248,6 +248,10 @@
     "noWorkplaceDataDescription": "Data lingkungan kerja belum tersedia. Silakan hubungi administrator untuk mengatur data lingkungan kerja.",
     "noWorkDivisions": "Data Divisi Kerja Belum Tersedia",
     "noWorkDivisionsDescription": "Data divisi kerja belum tersedia. Silakan hubungi administrator untuk mengatur informasi divisi kerja.",
+    "pagination": {
+      "previous": "Sebelumnya",
+      "next": "Selanjutnya"
+    },
     "careers": {
       "title": "Cari Lowongan yang Sesuai Denganmu",
       "noJobsFound": "Tidak ada lowongan ditemukan",

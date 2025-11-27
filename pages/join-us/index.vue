@@ -665,7 +665,7 @@ onMounted(() => {
     <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-6 xl:py-8">
       <div class="max-w-7xl mx-auto">
         <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-8 sm:mb-12 xl:mb-16 text-center">
-          Get to Know Our Works
+          {{ t('joinUs.getStarted') }}
         </h2>
         
         <!-- Loading State -->
@@ -739,7 +739,7 @@ onMounted(() => {
             @click="prevPage"
             class="mr-4 text-red-100 hover:text-red-200 text-base xl:text-lg font-semibold transition-colors duration-200"
           >
-            Sebelumnya
+            {{ t('joinUs.pagination.previous') }}
           </button>
           
           <!-- Page Numbers -->
@@ -776,7 +776,7 @@ onMounted(() => {
             @click="nextPage"
             class="ml-4 text-red-100 hover:text-red-200 text-base xl:text-lg font-semibold transition-colors duration-200"
           >
-            Selanjutnya
+            {{ t('joinUs.pagination.next') }}
           </button>
         </div>
       </div>
@@ -786,7 +786,7 @@ onMounted(() => {
     <div class="px-4 sm:px-6 md:px-8 xl:px-15 py-16 xl:py-20">
       <div class="max-w-7xl mx-auto">
         <h2 class="text-black-100 font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl mb-8 sm:mb-12 xl:mb-16 text-center">
-          What They Say
+          {{ t('joinUs.whatTheySay') }}
         </h2>
         
         <!-- Team Members Grid -->
@@ -809,7 +809,7 @@ onMounted(() => {
                 {{ getTeamMemberName(member, locale) }}
               </h3>
               <p class="text-gray-600 text-sm xl:text-base">
-                Officer
+                {{ getPosition(member, locale) || 'Officer' }}
               </p>
             </div>
           </div>
