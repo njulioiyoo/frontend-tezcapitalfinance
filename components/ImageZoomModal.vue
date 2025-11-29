@@ -71,18 +71,9 @@ onUnmounted(() => {
           class="relative max-w-7xl max-h-full w-full h-full flex items-center justify-center"
           @click.stop
         >
-          <!-- Close Button -->
-          <button
-            @click="handleClose"
-            class="absolute top-4 right-4 z-10 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-gray-900 transition-all duration-200 shadow-lg"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
 
           <!-- Image Container -->
-          <div class="relative w-full h-full flex items-center justify-center">
+          <div class="relative w-full h-full flex flex-col items-center justify-center">
             <Transition
               enter-active-class="transition-all duration-300 ease-out"
               enter-from-class="opacity-0 scale-95"
@@ -91,29 +82,41 @@ onUnmounted(() => {
               leave-from-class="opacity-100 scale-100"
               leave-to-class="opacity-0 scale-95"
             >
-              <img
-                v-if="isOpen"
-                :src="imageUrl"
-                :alt="imageAlt"
-                class="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-                loading="lazy"
-              />
+              <div v-if="isOpen" class="relative">
+                <img
+                  :src="imageUrl"
+                  :alt="imageAlt"
+                  class="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                  loading="lazy"
+                />
+                
+                <!-- Close Button - on top right of image -->
+                <button
+                  @click="handleClose"
+                  class="absolute -top-2 -right-2 z-10 w-12 h-12 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-gray-700 hover:text-gray-900 transition-all duration-200 shadow-lg"
+                >
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              </div>
             </Transition>
-          </div>
-
-          <!-- Image Title -->
-          <div
-            v-if="imageTitle"
-            class="absolute bottom-4 left-4 right-4 text-center"
-          >
-            <div class="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 mx-auto inline-block">
-              <p class="text-gray-800 font-medium">{{ imageTitle }}</p>
+            
+            <!-- Image Title - below image -->
+            <div
+              v-if="imageTitle"
+              class="mt-4 text-center"
+            >
+              <div class="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 mx-auto inline-block">
+                <p class="text-gray-800 font-medium">{{ imageTitle }}</p>
+              </div>
             </div>
-          </div>
-
-          <!-- Navigation Hint -->
-          <div class="absolute bottom-4 right-4 text-white/70 text-sm bg-black/30 backdrop-blur-sm rounded px-2 py-1">
-            Press ESC or click outside to close
+            
+            <!-- Navigation Hint - below title -->
+            <div class="mt-2 text-white/70 text-sm bg-black/40 backdrop-blur-sm rounded px-3 py-2">
+              <span class="hidden md:inline">Press ESC or click outside to close</span>
+              <span class="md:hidden">Tap outside to close</span>
+            </div>
           </div>
         </div>
       </div>

@@ -15,6 +15,15 @@ interface Props {
 const props = defineProps<Props>()
 const { locale } = useI18n()
 
+// Slider refs
+const mobileSliderRef = ref<HTMLElement | null>(null)
+const desktopSliderRef = ref<HTMLElement | null>(null)
+
+// Slider state
+const currentSlide = ref(0)
+const canScrollLeft = ref(false)
+const canScrollRight = ref(true)
+
 // Image zoom modal state
 const showZoomModal = ref(false)
 const selectedImage = ref({
@@ -22,6 +31,46 @@ const selectedImage = ref({
   alt: '',
   title: ''
 })
+
+// Calculate slide dimensions
+const slideWidth = {
+  mobile: 304, // 288px + 16px gap
+  desktop: 416  // 384px + 32px gap
+}
+
+// Update scroll buttons state
+const updateScrollState = () => {
+  if (desktopSliderRef.value) {
+    const container = desktopSliderRef.value.querySelector('.overflow-x-auto')
+    if (container) {
+      canScrollLeft.value = container.scrollLeft > 0
+      canScrollRight.value = container.scrollLeft < (container.scrollWidth - container.clientWidth)
+    }
+  }
+}
+
+// Scroll functions
+const scrollLeft = () => {
+  const container = desktopSliderRef.value?.querySelector('.overflow-x-auto')
+  if (container) {
+    container.scrollBy({
+      left: -slideWidth.desktop,
+      behavior: 'smooth'
+    })
+    setTimeout(updateScrollState, 300)
+  }
+}
+
+const scrollRight = () => {
+  const container = desktopSliderRef.value?.querySelector('.overflow-x-auto')
+  if (container) {
+    container.scrollBy({
+      left: slideWidth.desktop,
+      behavior: 'smooth'
+    })
+    setTimeout(updateScrollState, 300)
+  }
+}
 
 // Handle image click for zoom
 const handleImageClick = (item: WorkplaceItem) => {
@@ -37,6 +86,11 @@ const handleImageClick = (item: WorkplaceItem) => {
 const closeZoomModal = () => {
   showZoomModal.value = false
 }
+
+// Initialize scroll state on mount
+onMounted(() => {
+  updateScrollState()
+})
 </script>
 
 <template>
@@ -79,14 +133,41 @@ const closeZoomModal = () => {
       </div>
     </div>
     
-    <!-- Desktop: Show scroll container -->
-    <div class="hidden md:block">
-      <div class="overflow-x-auto scrollbar-hide mx-auto" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch; width: 1248px; max-width: 100%;">
+    <!-- Desktop: Show scroll container with arrows -->
+    <div class="hidden md:block relative" ref="desktopSliderRef">
+      <!-- Left Arrow -->
+      <button
+        v-if="canScrollLeft"
+        @click="scrollLeft"
+        class="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/30 hover:bg-white/50 shadow-md rounded-full p-3 transition-all duration-200 hover:scale-110"
+      >
+        <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+        </svg>
+      </button>
+
+      <!-- Right Arrow -->
+      <button
+        v-if="canScrollRight"
+        @click="scrollRight"
+        class="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/30 hover:bg-white/50 shadow-md rounded-full p-3 transition-all duration-200 hover:scale-110"
+      >
+        <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+        </svg>
+      </button>
+
+      <!-- Slider Container with peek effect -->
+      <div 
+        class="overflow-x-auto scrollbar-hide mx-auto" 
+        style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch; width: calc(100% - 96px); max-width: 1152px;"
+        @scroll="updateScrollState"
+      >
         <div class="flex gap-8 px-4 pb-2" style="width: max-content;">
           <div
             v-for="highlight in items"
             :key="highlight.id"
-            class="flex-shrink-0 w-96 text-center cursor-pointer group"
+            class="flex-shrink-0 w-80 text-center cursor-pointer group"
             @click="handleImageClick(highlight)"
           >
             <div class="relative h-52 rounded-2xl overflow-hidden shadow-lg mb-4 group-hover:shadow-xl transition-all duration-300">

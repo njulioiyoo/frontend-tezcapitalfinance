@@ -314,20 +314,6 @@ const fetchWorkDivisions = async (page = 1) => {
   }
 }
 
-// Helper function to get localized work division data
-const getWorkDivisionData = (division, field) => {
-  const currentLocale = locale.value
-  if (currentLocale === 'en' && division[`${field}_en`]) {
-    return division[`${field}_en`]
-  }
-  return division[`${field}_id`] || ''
-}
-
-// Get work division image URL
-const getWorkDivisionImageUrl = (division) => {
-  return division.featured_image_url || '/img/Sorotan.svg'
-}
-
 // Pagination methods
 const goToPage = async (page: number) => {
   if (page >= 1 && page <= totalPages.value) {
@@ -346,6 +332,21 @@ const prevPage = async () => {
     await fetchWorkDivisions(currentPage.value - 1)
   }
 }
+
+// Helper function to get localized work division data
+const getWorkDivisionData = (division, field) => {
+  const currentLocale = locale.value
+  if (currentLocale === 'en' && division[`${field}_en`]) {
+    return division[`${field}_en`]
+  }
+  return division[`${field}_id`] || ''
+}
+
+// Get work division image URL
+const getWorkDivisionImageUrl = (division) => {
+  return division.featured_image_url || '/img/Sorotan.svg'
+}
+
 
 // Dynamic departments and locations from API
 const departments = ref<string[]>([])
@@ -589,11 +590,11 @@ onMounted(() => {
             </div>
           </div>
           <div class="order-1 xl:order-2 flex justify-center">
-            <div class="relative">
+            <div class="relative" style="width: 362px; height: 443px;">
               <img
                 :src="ceoMessage.image || '/img/placeholder-ceo.jpg'"
                 alt="CEO"
-                class="w-80 xl:w-96 h-96 xl:h-[500px] object-cover shadow-lg"
+                class="w-full h-full object-cover shadow-lg"
                 @error="handleImageError"
               />
             </div>
@@ -643,11 +644,11 @@ onMounted(() => {
           
           <!-- Right Side - Image -->
           <div class="order-1 xl:order-2 flex justify-center">
-            <div class="relative w-full max-w-md xl:max-w-lg bg-gray-200 overflow-hidden">
+            <div class="relative bg-gray-200 overflow-hidden" style="width: 362px; height: 443px;">
               <img
                 :src="joinUsData.ourBusinessImage || '/img/Sorotan.svg'"
                 alt="Our Business"
-                class="w-full h-96 xl:h-[500px] object-cover mix-blend-multiply opacity-80"
+                class="w-full h-full object-cover mix-blend-multiply opacity-80"
                 @error="(e) => e.target.src = '/img/Sorotan.svg'"
               />
               <!-- Short white gradient fade from left -->
@@ -721,7 +722,7 @@ onMounted(() => {
               <h3 class="text-black-100 font-bold text-lg xl:text-xl mb-4">
                 {{ getWorkDivisionData(division, 'title') }}
               </h3>
-              <p class="text-gray-600 text-sm xl:text-base leading-relaxed">
+              <p class="text-gray-600 leading-relaxed" style="font-size: 14px;">
                 {{ getWorkDivisionData(division, 'excerpt') || getWorkDivisionData(division, 'content') }}
               </p>
             </div>
