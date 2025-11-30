@@ -810,7 +810,10 @@ onMounted(() => {
                 {{ getTeamMemberName(member, locale) }}
               </h3>
               <p class="text-gray-600 text-sm xl:text-base">
-                {{ getPosition(member, locale) || 'Officer' }}
+                <span v-if="getPosition(member, locale) || getDepartment(member, locale)">
+                  {{ getPosition(member, locale) || 'Officer' }}<span v-if="getDepartment(member, locale)">, {{ getDepartment(member, locale) }}</span>
+                </span>
+                <span v-else>Officer</span>
               </p>
             </div>
           </div>
@@ -882,7 +885,10 @@ onMounted(() => {
                 {{ getTeamMemberName(selectedMember, locale) }}
               </h2>
               <p class="text-gray-600 text-sm md:text-base">
-                {{ getPosition(selectedMember, locale) }}
+                <span v-if="getPosition(selectedMember, locale) || getDepartment(selectedMember, locale)">
+                  {{ getPosition(selectedMember, locale) || 'Officer' }}<span v-if="getDepartment(selectedMember, locale)">, {{ getDepartment(selectedMember, locale) }}</span>
+                </span>
+                <span v-else>Officer</span>
               </p>
             </div>
 

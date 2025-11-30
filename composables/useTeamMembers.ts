@@ -9,6 +9,8 @@ export interface TeamMember {
   title_en?: string
   position_id: string
   position_en?: string
+  division_id?: string
+  division_en?: string
   testimonial_id?: string
   testimonial_en?: string
   testimonial?: string
@@ -257,9 +259,12 @@ export const useTeamMembers = () => {
     return teamMember.position_id || teamMember.position || ''
   }
 
-  // Helper function to get department/category
-  const getDepartment = (teamMember: TeamMember): string => {
-    return teamMember.category || ''
+  // Helper function to get department/division based on locale
+  const getDepartment = (teamMember: TeamMember, locale: string = 'id'): string => {
+    if (locale === 'en' && teamMember.division_en) {
+      return teamMember.division_en
+    }
+    return teamMember.division_id || ''
   }
 
   return {

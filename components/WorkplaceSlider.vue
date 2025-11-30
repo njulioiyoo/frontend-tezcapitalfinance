@@ -135,28 +135,6 @@ onMounted(() => {
     
     <!-- Desktop: Show scroll container with arrows -->
     <div class="hidden md:block relative" ref="desktopSliderRef">
-      <!-- Left Arrow -->
-      <button
-        v-if="canScrollLeft"
-        @click="scrollLeft"
-        class="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/30 hover:bg-white/50 shadow-md rounded-full p-3 transition-all duration-200 hover:scale-110"
-      >
-        <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
-        </svg>
-      </button>
-
-      <!-- Right Arrow -->
-      <button
-        v-if="canScrollRight"
-        @click="scrollRight"
-        class="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/30 hover:bg-white/50 shadow-md rounded-full p-3 transition-all duration-200 hover:scale-110"
-      >
-        <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-        </svg>
-      </button>
-
       <!-- Slider Container with peek effect -->
       <div 
         class="overflow-x-auto scrollbar-hide mx-auto" 
@@ -193,6 +171,30 @@ onMounted(() => {
           </div>
         </div>
       </div>
+      
+      <!-- Arrow Buttons - Fixed in center of visible slider area (middle of image) -->
+      <!-- Left Arrow - Fixed at left side of first visible image -->
+      <button
+        v-if="canScrollLeft"
+        @click.stop="scrollLeft"
+        class="absolute z-30 cursor-pointer size-8 xl:size-12 flex items-center justify-center bg-white rounded-full opacity-75 hover:opacity-100 transition-all duration-200 pointer-events-auto"
+        style="top: 85px; left: 48px;"
+      >
+        <Icon name="mdi:chevron-left" class="size-6 text-red-100" />
+      </button>
+      
+      <!-- Right Arrow - Fixed at left side of third visible image -->
+      <button
+        v-if="canScrollRight"
+        @click.stop="scrollRight"
+        class="absolute z-30 cursor-pointer size-8 xl:size-12 flex items-center justify-center bg-white rounded-full opacity-75 hover:opacity-100 transition-all duration-200 pointer-events-auto"
+        style="top: 85px; left: calc(50% + 445px);"
+      >
+        <Icon
+          name="mdi:chevron-right"
+          class="size-4 xl:size-6 text-red-100"
+        />
+      </button>
     </div>
 
     <!-- Image Zoom Modal -->
