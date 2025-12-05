@@ -11,7 +11,14 @@ const slug = route.params.id as string
 const { t, locale } = useI18n()
 
 const { getCareerBySlug } = useCareers()
-const { configData, careerApplicationEmail, fetchConfiguration, isLoading: configLoading } = useConfiguration()
+const {
+  configData,
+  careerApplicationEmail,
+  aboutTezCapitalDescriptionId,
+  aboutTezCapitalDescriptionEn,
+  fetchConfiguration,
+  isLoading: configLoading
+} = useConfiguration()
 
 // Banner data
 const bannerData = ref({})
@@ -279,19 +286,19 @@ watchEffect(() => {
               <div class="text-base text-black-100 leading-relaxed" v-html="career.data.benefits_id"></div>
             </div>
             
-            <!-- About the Team -->
-            <div>
+            <!-- About the Team - Only show if data exists in CMS -->
+            <div v-if="career.data.about_team_description_id || career.data.about_team_description_en">
               <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.aboutTheTeam') }}</h2>
               <p class="text-base text-black-100 leading-relaxed">
-                {{ t('joinUs.detail.aboutTheTeamDescription', { department: career.data.department_id }) }}
+                {{ locale === 'id' ? career.data.about_team_description_id : (career.data.about_team_description_en || career.data.about_team_description_id) }}
               </p>
             </div>
-            
-            <!-- About TEZ Capital -->
-            <div>
+
+            <!-- About TEZ Capital - Only show if data exists in CMS -->
+            <div v-if="aboutTezCapitalDescriptionId || aboutTezCapitalDescriptionEn">
               <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.aboutTezCapital') }}</h2>
               <p class="text-base text-black-100 leading-relaxed">
-                {{ t('joinUs.detail.aboutTezCapitalDescription') }}
+                {{ locale === 'id' ? aboutTezCapitalDescriptionId : (aboutTezCapitalDescriptionEn || aboutTezCapitalDescriptionId) }}
               </p>
             </div>
           </div>

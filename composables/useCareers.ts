@@ -15,6 +15,8 @@ export interface Career {
   location_en: string
   department_id?: string
   department_en?: string
+  about_team_description_id?: string
+  about_team_description_en?: string
   tags: string[]
   start_date: string
   end_date: string

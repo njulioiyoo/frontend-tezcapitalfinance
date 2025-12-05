@@ -42,6 +42,8 @@ export interface WorkplaceConfig {
 export interface JoinUsConfig {
   career_application_email: string
   button_join_us_enabled: boolean
+  about_tez_capital_description_id: string
+  about_tez_capital_description_en: string
   workplace: WorkplaceConfig
   employee_benefits_items?: any[]
 }
@@ -128,6 +130,14 @@ export const useConfiguration = () => {
 
   const buttonJoinUsEnabled = computed(() => {
     return configData.value?.join_us?.button_join_us_enabled ?? true
+  })
+
+  const aboutTezCapitalDescriptionId = computed(() => {
+    return configData.value?.join_us?.about_tez_capital_description_id || ''
+  })
+
+  const aboutTezCapitalDescriptionEn = computed(() => {
+    return configData.value?.join_us?.about_tez_capital_description_en || ''
   })
 
   // Fetch configuration data directly from API (real-time)
@@ -244,10 +254,12 @@ export const useConfiguration = () => {
         const joinUsConfig: JoinUsConfig = {
           career_application_email: '',
           button_join_us_enabled: true,
+          about_tez_capital_description_id: '',
+          about_tez_capital_description_en: '',
           workplace: workplaceConfig,
           employee_benefits_items: []
         };
-        
+
         if (data.join_us?.career_application_email) {
           if (typeof data.join_us.career_application_email === 'string') {
             joinUsConfig.career_application_email = data.join_us.career_application_email;
@@ -261,6 +273,14 @@ export const useConfiguration = () => {
           } else if (data.join_us.button_join_us_enabled?.value !== undefined) {
             joinUsConfig.button_join_us_enabled = Boolean(data.join_us.button_join_us_enabled.value);
           }
+        }
+
+        // Extract About TEZ Capital descriptions
+        if (data.join_us?.about_tez_capital_description_id) {
+          joinUsConfig.about_tez_capital_description_id = data.join_us.about_tez_capital_description_id.value || data.join_us.about_tez_capital_description_id;
+        }
+        if (data.join_us?.about_tez_capital_description_en) {
+          joinUsConfig.about_tez_capital_description_en = data.join_us.about_tez_capital_description_en.value || data.join_us.about_tez_capital_description_en;
         }
         
         // Extract employee benefits items
@@ -308,6 +328,8 @@ export const useConfiguration = () => {
           join_us: {
             career_application_email: '',
             button_join_us_enabled: true,
+            about_tez_capital_description_id: '',
+            about_tez_capital_description_en: '',
             workplace: {
               workplace_working_environment_title_id: '',
               workplace_working_environment_title_en: '',
@@ -351,6 +373,8 @@ export const useConfiguration = () => {
         join_us: {
           career_application_email: '',
           button_join_us_enabled: true,
+          about_tez_capital_description_id: '',
+          about_tez_capital_description_en: '',
           workplace: {
             workplace_working_environment_title_id: '',
             workplace_working_environment_title_en: '',
@@ -393,6 +417,8 @@ export const useConfiguration = () => {
     ojkImages,
     careerApplicationEmail,
     buttonJoinUsEnabled,
+    aboutTezCapitalDescriptionId,
+    aboutTezCapitalDescriptionEn,
     isLoading: readonly(isLoading),
     error: readonly(error),
     fetchConfiguration,
