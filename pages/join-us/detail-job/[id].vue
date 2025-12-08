@@ -118,21 +118,39 @@ if (error.value) {
 const isApplying = ref(false)
 const showSuccessMessage = ref(false)
 
+// Helper to pick localized fields with fallback to ID version
+const pickLocalizedField = (idValue?: string, enValue?: string) => {
+  return locale.value === 'id' ? idValue : (enValue || idValue)
+}
 
+// Localized career data to avoid repeating locale checks in template
+const localizedCareer = computed(() => {
+  const data = career.value?.data
+  if (!data) return null
 
+  return {
+    title: pickLocalizedField(data.title_id, data.title_en),
+    content: pickLocalizedField(data.content_id, data.content_en),
+    requirements: pickLocalizedField(data.requirements_id, data.requirements_en),
+    benefits: pickLocalizedField(data.benefits_id, data.benefits_en),
+    aboutTeam: pickLocalizedField(data.about_team_description_id, data.about_team_description_en),
+    department: pickLocalizedField(data.department_id, data.department_en),
+    location: pickLocalizedField(data.location_id, data.location_en)
+  }
+})
 
 // Generate mailto link for job application
 const generateMailtoLink = computed(() => {
-  if (!career.value?.data || !careerApplicationEmail.value) {
+  if (!localizedCareer.value || !careerApplicationEmail.value) {
     return '#'
   }
   
-  const subject = t('joinUs.emailTemplate.subject', { position: career.value.data.title_id })
+  const subject = t('joinUs.emailTemplate.subject', { position: localizedCareer.value.title })
   const body = `${t('joinUs.emailTemplate.greeting')}
 
 ${t('joinUs.emailTemplate.introduction', { 
-  position: career.value.data.title_id, 
-  department: career.value.data.department_id 
+  position: localizedCareer.value.title, 
+  department: localizedCareer.value.department 
 })}.
 
 ${t('joinUs.emailTemplate.briefInfo')}
@@ -196,11 +214,11 @@ const handleApplyClick = async () => {
 
 // Dynamic page metadata based on career data
 watchEffect(() => {
-  if (career.value?.data) {
-    const careerData = career.value.data
+  if (localizedCareer.value) {
+    const careerData = localizedCareer.value
     useSeoMeta({
-      title: `${careerData.title_id} - TEZ Capital & Finance`,
-      description: `Join our team as ${careerData.title_id} at TEZ Capital & Finance. Explore this career opportunity in ${careerData.department_id} department.`,
+      title: `${careerData.title} - TEZ Capital & Finance`,
+      description: `Join our team as ${careerData.title} at TEZ Capital & Finance. Explore this career opportunity in ${careerData.department} department.`,
     })
   }
 })
@@ -263,7 +281,7 @@ watchEffect(() => {
           <!-- Job Title -->
           <div class="mb-8 pb-6 border-b border-grey">
             <h1 class="xl:text-4xl text-2xl text-black-100 font-bold text-center">
-              {{ career.data.title_id }}
+              {{ localizedCareer?.title }}
             </h1>
           </div>
           <!-- Content Sections -->
@@ -271,26 +289,26 @@ watchEffect(() => {
             <!-- About the Role -->
             <div>
               <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.aboutTheRole') }}</h2>
-              <div class="text-base text-black-100 leading-relaxed" v-html="career.data.content_id"></div>
+              <div class="text-base text-black-100 leading-relaxed" v-html="localizedCareer?.content"></div>
             </div>
             
             <!-- What You Will Need -->
-            <div v-if="career.data.requirements_id">
+            <div v-if="localizedCareer?.requirements">
               <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.whatYouWillNeed') }}</h2>
-              <div class="text-base text-black-100 leading-relaxed" v-html="career.data.requirements_id"></div>
+              <div class="text-base text-black-100 leading-relaxed" v-html="localizedCareer?.requirements"></div>
             </div>
             
             <!-- What We Offer -->
-            <div v-if="career.data.benefits_id">
+            <div v-if="localizedCareer?.benefits">
               <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.whatWeOffer') }}</h2>
-              <div class="text-base text-black-100 leading-relaxed" v-html="career.data.benefits_id"></div>
+              <div class="text-base text-black-100 leading-relaxed" v-html="localizedCareer?.benefits"></div>
             </div>
             
             <!-- About the Team - Only show if data exists in CMS -->
-            <div v-if="career.data.about_team_description_id || career.data.about_team_description_en">
+            <div v-if="localizedCareer?.aboutTeam">
               <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.aboutTheTeam') }}</h2>
               <p class="text-base text-black-100 leading-relaxed">
-                {{ locale === 'id' ? career.data.about_team_description_id : (career.data.about_team_description_en || career.data.about_team_description_id) }}
+                {{ localizedCareer.aboutTeam }}
               </p>
             </div>
 
@@ -308,11 +326,11 @@ watchEffect(() => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
                 <div>
                   <span class="text-sm text-divider font-medium">{{ t('joinUs.department') }}</span>
-                  <p class="text-black-100 font-semibold">{{ career.data.department_id }}</p>
+                  <p class="text-black-100 font-semibold">{{ localizedCareer?.department }}</p>
                 </div>
                 <div>
                   <span class="text-sm text-divider font-medium">{{ t('joinUs.location') }}</span>
-                  <p class="text-black-100 font-semibold">{{ career.data.location_id }}</p>
+                  <p class="text-black-100 font-semibold">{{ localizedCareer?.location }}</p>
                 </div>
               </div>
               
