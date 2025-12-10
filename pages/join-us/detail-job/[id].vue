@@ -289,35 +289,31 @@ watchEffect(() => {
             <!-- About the Role -->
             <div>
               <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.aboutTheRole') }}</h2>
-              <div class="text-base text-black-100 leading-relaxed" v-html="localizedCareer?.content"></div>
+              <div class="text-base text-black-100 leading-relaxed cms-content" v-html="localizedCareer?.content"></div>
             </div>
-            
+
             <!-- What You Will Need -->
             <div v-if="localizedCareer?.requirements">
               <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.whatYouWillNeed') }}</h2>
-              <div class="text-base text-black-100 leading-relaxed" v-html="localizedCareer?.requirements"></div>
+              <div class="text-base text-black-100 leading-relaxed cms-content" v-html="localizedCareer?.requirements"></div>
             </div>
-            
+
             <!-- What We Offer -->
             <div v-if="localizedCareer?.benefits">
               <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.whatWeOffer') }}</h2>
-              <div class="text-base text-black-100 leading-relaxed" v-html="localizedCareer?.benefits"></div>
+              <div class="text-base text-black-100 leading-relaxed cms-content" v-html="localizedCareer?.benefits"></div>
             </div>
-            
+
             <!-- About the Team - Only show if data exists in CMS -->
             <div v-if="localizedCareer?.aboutTeam">
               <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.aboutTheTeam') }}</h2>
-              <p class="text-base text-black-100 leading-relaxed">
-                {{ localizedCareer.aboutTeam }}
-              </p>
+              <div class="text-base text-black-100 leading-relaxed cms-content" v-html="localizedCareer.aboutTeam"></div>
             </div>
 
             <!-- About TEZ Capital - Only show if data exists in CMS -->
             <div v-if="aboutTezCapitalDescriptionId || aboutTezCapitalDescriptionEn">
               <h2 class="text-xl font-bold text-black-100 mb-4">{{ t('joinUs.detail.aboutTezCapital') }}</h2>
-              <p class="text-base text-black-100 leading-relaxed">
-                {{ locale === 'id' ? aboutTezCapitalDescriptionId : (aboutTezCapitalDescriptionEn || aboutTezCapitalDescriptionId) }}
-              </p>
+              <div class="text-base text-black-100 leading-relaxed cms-content" v-html="locale === 'id' ? aboutTezCapitalDescriptionId : (aboutTezCapitalDescriptionEn || aboutTezCapitalDescriptionId)"></div>
             </div>
           </div>
           <!-- Footer Section -->
